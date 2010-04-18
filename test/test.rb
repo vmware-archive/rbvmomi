@@ -1,12 +1,13 @@
 require 'rbvmomi'
+include RbVmomi
 
 fail "must set RBVMOMI_HOST" unless ENV['RBVMOMI_HOST']
 
-soap = RbVmomi::Soap.new URI.parse("https://#{ENV['RBVMOMI_HOST']}/sdk")
+soap = Soap.new URI.parse("https://#{ENV['RBVMOMI_HOST']}/sdk")
 soap.debug = true
 
-si = RbVmomi::MoRef.new(soap, 'ServiceInstance', 'ServiceInstance')
-sm = RbVmomi::MoRef.new(soap, 'SessionManager', 'ha-sessionmgr')
+si = MoRef.new(soap, 'ServiceInstance', 'ServiceInstance')
+sm = MoRef.new(soap, 'SessionManager', 'ha-sessionmgr')
 
 si.call :RetrieveServiceContent
 
