@@ -11,4 +11,25 @@ class Soap < TrivialSoap
   end
 end
 
+class MoRef
+  attr_reader :soap, :type, :value
+
+  def initialize soap, type, value
+    @soap = soap
+    @type = type
+    @value = value
+  end
+
+  def call method, &b
+    @soap.call method do |xml|
+      emit_xml xml, '_this'
+      b.call xml if b
+    end
+  end
+
+  def emit_xml xml, name
+    xml.tag! name, value, :type => type
+  end
+end
+
 end
