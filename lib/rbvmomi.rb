@@ -4,6 +4,13 @@ require 'trivial_soap'
 module RbVmomi
 
 class Soap < TrivialSoap
+  def serviceInstance
+    moRef 'ServiceInstance', 'ServiceInstance'
+  end
+
+  def moRef type, value
+    MoRef.new self, type, value
+  end
 
   def call method, o={}
     resp = request 'urn:vim25/4.0' do |xml|
@@ -43,7 +50,6 @@ class Soap < TrivialSoap
 
     this_node
   end
-
 
   def obj2xml xml, name, o
     case o
