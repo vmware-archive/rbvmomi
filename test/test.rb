@@ -15,5 +15,7 @@ pp si.CurrentTime
 rootFolder = si.RetrieveServiceContent['rootFolder']
 pp rootFolder
 
-props = rootFolder.properties
-pp props
+dc = rootFolder.properties['childEntity'].first
+vmFolder = dc.properties['vmFolder']
+vms = vmFolder.properties['childEntity']
+pp vms
