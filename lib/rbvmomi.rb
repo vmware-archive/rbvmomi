@@ -4,8 +4,14 @@ require 'trivial_soap'
 module RbVmomi
 
 class Soap < TrivialSoap
+  NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
+
   def serviceInstance
     moRef 'ServiceInstance', 'ServiceInstance'
+  end
+
+  def propertyCollector
+    @propertyCollector ||= serviceInstance.RetrieveServiceContent['propertyCollector']
   end
 
   def moRef type, value
@@ -27,32 +33,55 @@ class Soap < TrivialSoap
     fail "#{xml.at('faultcode').text}: #{xml.at('faultstring').text}"
   end
 
-  def xml2obj xml
-    this_node = {}
+  def xml2obj xml, type=nil
+    type = xml.attribute_with_ns('type', NS_XSI) || type
+    if type
+      typed_xml2obj xml, type
+    else
+      untyped_xml2obj xml
+    end
+  end
 
-    xml.children.select(&:element?).each do |child|
-      if child.children.nil?
-        key, value = child.name, nil
-      elsif child.children.size == 1 && child.children.first.text? and child.attributes.keys == %w(type)
-        key, value = child.name, MoRef.new(self, child['type'], child.children.first.text)
-      elsif child.children.size == 1 && child.children.first.text?
-        key, value = child.name, child.children.first.text
-      else
-        key, value = child.name, xml2obj(child)
-      end
+  def typed_xml2obj xml, type
+    case type.to_s
+    when 'xsd:string' then xml.text
+    when 'xsd:int' then xml.text.to_i
+    when /^xsd:/ then fail "unexpected xsd type #{t}"
+    when 'ManagedObjectReference' then MoRef.new(self, xml['type'], xml.text)
+    when /^ArrayOf(\w+)$/ then
+      etype = $1
+      xml.children.select(&:element?).map { |x| xml2obj x, etype }
+    when 'ManagedEntityStatus' then xml.text
+    else untyped_xml2obj xml
+    end
+  end
 
-      current = this_node[key]
-      case current
-      when Array
-        this_node[key] << value
-      when nil
-        this_node[key] = value
-      else
-        this_node[key] = [current.dup, value]
+  def untyped_xml2obj xml
+    if xml.children.nil?
+      nil
+    elsif xml.children.size == 1 and
+          xml.children.first.text? and
+          xml.attributes.keys == %w(type) and
+          xml['type'] =~ /^[A-Z]/
+      MoRef.new(self, xml['type'], xml.text)
+    elsif xml.children.size == 1 && xml.children.first.text?
+      xml.text
+    else
+      {}.tap do |hash|
+        xml.children.select(&:element?).each do |child|
+          key = child.name
+          current = hash[key]
+          case current
+          when Array
+            hash[key] << xml2obj(child)
+          when nil
+            hash[key] = xml2obj(child)
+          else
+            hash[key] = [current.dup, xml2obj(child)]
+          end
+        end
       end
     end
-
-    this_node
   end
 
   def obj2xml xml, name, o
@@ -80,6 +109,7 @@ class MoRef
     @soap = soap
     @type = type
     @value = value
+    @properties = nil
   end
 
   def call method, o={}
@@ -93,6 +123,14 @@ class MoRef
 
   def pretty_print pp
     pp.text "MoRef(#{type}, #{value})"
+  end
+
+  def properties
+    props = @soap.propertyCollector.RetrieveProperties :specSet => {
+      :propSet => { :type => @type, :all => true },
+      :objectSet => { :obj => self },
+    }
+    Hash[props['propSet'].map { |h| [h['name'], h['val']] }]
   end
 end
 

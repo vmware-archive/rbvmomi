@@ -15,9 +15,5 @@ pp si.CurrentTime
 rootFolder = si.RetrieveServiceContent['rootFolder']
 pp rootFolder
 
-pc = si.RetrieveServiceContent['propertyCollector']
-ret = pc.RetrieveProperties :specSet => {
-  :propSet => { :type => 'Folder', :all => true },
-  :objectSet => { :obj => rootFolder },
-}
-pp ret
+props = rootFolder.properties
+pp props
