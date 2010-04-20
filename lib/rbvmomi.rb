@@ -20,7 +20,11 @@ class Soap < TrivialSoap
         o.each { |k,v| obj2xml xml, k.to_s, v }
       end
     end
-    xml2obj(resp)['returnval']
+    xml2obj(resp)['returnval'] or handle_fault(resp)
+  end
+
+  def handle_fault xml
+    fail "#{xml.at('faultcode').text}: #{xml.at('faultstring').text}"
   end
 
   def xml2obj xml
