@@ -126,11 +126,16 @@ class MoRef
   end
 
   def properties
+    return @properties if @properties
     props = @soap.propertyCollector.RetrieveProperties :specSet => {
       :propSet => { :type => @type, :all => true },
       :objectSet => { :obj => self },
     }
-    Hash[props['propSet'].map { |h| [h['name'], h['val']] }]
+    @properties = Hash[props['propSet'].map { |h| [h['name'], h['val']] }]
+  end
+
+  def [] k
+    properties[k.to_s]
   end
 end
 
