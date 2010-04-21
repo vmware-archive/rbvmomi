@@ -1,9 +1,15 @@
 require 'test/unit'
 require 'rbvmomi'
 
-class Object
-  def typed t
-    RbVmomi::Typed.new t, self
+module V
+  def self.method_missing sym, arg
+    RbVmomi::Typed.new sym.to_s, arg
+  end
+end
+
+module XSD
+  def self.method_missing sym, arg
+    RbVmomi::Typed.new "xsd:#{sym}", arg
   end
 end
 
@@ -30,7 +36,7 @@ class SerializationTest < Test::Unit::TestCase
   end
 
   def test_typed
-    check <<-EOS, { :_type => 'VirtualLsiLogicController', :key => 1000.typed('xsd:int') }
+    check <<-EOS, V.VirtualLsiLogicController(:key => XSD.int(1000))
 <root xsi:type="VirtualLsiLogicController">
   <key xsi:type="xsd:int">1000</key>
 </root>
@@ -47,49 +53,44 @@ class SerializationTest < Test::Unit::TestCase
       deviceChange: [
         {
           operation: :add,
-          device: {
-            _type: 'VirtualLsiLogicController',
-            key: 1000.typed('xsd:int'),
-            busNumber: 0.typed('xsd:int'),
+          device: V.VirtualLsiLogicController(
+            key: XSD.int(1000),
+            busNumber: XSD.int(0),
             sharedBus: :noSharing,
-          }
+          )
         }, {
           operation: :add,
           fileOperation: :create,
-          device: {
-            _type: 'VirtualDisk',
-            key: 0.typed('xsd:int'),
-            backing: {
-              _type: 'VirtualDiskFlatVer2BackingInfo',
+          device: V.VirtualDisk(
+            key: XSD.int(0),
+            backing: V.VirtualDiskFlatVer2BackingInfo(
               fileName: '[datastore1]',
               diskMode: :persistent,
               thinProvisioned: true,
-            },
+            ),
             controllerKey: 1000,
             unitNumber: 0,
-            capacityInKB: 4000000.typed('xsd:long'),
-          }
+            capacityInKB: XSD.long(4000000),
+          )
         }, {
           operation: :add,
-          device: {
-            _type: 'VirtualE1000',
-            key: 0.typed('xsd:int'),
+          device: V.VirtualE1000(
+            key: XSD.int(0),
             deviceInfo: {
               label: 'Network Adapter 1',
               summary: 'VM Network',
             },
-            backing: {
-              _type: 'VirtualEthernetCardNetworkBackingInfo',
+            backing: V.VirtualEthernetCardNetworkBackingInfo(
               deviceName: 'VM Network',
-            },
+            ),
             addressType: 'generated'
-          }
+          )
         }
       ],
       extraConfig: [
         {
           key: 'bios.bootOrder',
-          value: 'ethernet0'.typed('xsd:string')
+          value: XSD.string('ethernet0')
         }
       ]
     }

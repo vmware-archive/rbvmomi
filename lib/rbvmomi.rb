@@ -86,25 +86,22 @@ class Soap < TrivialSoap
     end
   end
 
-  def obj2xml xml, name, o
+  def obj2xml xml, name, o, attrs={}
     case o
     when Hash
-      h = o.reject { |k,v| k.to_s[0..0] == '_' }
-      attrs = {}
-      attrs['xsi:type'] = o[:_type] if o.member? :_type
       xml.tag! name, attrs do
-        h.each do |k,v|
+        o.each do |k,v|
           obj2xml xml, k.to_s, v
         end
       end
     when Array
       o.each do |v|
-        obj2xml xml, name, v
+        obj2xml xml, name, v, attrs
       end
     when Symbol, String, Integer, true, false
-      xml.tag! name, o.to_s
+      xml.tag! name, o.to_s, attrs
     when Typed
-      xml.tag! name, o.value.to_s, 'xsi:type' => o.type.to_s
+      obj2xml xml, name, o.value, 'xsi:type' => o.type.to_s
     when MoRef
       xml.tag! name, o.value, :type => o.type
     else fail "unexpected object class #{o.class}"
