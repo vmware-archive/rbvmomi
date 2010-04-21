@@ -3,6 +3,8 @@ require 'trivial_soap'
 
 module RbVmomi
 
+Typed = Struct.new(:type, :value)
+
 class Soap < TrivialSoap
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
@@ -87,13 +89,22 @@ class Soap < TrivialSoap
   def obj2xml xml, name, o
     case o
     when Hash
-      xml.tag! name do
-        o.each do |k,v|
+      h = o.reject { |k,v| k.to_s[0..0] == '_' }
+      attrs = {}
+      attrs['xsi:type'] = o[:_type] if o.member? :_type
+      xml.tag! name, attrs do
+        h.each do |k,v|
           obj2xml xml, k.to_s, v
         end
       end
-    when String, Integer, true, false
+    when Array
+      o.each do |v|
+        obj2xml xml, name, v
+      end
+    when Symbol, String, Integer, true, false
       xml.tag! name, o.to_s
+    when Typed
+      xml.tag! name, o.value.to_s, 'xsi:type' => o.type.to_s
     when MoRef
       xml.tag! name, o.value, :type => o.type
     else fail "unexpected object class #{o.class}"
