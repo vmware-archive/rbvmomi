@@ -5,6 +5,18 @@ module RbVmomi
 
 Typed = Struct.new(:type, :value)
 
+module VIM
+  def self.method_missing sym, arg
+    RbVmomi::Typed.new sym.to_s, arg
+  end
+end
+
+module XSD
+  def self.method_missing sym, arg
+    RbVmomi::Typed.new "xsd:#{sym}", arg
+  end
+end
+
 class Soap < TrivialSoap
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 

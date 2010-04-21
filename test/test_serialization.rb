@@ -1,17 +1,6 @@
 require 'test/unit'
 require 'rbvmomi'
-
-module V
-  def self.method_missing sym, arg
-    RbVmomi::Typed.new sym.to_s, arg
-  end
-end
-
-module XSD
-  def self.method_missing sym, arg
-    RbVmomi::Typed.new "xsd:#{sym}", arg
-  end
-end
+include RbVmomi
 
 class SerializationTest < Test::Unit::TestCase
   def check str, obj
@@ -36,7 +25,7 @@ class SerializationTest < Test::Unit::TestCase
   end
 
   def test_typed
-    check <<-EOS, V.VirtualLsiLogicController(:key => XSD.int(1000))
+    check <<-EOS, VIM.VirtualLsiLogicController(:key => XSD.int(1000))
 <root xsi:type="VirtualLsiLogicController">
   <key xsi:type="xsd:int">1000</key>
 </root>
@@ -53,7 +42,7 @@ class SerializationTest < Test::Unit::TestCase
       deviceChange: [
         {
           operation: :add,
-          device: V.VirtualLsiLogicController(
+          device: VIM.VirtualLsiLogicController(
             key: XSD.int(1000),
             busNumber: XSD.int(0),
             sharedBus: :noSharing,
@@ -61,9 +50,9 @@ class SerializationTest < Test::Unit::TestCase
         }, {
           operation: :add,
           fileOperation: :create,
-          device: V.VirtualDisk(
+          device: VIM.VirtualDisk(
             key: XSD.int(0),
-            backing: V.VirtualDiskFlatVer2BackingInfo(
+            backing: VIM.VirtualDiskFlatVer2BackingInfo(
               fileName: '[datastore1]',
               diskMode: :persistent,
               thinProvisioned: true,
@@ -74,13 +63,13 @@ class SerializationTest < Test::Unit::TestCase
           )
         }, {
           operation: :add,
-          device: V.VirtualE1000(
+          device: VIM.VirtualE1000(
             key: XSD.int(0),
             deviceInfo: {
               label: 'Network Adapter 1',
               summary: 'VM Network',
             },
-            backing: V.VirtualEthernetCardNetworkBackingInfo(
+            backing: VIM.VirtualEthernetCardNetworkBackingInfo(
               deviceName: 'VM Network',
             ),
             addressType: 'generated'

@@ -1,18 +1,6 @@
 require 'rbvmomi'
 include RbVmomi
 
-module V
-  def self.method_missing sym, arg
-    RbVmomi::Typed.new sym.to_s, arg
-  end
-end
-
-module XSD
-  def self.method_missing sym, arg
-    RbVmomi::Typed.new "xsd:#{sym}", arg
-  end
-end
-
 fail "must set RBVMOMI_HOST" unless ENV['RBVMOMI_HOST']
 
 soap = Soap.new URI.parse("https://#{ENV['RBVMOMI_HOST']}/sdk")
@@ -41,7 +29,7 @@ vm_cfg = {
   deviceChange: [
     {
       operation: :add,
-      device: V.VirtualLsiLogicController(
+      device: VIM.VirtualLsiLogicController(
         key: XSD.int(1000),
         busNumber: XSD.int(0),
         sharedBus: :noSharing,
@@ -49,9 +37,9 @@ vm_cfg = {
     }, {
       operation: :add,
       fileOperation: :create,
-      device: V.VirtualDisk(
+      device: VIM.VirtualDisk(
         key: XSD.int(0),
-        backing: V.VirtualDiskFlatVer2BackingInfo(
+        backing: VIM.VirtualDiskFlatVer2BackingInfo(
           fileName: '[datastore1]',
           diskMode: :persistent,
           thinProvisioned: true,
@@ -62,13 +50,13 @@ vm_cfg = {
       )
     }, {
       operation: :add,
-      device: V.VirtualE1000(
+      device: VIM.VirtualE1000(
         key: XSD.int(0),
         deviceInfo: {
           label: 'Network Adapter 1',
           summary: 'VM Network',
         },
-        backing: V.VirtualEthernetCardNetworkBackingInfo(
+        backing: VIM.VirtualEthernetCardNetworkBackingInfo(
           deviceName: 'VM Network',
         ),
         addressType: 'generated'
