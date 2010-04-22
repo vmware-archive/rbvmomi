@@ -7,18 +7,18 @@ soap = Soap.new URI.parse(ENV['RBVMOMI_URI'])
 soap.debug = true
 
 si = soap.serviceInstance
-sm = si.RetrieveServiceContent['sessionManager']
-sm.Login :userName => 'root', :password => ''
+sm = si.RetrieveServiceContent!.sessionManager
+sm.Login! :userName => 'root', :password => ''
 
-rootFolder = si.RetrieveServiceContent['rootFolder']
+rootFolder = si.RetrieveServiceContent!.rootFolder
 
-dc = rootFolder[:childEntity].first
-vmFolder = dc[:vmFolder]
-vms = vmFolder[:childEntity]
+dc = rootFolder.childEntity.first
+vmFolder = dc.vmFolder
+vms = vmFolder.childEntity
 pp vms
-hosts = dc[:hostFolder][:childEntity]
+hosts = dc.hostFolder.childEntity
 pp hosts
-rp = hosts.first[:resourcePool]
+rp = hosts.first.resourcePool
 
 vm_cfg = {
   name: 'vm',
@@ -71,4 +71,4 @@ vm_cfg = {
   ]
 }
 
-vmFolder.CreateVM_Task :config => vm_cfg, :pool => rp
+vmFolder.CreateVM_Task! :config => vm_cfg, :pool => rp

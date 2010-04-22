@@ -5,6 +5,18 @@ module RbVmomi
 
 Typed = Struct.new(:type, :value)
 
+class NiceHash < Hash
+  def method_missing sym, *args
+    if sym.to_s =~ /=$/
+      super unless args.size == 1
+      self[$`.to_sym] = args.first
+    else
+      super unless args.empty?
+      self[sym]
+    end
+  end
+end
+
 module VIM
   def self.method_missing sym, arg
     RbVmomi::Typed.new sym.to_s, arg
@@ -25,7 +37,7 @@ class Soap < TrivialSoap
   end
 
   def propertyCollector
-    @propertyCollector ||= serviceInstance.RetrieveServiceContent['propertyCollector']
+    @propertyCollector ||= serviceInstance.RetrieveServiceContent!.propertyCollector
   end
 
   def moRef type, value
@@ -40,7 +52,7 @@ class Soap < TrivialSoap
         o.each { |k,v| obj2xml xml, k.to_s, v }
       end
     end
-    xml2obj(resp)['returnval'] or handle_fault(resp)
+    xml2obj(resp).returnval or handle_fault(resp)
   end
 
   def handle_fault xml
@@ -81,9 +93,9 @@ class Soap < TrivialSoap
     elsif xml.children.size == 1 && xml.children.first.text?
       xml.text
     else
-      {}.tap do |hash|
+      NiceHash.new.tap do |hash|
         xml.children.select(&:element?).each do |child|
-          key = child.name
+          key = child.name.to_sym
           current = hash[key]
           case current
           when Array
@@ -138,7 +150,11 @@ class MoRef
   end
 
   def method_missing sym, *args, &b
-    call sym, *args, &b
+    if sym.to_s =~ /!$/
+      call $`.to_sym, *args, &b
+    else
+      properties[sym]
+    end
   end
 
   def pretty_print pp
@@ -147,15 +163,15 @@ class MoRef
 
   def properties
     return @properties if @properties
-    props = @soap.propertyCollector.RetrieveProperties :specSet => {
+    props = @soap.propertyCollector.RetrieveProperties! :specSet => {
       :propSet => { :type => @type, :all => true },
       :objectSet => { :obj => self },
     }
-    @properties = Hash[props['propSet'].map { |h| [h['name'], h['val']] }]
+    @properties = Hash[props[:propSet].map { |h| [h[:name].to_sym, h[:val]] }]
   end
 
   def [] k
-    properties[k.to_s]
+    properties[k]
   end
 end
 
