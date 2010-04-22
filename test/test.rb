@@ -18,7 +18,7 @@ vms = vmFolder[:childEntity]
 pp vms
 hosts = dc[:hostFolder][:childEntity]
 pp hosts
-rp = hosts.first
+rp = hosts.first[:resourcePool]
 
 vm_cfg = {
   name: 'vm',
