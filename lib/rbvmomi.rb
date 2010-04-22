@@ -52,11 +52,11 @@ class Soap < TrivialSoap
         o.each { |k,v| obj2xml xml, k.to_s, v }
       end
     end
-    xml2obj(resp).returnval or handle_fault(resp)
-  end
-
-  def handle_fault xml
-    fail "#{xml.at('faultcode').text}: #{xml.at('faultstring').text}"
+    if resp.at('faultcode')
+      fail "#{resp.at('faultcode').text}: #{resp.at('faultstring').text}"
+    else
+      xml2obj(resp).returnval
+    end
   end
 
   def xml2obj xml, type=nil
@@ -168,6 +168,17 @@ class MoRef
       :objectSet => { :obj => self },
     }
     @properties = Hash[props[:propSet].map { |h| [h[:name].to_sym, h[:val]] }]
+  end
+
+  def wait
+    filter = @soap.propertyCollector.CreateFilter! :spec => {
+      :propSet => { :type => @type, :all => true },
+      :objectSet => { :obj => self },
+    }, :partialUpdates => false
+    result = @soap.propertyCollector.WaitForUpdates!
+    filter.DestroyPropertyFilter!
+    changes = result[:filterSet][:objectSet][:changeSet]
+    Hash[changes.map { |h| [h[:name].to_sym, h[:val]] }]
   end
 
   def [] k

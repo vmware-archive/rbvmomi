@@ -71,4 +71,19 @@ vm_cfg = {
   ]
 }
 
-vmFolder.CreateVM_Task! :config => vm_cfg, :pool => rp
+def task_wait task
+  loop do
+    props = task.wait
+    pp props
+    info = props[:info]
+    case info.state
+    when 'success'
+      return info.result
+    when 'error'
+      fail "task #{info.key} failed"
+    end
+  end
+end
+
+vm = task_wait vmFolder.CreateVM_Task!(:config => vm_cfg, :pool => rp)
+task_wait vm.Destroy_Task!
