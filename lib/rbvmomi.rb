@@ -215,7 +215,6 @@ class MoRef
 
   def wait_task
     props = wait_until { |x| %w(success error).member? x[:info][:state] }
-    pp props
     case props[:info][:state]
     when 'success'
       info.result
