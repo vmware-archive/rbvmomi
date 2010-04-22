@@ -206,6 +206,24 @@ class MoRef
     NiceHash[changes.map { |h| [h[:name].to_sym, h[:val]] }]
   end
 
+  def wait_until &b
+    loop do
+      props = wait
+      return props if b.call props
+    end
+  end
+
+  def wait_task
+    props = wait_until { |x| %w(success error).member? x[:info][:state] }
+    pp props
+    case props[:info][:state]
+    when 'success'
+      info.result
+    when 'error'
+      fail "task #{info[:key]} failed"
+    end
+  end
+
   def [] k
     properties[k]
   end
