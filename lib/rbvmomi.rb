@@ -1,11 +1,27 @@
 require 'trivial_soap'
 #require 'nokogiri_pretty'
+require 'linguistics'
+Linguistics.use :en
 
 module RbVmomi
 
 Typed = Struct.new(:type, :value)
 
 class NiceHash < Hash
+  def initialize
+    super do |h,k|
+      if k2 = h.keys.find { |x| x.to_s.en.plural.to_sym == k }
+        case v = h[k2]
+        when Array then v
+        when nil then []
+        else [v]
+        end
+      else
+        nil
+      end
+    end
+  end
+
   def method_missing sym, *args
     if sym.to_s =~ /=$/
       super unless args.size == 1
@@ -14,6 +30,10 @@ class NiceHash < Hash
       super unless args.empty?
       self[sym]
     end
+  end
+
+  def self.[] *a
+    new.tap { |h| h.merge! super }
   end
 end
 
@@ -167,7 +187,7 @@ class MoRef
       :propSet => { :type => @type, :all => true },
       :objectSet => { :obj => self },
     }
-    @properties = Hash[props[:propSet].map { |h| [h[:name].to_sym, h[:val]] }]
+    @properties = NiceHash[props[:propSet].map { |h| [h[:name].to_sym, h[:val]] }]
   end
 
   def wait
@@ -177,8 +197,8 @@ class MoRef
     }, :partialUpdates => false
     result = @soap.propertyCollector.WaitForUpdates!
     filter.DestroyPropertyFilter!
-    changes = result[:filterSet][:objectSet][:changeSet]
-    Hash[changes.map { |h| [h[:name].to_sym, h[:val]] }]
+    changes = result.filterSets[0].objectSets[0].changeSets
+    NiceHash[changes.map { |h| [h[:name].to_sym, h[:val]] }]
   end
 
   def [] k
