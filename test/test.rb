@@ -1,9 +1,9 @@
 require 'rbvmomi'
 include RbVmomi
 
-fail "must set RBVMOMI_HOST" unless ENV['RBVMOMI_HOST']
+fail "must set RBVMOMI_URI" unless ENV['RBVMOMI_URI']
 
-soap = Soap.new URI.parse("https://#{ENV['RBVMOMI_HOST']}/sdk")
+soap = Soap.new URI.parse(ENV['RBVMOMI_URI'])
 soap.debug = true
 
 si = soap.serviceInstance
