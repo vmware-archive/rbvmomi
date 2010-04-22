@@ -178,8 +178,12 @@ class MoRef
     end
   end
 
+  def to_s
+    "MoRef(#{type}, #{value})"
+  end
+
   def pretty_print pp
-    pp.text "MoRef(#{type}, #{value})"
+    pp.text to_s
   end
 
   def properties
