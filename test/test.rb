@@ -85,5 +85,7 @@ def task_wait task
   end
 end
 
-vm = task_wait vmFolder.CreateVM_Task!(:config => vm_cfg, :pool => rp)
-task_wait vm.Destroy_Task!
+N = 2
+create_tasks = (0...N).map { vmFolder.CreateVM_Task!(:config => vm_cfg, :pool => rp) }
+destroy_tasks = create_tasks.map { |x| task_wait(x).Destroy_Task! }
+destroy_tasks.each { |x| task_wait x }
