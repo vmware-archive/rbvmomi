@@ -4,6 +4,7 @@ require 'nokogiri'
 require 'net/http'
 require 'net/https'
 require 'pp'
+require 'rbvmomi/profile'
 
 class TrivialSoap
   attr_accessor :debug
@@ -46,7 +47,7 @@ class TrivialSoap
       puts
     end
 
-    response = @http.request_post(@uri.path, body, headers)
+    response = profile(:post) { @http.request_post(@uri.path, body, headers) }
     @cookie = response['set-cookie'] if response.key? 'set-cookie'
 
     nk = Nokogiri(response.body)

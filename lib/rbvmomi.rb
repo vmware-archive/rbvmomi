@@ -116,7 +116,7 @@ class Soap < TrivialSoap
       NiceHash.new.tap do |hash|
         xml.children.select(&:element?).each do |child|
           key = child.name.to_sym
-          current = hash[key]
+          current = hash[key] if hash.member? key
           case current
           when Array
             hash[key] << xml2obj(child)

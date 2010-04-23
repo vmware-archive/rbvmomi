@@ -6,6 +6,7 @@ fail "must set RBVMOMI_URI" unless ENV['RBVMOMI_URI']
 
 soap = Soap.new URI.parse(ENV['RBVMOMI_URI'])
 soap.debug = false
+$profile = false
 
 si = soap.serviceInstance
 sm = si.RetrieveServiceContent!.sessionManager
