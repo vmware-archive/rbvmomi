@@ -92,7 +92,8 @@ class Soap < TrivialSoap
     case type.to_s
     when 'xsd:string' then xml.text
     when 'xsd:int' then xml.text.to_i
-    when /^xsd:/ then fail "unexpected xsd type #{t}"
+    when 'xsd:boolean' then xml.text == 'true'
+    when /^xsd:/ then fail "unexpected xsd type #{type}"
     when 'ManagedObjectReference' then MoRef.new(self, xml['type'], xml.text)
     when /^ArrayOf(\w+)$/ then
       etype = $1
@@ -123,7 +124,7 @@ class Soap < TrivialSoap
           when nil
             hash[key] = xml2obj(child)
           else
-            hash[key] = [current.dup, xml2obj(child)]
+            hash[key] = [current, xml2obj(child)]
           end
         end
       end
@@ -203,6 +204,15 @@ class MoRef
 
   def [] k
     properties[k]
+  end
+
+  def == x
+    super unless x.is_a? self.class
+    x.type == type and x.value == value
+  end
+
+  def hash
+    [type, value].hash
   end
 end
 
