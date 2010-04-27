@@ -214,7 +214,7 @@ class MoRef
     props = wait_until { |x| %w(success error).member? x[:info][:state] }
     case props[:info][:state]
     when 'success'
-      info.result
+      props[:info][:result]
     when 'error'
       fail "task #{info[:key]} failed"
     end
