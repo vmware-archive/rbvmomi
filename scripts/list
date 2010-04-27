@@ -11,5 +11,5 @@ vmFolder = dc.vmFolder
 vms = vmFolder.childEntity
 
 vms.each do |vm|
-   puts "#{vm.value} #{vm.config.name} #{vm.runtime.powerState}"
+   puts "#{vm.value} #{vm.summary.config.name} #{vm.summary.runtime.powerState}"
 end
