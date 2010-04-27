@@ -1,17 +1,10 @@
+#!/usr/bin/env ruby
 require 'rbvmomi'
 include RbVmomi
 
-fail "must set RBVMOMI_URI" unless ENV['RBVMOMI_URI']
+vim = RbVmomi.connect ENV['RBVMOMI_URI']
 
-soap = Soap.new URI.parse(ENV['RBVMOMI_URI'])
-soap.debug = false
-$profile = true
-
-si = soap.serviceInstance
-sm = si.RetrieveServiceContent!.sessionManager
-sm.Login! :userName => 'root', :password => ''
-
-rootFolder = si.RetrieveServiceContent!.rootFolder
+rootFolder = vim.serviceInstance.RetrieveServiceContent!.rootFolder
 
 dc = rootFolder.childEntity.first
 vmFolder = dc.vmFolder

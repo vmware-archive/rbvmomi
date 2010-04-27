@@ -237,4 +237,20 @@ class MoRef
   end
 end
 
+def self.connect uri
+  uri = case uri
+        when String then URI.parse uri
+        when URI then uri
+        else fail "invalid URI"
+        end
+
+  user = uri.user || 'root'
+  password = uri.password || ''
+
+  Soap.new(uri).tap do |vim|
+    vim.debug = true if ENV['RBVMOMI_DEBUG']
+    vim.serviceInstance.RetrieveServiceContent!.sessionManager.Login! :userName => user, :password => password
+  end
+end
+
 end
