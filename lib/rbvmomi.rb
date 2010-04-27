@@ -162,7 +162,6 @@ class MoRef
     @soap = soap
     @type = type
     @value = value
-    @properties = nil
   end
 
   def call method, o={}
@@ -174,7 +173,7 @@ class MoRef
     if sym.to_s =~ /!$/
       call $`.to_sym, *args, &b
     else
-      properties[sym]
+      property sym.to_s
     end
   end
 
@@ -186,13 +185,11 @@ class MoRef
     pp.text to_s
   end
 
-  def properties
-    return @properties if @properties
-    props = @soap.propertyCollector.RetrieveProperties! :specSet => {
-      :propSet => { :type => @type, :all => true },
+  def property key
+    @soap.propertyCollector.RetrieveProperties!(:specSet => {
+      :propSet => { :type => @type, :pathSet => [key] },
       :objectSet => { :obj => self },
-    }
-    @properties = NiceHash[props[:propSet].map { |h| [h[:name].to_sym, h[:val]] }]
+    })[:propSet][:val]
   end
 
   def wait
@@ -224,7 +221,7 @@ class MoRef
   end
 
   def [] k
-    properties[k]
+    property k.to_s
   end
 
   def == x
