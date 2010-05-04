@@ -98,16 +98,16 @@ end
 def analyze_sequence x
 	fail unless x.attributes.empty?
 	fail unless x.text.empty?
-	ret = {}
-	x.children.each do |c|
+	x.children.map do |c|
 		fail unless c.name == 'element'
-		fail if ret.member? c['name']
 		fail unless [%w(name type), %w(minOccurs name type), %w(maxOccurs name type), %w(maxOccurs minOccurs name type)].any? { |y| c.attributes.keys.sort == y }
 		fail unless c.text.empty?
 		fail unless c.children.empty?
-		ret[c['name']] = c['type'].to_s
+		{ name: c['name'], type: c['type'] }.tap do |h|
+			h[:minOccurs] = c['minOccurs'] if c['minOccurs']
+			h[:maxOccurs] = c['maxOccurs'] if c['maxOccurs']
+		end
 	end
-	ret
 end
 
 schemas = []
