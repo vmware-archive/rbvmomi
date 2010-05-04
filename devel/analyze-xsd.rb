@@ -23,7 +23,16 @@ def analyze_schema schema
 			fail if ret.member? t['name']
 			ret['vim25:' + t['name']] = analyze_complex_type t
 		when 'include'
-		else fail
+		when 'element'
+			fail unless t.children.size <= 1
+			fail unless t['name']
+			if c = t.children.first
+				ret['vim25:' + t['name']] = analyze_complex_type c, true
+			else
+				fail unless t['type']
+				ret['vim25:' + t['name']] = t['type']
+			end
+		else fail t.name
 		end
 	end
 	ret
@@ -51,11 +60,11 @@ def analyze_restriction x
 	XSDTypes::Enum.new x['base'], values
 end
 
-def analyze_complex_type t
-	fail unless t.attributes.keys.sort == %w(name)
+def analyze_complex_type t, nameless=false
+	fail unless t.attributes.keys.sort == %w(name) or nameless
 	fail unless t.text.empty?
+	child = t.children.first or return XSDTypes::Complex.new nil, {}
 	fail unless t.children.size == 1
-	child = t.children.first
 	case child.name
 	when 'sequence'
 		XSDTypes::Complex.new nil, analyze_sequence(child)
@@ -104,7 +113,7 @@ end
 schemas = []
 ARGV.each do |fn|
 	nk = Nokogiri(prepare_xml(File.read fn))
-	schemas << analyze_schema(nk.at('schema'))
+	schemas << analyze_schema(nk.at_xpath('.//xsd:schema', nk.root.namespaces))
 end
 
 =begin
