@@ -1,5 +1,4 @@
 require 'trivial_soap'
-#require 'nokogiri_pretty'
 require 'linguistics'
 Linguistics.use :en
 
@@ -91,7 +90,7 @@ class Soap < TrivialSoap
   def typed_xml2obj xml, type
     case type.to_s
     when 'xsd:string' then xml.text
-    when 'xsd:int' then xml.text.to_i
+    when 'xsd:int', 'xsd:long' then xml.text.to_i
     when 'xsd:boolean' then xml.text == 'true'
     when /^xsd:/ then fail "unexpected xsd type #{type}"
     when 'ManagedObjectReference' then MoRef.new(self, xml['type'], xml.text)
@@ -216,7 +215,7 @@ class MoRef
     when 'success'
       props[:info][:result]
     when 'error'
-      fail "task #{info[:key]} failed"
+      fail "task #{props[:info][:key]} failed: #{props[:info][:error][:localizedMessage]}"
     end
   end
 
