@@ -59,11 +59,11 @@ class ModelBuilder
 	def CreateDataType vmodlName, wsdlName, parentType, version, props
 		update_vmodl2wsdl vmodlName, wsdlName
 		DATA_TYPES[wsdlName] = {
-			:vmodl_base => parentType,
-			:props => props.map { |mName,mType,mVersion,mFoo|
+			'vmodl_base' => parentType,
+			'props' => props.map { |mName,mType,mVersion,mFoo|
 				{
-					:name => mName,
-					:vmodl_type => mType,
+					'name' => mName,
+					'vmodl_type' => mType,
 				}
 			}
 		}
@@ -72,24 +72,24 @@ class ModelBuilder
 	def CreateManagedType vmodlName, wsdlName, parentType, version, props, methods
 		update_vmodl2wsdl vmodlName, wsdlName
 		MANAGED_TYPES[wsdlName] = {
-			:vmodl_base => parentType,
-			:props => props.map do |mName,mType,mVersion,mFoo|
+			'vmodl_base' => parentType,
+			'props' => props.map do |mName,mType,mVersion,mFoo|
 				{
-					:name => mName,
-					:vmodl_type => mType,
+					'name' => mName,
+					'vmodl_type' => mType,
 				}
 			end,
-			:methods => Hash[methods.map do |mName,mWsdlName,mVersion,mParams,mResult|
+			'methods' => Hash[methods.map do |mName,mWsdlName,mVersion,mParams,mResult|
 				[mWsdlName, {
-					:params => mParams.map do |pName, pType, pVersion, pFoo|
+					'params' => mParams.map do |pName, pType, pVersion, pFoo|
 						{
-							:name => pName,
-							:vmodl_type => pType,
+							'name' => pName,
+							'vmodl_type' => pType,
 						}
 					end,
-					:result => (mResult[2] != 'void') && {
-						:flags => decode_property_flags(mResult[0]),
-						:vmodl_type => mResult[2],
+					'result' => (mResult[2] != 'void') && {
+						'flags' => decode_property_flags(mResult[0]),
+						'vmodl_type' => mResult[2],
 					} || nil
 				}]
 			end]
@@ -99,7 +99,7 @@ class ModelBuilder
 	def CreateEnumType vmodlName, wsdlName, version, values
 		update_vmodl2wsdl vmodlName, wsdlName
 		ENUM_TYPES[wsdlName] = {
-			:values => values,
+			'values' => values,
 		}
 	end
 
@@ -112,9 +112,9 @@ class ModelBuilder
 
 	def decode_property_flags x
 		[].tap do |a|
-			a << :link if x & 1 != 0
-			a << :linkable if x & 2 != 0
-			a << :optional if x & 4 != 0
+			a << 'link' if x & 1 != 0
+			a << 'linkable' if x & 2 != 0
+			a << 'optional' if x & 4 != 0
 		end
 	end
 end
@@ -134,28 +134,28 @@ PYTHON_MODELS.each do |e|
 end
 
 DATA_TYPES.each do |k,t|
-	t[:wsdl_base] = VMODL2WSDL[t[:vmodl_base]]
-	t[:props].each do |x|
-		x[:wsdl_type] = VMODL2WSDL[x[:vmodl_type]]
+	t['wsdl_base'] = VMODL2WSDL[t['vmodl_base']]
+	t['props'].each do |x|
+		x['wsdl_type'] = VMODL2WSDL[x['vmodl_type']]
 	end
 end
 
 MANAGED_TYPES.each do |k,t|
-	t[:wsdl_base] = VMODL2WSDL[t[:vmodl_base]]
-	t[:props].each do |x|
-		x[:wsdl_type] = VMODL2WSDL[x[:vmodl_type]]
+	t['wsdl_base'] = VMODL2WSDL[t['vmodl_base']]
+	t['props'].each do |x|
+		x['wsdl_type'] = VMODL2WSDL[x['vmodl_type']]
 	end
-	t[:methods].each do |mName,x|
-		if y = x[:result]
-			y[:wsdl_type] = VMODL2WSDL[y[:vmodl_type]]
+	t['methods'].each do |mName,x|
+		if y = x['result']
+			y['wsdl_type'] = VMODL2WSDL[y['vmodl_type']]
 		end
-		x[:params].each do |r|
-			r[:wsdl_type] = VMODL2WSDL[r[:vmodl_type]]
+		x['params'].each do |r|
+			r['wsdl_type'] = VMODL2WSDL[r['vmodl_type']]
 		end
 	end
 end
 
-puts YAML.dump(:data => DATA_TYPES,
-               :managed => MANAGED_TYPES,
-               :enum => ENUM_TYPES)
+puts YAML.dump('data' => DATA_TYPES,
+               'managed' => MANAGED_TYPES,
+               'enum' => ENUM_TYPES)
 
