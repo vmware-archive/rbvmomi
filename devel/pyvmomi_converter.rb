@@ -34,15 +34,13 @@ VMODL2WSDL.merge!(
 	'string' => 'xsd:string',
 	'string[]' => 'ArrayOfString',
 	'vmodl.DateTime' => 'xsd:dateTime',
+	'vmodl.DateTime[]' => 'ArrayOfDateTime',
 )
 
 %w(DataObject ManagedObject MethodFault MethodName
    PropertyPath RuntimeFault TypeName).each do |x|
 	VMODL2WSDL['vmodl.' + x] = x
-end
-
-VMODL2WSDL.keys.to_a.each do |k|
-	VMODL2WSDL[k + '[]'] = 'ArrayOf' + VMODL2WSDL[k]
+	VMODL2WSDL['vmodl.' + x + '[]'] = 'ArrayOf' + x
 end
 
 DATA_TYPES = {}
