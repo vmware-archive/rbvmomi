@@ -17,22 +17,22 @@ end
 
 def self.make_data_type name, desc
 	superclass = const_get(desc['wsdl_base'].to_sym)
-	klass = Class.new superclass
-	klass.initialize name, desc['props']
-	klass
+	Class.new(superclass).tap do |klass|
+		klass.initialize name, desc['props']
+	end
 end
 
 def self.make_managed_type name, desc
 	superclass = const_get(desc['wsdl_base'].to_sym)
-	klass = Class.new superclass
-	klass.initialize name, desc['props'], desc['methods']
-	klass
+	Class.new(superclass).tap do |klass|
+		klass.initialize name, desc['props'], desc['methods']
+	end
 end
 
 def self.make_enum_type name, desc
-	klass = Class.new Enum
-	klass.initialize name, desc['values']
-	klass
+	Class.new(Enum).tap do |klass|
+		klass.initialize name, desc['values']
+	end
 end
 
 def self.make_type name
@@ -153,20 +153,17 @@ class MethodFault < DataObject
 	initialize
 end
 
-class MethodName < Base
-	initialize
-end
-
-class PropertyPath < Base
-	initialize
-end
-
 class RuntimeFault < DataObject
 	initialize
 end
 
-class TypeName < Base
-	initialize
+class MethodName < String
+end
+
+class PropertyPath < String
+end
+
+class TypeName < String
 end
 
 end
