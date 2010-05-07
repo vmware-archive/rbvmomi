@@ -1,4 +1,5 @@
 require 'trivial_soap'
+require 'rbvmomi/types'
 require 'linguistics'
 Linguistics.use :en
 
