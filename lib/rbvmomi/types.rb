@@ -192,7 +192,7 @@ class ManagedObject < ObjectWithMethods
   end
 
   def to_s
-    "MoRef(#{self.class.wsdl_name}, #{value})"
+    "MoRef(#{self.class.wsdl_name}, #{@ref})"
   end
 
   def pretty_print pp

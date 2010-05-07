@@ -6,7 +6,7 @@ class SerializationTest < Test::Unit::TestCase
   def check str, obj
     soap = RbVmomi::Soap.new URI.parse("http://localhost/")
     xml = Builder::XmlMarkup.new :indent => 2
-    soap.obj2xml(xml, 'root', obj)
+    soap.obj2xml(xml, 'root', nil, obj)
 
     puts "expected:"
     puts str

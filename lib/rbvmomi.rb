@@ -58,7 +58,7 @@ class Soap < TrivialSoap
       fail unless o.is_a? Hash
       xml.tag! method, :xmlns => 'urn:vim25' do
         yield xml if block_given?
-        o.each { |k,v| obj2xml xml, k.to_s, v }
+        o.each { |k,v| obj2xml xml, k.to_s, nil, v }
       end
     end
     if resp.at('faultcode')
@@ -121,7 +121,7 @@ class Soap < TrivialSoap
     end
   end
 
-  def obj2xml xml, name, o, attrs={}
+  def obj2xml xml, name, type, o, attrs={}
     case o
     when VIM::ManagedObject
       xml.tag! name, o._ref, :type => o.class.wsdl_name
@@ -130,25 +130,25 @@ class Soap < TrivialSoap
         o.class.full_props_desc.each do |desc|
           k = desc['name'].to_sym
           v = o.props[k] or next
-          obj2xml xml, k.to_s, v
+          obj2xml xml, k.to_s, desc['wsdl_type'], v
         end
       end
     when VIM::Enum
-      obj2xml xml, name, o.value
+      obj2xml xml, name, nil, o.value
     when Hash
       xml.tag! name, attrs do
         o.each do |k,v|
-          obj2xml xml, k.to_s, v
+          obj2xml xml, k.to_s, nil, v
         end
       end
     when Array
       o.each do |v|
-        obj2xml xml, name, v, attrs
+        obj2xml xml, name, nil, v, attrs
       end
     when Symbol, String, Integer, true, false
       xml.tag! name, o.to_s, attrs
     when Typed
-      obj2xml xml, name, o.value, 'xsi:type' => o.type.to_s
+      obj2xml xml, name, nil, o.value, 'xsi:type' => o.type.to_s
     else fail "unexpected object class #{o.class}"
     end
     xml
