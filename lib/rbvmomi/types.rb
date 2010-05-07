@@ -7,176 +7,176 @@ module RbVmomi
 module VIM
 
 def self.load fn
-	@vmodl = YAML.load_file(fn)
-	@typenames = @vmodl.map { |x,v| v.keys }.flatten
-	Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }
+  @vmodl = YAML.load_file(fn)
+  @typenames = @vmodl.map { |x,v| v.keys }.flatten
+  Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }
 end
 
 def self.const_missing sym
-	if @typenames.member? sym.to_s
-		load_type sym
-	else
-		super
-	end
+  if @typenames.member? sym.to_s
+    load_type sym
+  else
+    super
+  end
 end
 
 def self.method_missing sym, *a
-	if @typenames.member? sym.to_s
-		const_get(sym).new *a
-	else
-		super
-	end
+  if @typenames.member? sym.to_s
+    const_get(sym).new *a
+  else
+    super
+  end
 end
 
 def self.load_type sym
-	const_set sym, make_type(sym)
+  const_set sym, make_type(sym)
 end
 
 def self.make_type name
-	name = name.to_s
-	if desc = @vmodl['data'][name]
-		make_data_type name, desc
-	elsif desc = @vmodl['managed'][name]
-		make_managed_type name, desc
-	elsif desc = @vmodl['enum'][name]
-		make_enum_type name, desc
-	else fail "unknown @vmodl type #{name}"
-	end
+  name = name.to_s
+  if desc = @vmodl['data'][name]
+    make_data_type name, desc
+  elsif desc = @vmodl['managed'][name]
+    make_managed_type name, desc
+  elsif desc = @vmodl['enum'][name]
+    make_enum_type name, desc
+  else fail "unknown @vmodl type #{name}"
+  end
 end
 
 def self.make_data_type name, desc
-	superclass = const_get(desc['wsdl_base'].to_sym)
-	Class.new(superclass).tap do |klass|
-		klass.initialize name, desc['props']
-	end
+  superclass = const_get(desc['wsdl_base'].to_sym)
+  Class.new(superclass).tap do |klass|
+    klass.initialize name, desc['props']
+  end
 end
 
 def self.make_managed_type name, desc
-	superclass = const_get(desc['wsdl_base'].to_sym)
-	Class.new(superclass).tap do |klass|
-		klass.initialize name, desc['props'], desc['methods']
-	end
+  superclass = const_get(desc['wsdl_base'].to_sym)
+  Class.new(superclass).tap do |klass|
+    klass.initialize name, desc['props'], desc['methods']
+  end
 end
 
 def self.make_enum_type name, desc
-	Class.new(Enum).tap do |klass|
-		klass.initialize name, desc['values']
-	end
+  Class.new(Enum).tap do |klass|
+    klass.initialize name, desc['values']
+  end
 end
 
 class Base
-	class << self
-		attr_reader :wsdl_name
+  class << self
+    attr_reader :wsdl_name
 
-		def initialize wsdl_name=self.name
-			@wsdl_name = wsdl_name
-		end
+    def initialize wsdl_name=self.name
+      @wsdl_name = wsdl_name
+    end
 
-		def to_s
-			@wsdl_name
-		end
-	end
+    def to_s
+      @wsdl_name
+    end
+  end
 
-	initialize
+  initialize
 end
 
 class ObjectWithProperties < Base
-	class << self
-		attr_accessor :props_desc
+  class << self
+    attr_accessor :props_desc
 
-		def initialize name=self.name, props=[]
-			super name
-			@props_desc = props
-			@props_desc.each do |d|
-				sym = d['name'].to_sym
-				define_method(sym) { _get_property sym }
-				define_method(:"#{sym}=") { |x| _set_propery sym, x }
-			end
-		end
+    def initialize name=self.name, props=[]
+      super name
+      @props_desc = props
+      @props_desc.each do |d|
+        sym = d['name'].to_sym
+        define_method(sym) { _get_property sym }
+        define_method(:"#{sym}=") { |x| _set_propery sym, x }
+      end
+    end
 
-		# XXX cache
-		def full_props_desc
-			(self == ObjectWithProperties ? [] : superclass.full_props_desc) + props_desc
-		end
+    # XXX cache
+    def full_props_desc
+      (self == ObjectWithProperties ? [] : superclass.full_props_desc) + props_desc
+    end
 
-		def find_prop_desc name
-			full_props_desc.find { |x| x['name'] == name.to_s }
-		end
-	end
+    def find_prop_desc name
+      full_props_desc.find { |x| x['name'] == name.to_s }
+    end
+  end
 
-	def _get_property sym
-		fail 'unimplemented'
-	end
+  def _get_property sym
+    fail 'unimplemented'
+  end
 
-	def _set_property sym, val
-		fail 'unimplemented'
-	end
+  def _set_property sym, val
+    fail 'unimplemented'
+  end
 
-	initialize
+  initialize
 end
 
 class ObjectWithMethods < ObjectWithProperties
-	class << self
-		attr_accessor :methods_desc
+  class << self
+    attr_accessor :methods_desc
 
-		def initialize name=self.name, props=[], methods={}
-			super name, props
-			@methods_desc = methods
+    def initialize name=self.name, props=[], methods={}
+      super name, props
+      @methods_desc = methods
 
-			@methods_desc.each do |k,d|
-				sym = k.to_sym
-				define_method(sym) { call sym }
-			end
-		end
+      @methods_desc.each do |k,d|
+        sym = k.to_sym
+        define_method(sym) { call sym }
+      end
+    end
 
-		# XXX cache
-		def full_methods_desc
-			(self == ObjectWithMethods ? {} : superclass.full_methods_desc).merge methods_desc
-		end
-	end
+    # XXX cache
+    def full_methods_desc
+      (self == ObjectWithMethods ? {} : superclass.full_methods_desc).merge methods_desc
+    end
+  end
 
-	initialize
+  initialize
 end
 
 class DataObject < ObjectWithProperties
-	attr_reader :props
+  attr_reader :props
 
-	def initialize props={}
-		@props = props
-		@props.each do |k,v|
-			fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
-		end
-	end
+  def initialize props={}
+    @props = props
+    @props.each do |k,v|
+      fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
+    end
+  end
 
-	def _get_property sym
-		@props[sym]
-	end
+  def _get_property sym
+    @props[sym]
+  end
 
-	def _set_property sym, val
-		@props[sym] = val
-	end
+  def _set_property sym, val
+    @props[sym] = val
+  end
 
-	initialize
+  initialize
 end
 
 class ManagedObject < ObjectWithMethods
   def initialize soap, ref
-		super()
+    super()
     @soap = soap
     @ref = ref
   end
 
-	def _ref
-		@ref
-	end
+  def _ref
+    @ref
+  end
 
-	def _get_property sym
-		property sym.to_s
-	end
+  def _get_property sym
+    property sym.to_s
+  end
 
-	def _set_property sym, val
-		fail 'unimplemented'
-	end
+  def _set_property sym, val
+    fail 'unimplemented'
+  end
 
   def call method, o={}
     fail unless o.is_a? Hash
@@ -245,34 +245,34 @@ class ManagedObject < ObjectWithMethods
   def hash
     [type, value].hash
   end
-	initialize
+  initialize
 end
 
 class Enum < Base
-	class << self
-		attr_accessor :values
+  class << self
+    attr_accessor :values
 
-		def initialize name=self.name, values=[]
-			super name
-			@values = values
-		end
-	end
+    def initialize name=self.name, values=[]
+      super name
+      @values = values
+    end
+  end
 
-	attr_reader :value
+  attr_reader :value
 
-	def initialize value
-		@value = value
-	end
+  def initialize value
+    @value = value
+  end
 
-	initialize
+  initialize
 end
 
 class MethodFault < DataObject
-	initialize
+  initialize
 end
 
 class RuntimeFault < DataObject
-	initialize
+  initialize
 end
 
 class MethodName < String
