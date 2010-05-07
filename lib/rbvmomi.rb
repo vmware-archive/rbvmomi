@@ -46,15 +46,11 @@ class Soap < TrivialSoap
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
   def serviceInstance
-    moRef 'ServiceInstance', 'ServiceInstance'
+    VIM::ServiceInstance self, 'ServiceInstance'
   end
 
   def propertyCollector
     @propertyCollector ||= serviceInstance.RetrieveServiceContent!.propertyCollector
-  end
-
-  def moRef type, value
-    MoRef.new self, type, value
   end
 
   def call method, o={}
@@ -104,7 +100,7 @@ class Soap < TrivialSoap
           xml.children.first.text? and
           xml.attributes.keys == %w(type) and
           xml['type'] =~ /^[A-Z]/
-      MoRef.new(self, xml['type'], xml.text)
+      VIM.const_get(xml['type']).new(self, xml.text)
     elsif xml.children.size == 1 && xml.children.first.text?
       xml.text
     else

@@ -215,8 +215,7 @@ class ManagedObject < ObjectWithMethods
   end
 
   def == x
-    super unless x.is_a? self.class
-    x.type == type and x.value == value
+    x.class == self.class and x._ref == @ref
   end
 
   def hash

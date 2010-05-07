@@ -22,7 +22,7 @@ class DeserializationTest < Test::Unit::TestCase
   end
 
   def test_moref
-    check <<-EOS, @soap.moRef('Folder', 'ha-folder-root')
+    check <<-EOS, VIM.Folder(nil, 'ha-folder-root')
 <root type="Folder">ha-folder-root</root>
     EOS
   end
