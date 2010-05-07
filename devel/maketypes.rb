@@ -49,12 +49,25 @@ end
 
 class Base
 	class << self
+		def initialize name=self.name
+			@name = name
+		end
+
+		def to_s
+			@name
+		end
+	end
+
+	initialize
+end
+
+class ObjectWithProperties < Base
+	class << self
 		attr_accessor :props_desc
 
 		def initialize name=self.name, props=[]
+			super name
 			@props_desc = props
-			@name = name
-
 			@props_desc.each do |d|
 				sym = d['name'].to_sym
 				define_method(sym) { @props[sym] }
@@ -62,13 +75,9 @@ class Base
 			end
 		end
 
-		def to_s
-			@name
-		end
-
 		# XXX cache
 		def full_props_desc
-			(self == Base ? [] : superclass.full_props_desc) + props_desc
+			(self == ObjectWithProperties ? [] : superclass.full_props_desc) + props_desc
 		end
 
 		def find_prop_desc name
@@ -79,18 +88,7 @@ class Base
 	initialize
 end
 
-class DataObject < Base
-	def initialize props={}
-		@props = props
-		@props.each do |k,v|
-			fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
-		end
-	end
-
-	initialize
-end
-
-class ManagedObject < Base
+class ObjectWithMethods < ObjectWithProperties
 	class << self
 		attr_accessor :methods_desc
 
@@ -106,10 +104,25 @@ class ManagedObject < Base
 
 		# XXX cache
 		def full_methods_desc
-			(self == ManagedObject ? {} : superclass.full_methods_desc).merge methods_desc
+			(self == ObjectWithMethods ? {} : superclass.full_methods_desc).merge methods_desc
 		end
 	end
 
+	initialize
+end
+
+class DataObject < ObjectWithProperties
+	def initialize props={}
+		@props = props
+		@props.each do |k,v|
+			fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
+		end
+	end
+
+	initialize
+end
+
+class ManagedObject < ObjectWithMethods
 	def initialize ref
 		@ref = ref
 	end
@@ -122,7 +135,7 @@ class Enum < Base
 		attr_accessor :values
 
 		def initialize name=self.name, values=[]
-			super name, []
+			super name
 			@values = values
 		end
 	end
@@ -136,7 +149,7 @@ class Enum < Base
 	initialize
 end
 
-class MethodFault < Base
+class MethodFault < DataObject
 	initialize
 end
 
@@ -148,7 +161,7 @@ class PropertyPath < Base
 	initialize
 end
 
-class RuntimeFault < Base
+class RuntimeFault < DataObject
 	initialize
 end
 
@@ -168,6 +181,7 @@ nic.key = 2
 pp nic.key
 =end
 
+if false
 VMODL['data'].each do |name,desc|
 	puts "--"
 	VIM.const_get(name.to_sym)
@@ -182,4 +196,22 @@ VMODL['enum'].each do |name,desc|
 	puts "--"
 	VIM.const_get(name.to_sym)
 end
+end
 
+cfg = VIM::VirtualMachineConfigSpec.new(
+	name: "esx1a",
+	guestId: "otherGuest64",
+	files: VIM::VirtualMachineFileInfo.new(vmPathName: '[datastore1]'),
+	numCPUs: 2,
+	memoryMB: 3072,
+	deviceChange: [
+		VIM::VirtualDeviceConfigSpec.new(
+			operation: :add,
+			device: VIM::VirtualLsiLogicController.new(
+				key: 1000,
+				busNumber: 0,
+				sharedBus: :noSharing,
+			)
+		)
+	]
+)
