@@ -258,4 +258,4 @@ end
 end
 
 require 'rbvmomi/types'
-RbVmomi::VIM.load "vmodl.yaml"
+RbVmomi::VIM.load File.join(File.dirname(__FILE__), "../vmodl.yaml")
