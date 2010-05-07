@@ -87,7 +87,8 @@ class Soap < TrivialSoap
     when 'xsd:int', 'xsd:long' then xml.text.to_i
     when 'xsd:boolean' then xml.text == 'true'
     when /^xsd:/ then fail "unexpected xsd type #{type}"
-    when 'ManagedObjectReference' then MoRef.new(self, xml['type'], xml.text)
+    when 'ManagedObjectReference' then
+      VIM.const_get(xml['type']).new(self, xml.text)
     when /^ArrayOf(\w+)$/ then
       etype = $1
       xml.children.select(&:element?).map { |x| xml2obj x, etype }
@@ -127,7 +128,7 @@ class Soap < TrivialSoap
   def obj2xml xml, name, o, attrs={}
     case o
     when VIM::ManagedObject
-      xml.tag! name, o.value, :type => o.class.wsdl_name
+      xml.tag! name, o._ref, :type => o.class.wsdl_name
     when VIM::DataObject
       xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
@@ -152,90 +153,9 @@ class Soap < TrivialSoap
       xml.tag! name, o.to_s, attrs
     when Typed
       obj2xml xml, name, o.value, 'xsi:type' => o.type.to_s
-    when MoRef
-      xml.tag! name, o.value, :type => o.type
     else fail "unexpected object class #{o.class}"
     end
     xml
-  end
-end
-
-class MoRef
-  attr_reader :soap, :type, :value
-
-  def initialize soap, type, value
-    @soap = soap
-    @type = type
-    @value = value
-  end
-
-  def call method, o={}
-    fail unless o.is_a? Hash
-    @soap.call method, {'_this' => self}.merge(o)
-  end
-
-  def method_missing sym, *args, &b
-    if sym.to_s =~ /!$/
-      call $`.to_sym, *args, &b
-    else
-      property sym.to_s
-    end
-  end
-
-  def to_s
-    "MoRef(#{type}, #{value})"
-  end
-
-  def pretty_print pp
-    pp.text to_s
-  end
-
-  def property key
-    @soap.propertyCollector.RetrieveProperties!(:specSet => {
-      :propSet => { :type => @type, :pathSet => [key] },
-      :objectSet => { :obj => self },
-    })[:propSet][:val]
-  end
-
-  def wait
-    filter = @soap.propertyCollector.CreateFilter! :spec => {
-      :propSet => { :type => @type, :all => true },
-      :objectSet => { :obj => self },
-    }, :partialUpdates => false
-    result = @soap.propertyCollector.WaitForUpdates!
-    filter.DestroyPropertyFilter!
-    changes = result.filterSets[0].objectSets[0].changeSets
-    NiceHash[changes.map { |h| [h[:name].to_sym, h[:val]] }]
-  end
-
-  def wait_until &b
-    loop do
-      props = wait
-      return props if b.call props
-    end
-  end
-
-  def wait_task
-    props = wait_until { |x| %w(success error).member? x[:info][:state] }
-    case props[:info][:state]
-    when 'success'
-      props[:info][:result]
-    when 'error'
-      fail "task #{props[:info][:key]} failed: #{props[:info][:error][:localizedMessage]}"
-    end
-  end
-
-  def [] k
-    property k.to_s
-  end
-
-  def == x
-    super unless x.is_a? self.class
-    x.type == type and x.value == value
-  end
-
-  def hash
-    [type, value].hash
   end
 end
 

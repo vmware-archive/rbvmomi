@@ -106,6 +106,13 @@ class ObjectWithProperties < Base
 
 	attr_reader :props
 
+	def initialize props={}
+		@props = props
+		@props.each do |k,v|
+			fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
+		end
+	end
+
 	initialize
 end
 
@@ -133,21 +140,88 @@ class ObjectWithMethods < ObjectWithProperties
 end
 
 class DataObject < ObjectWithProperties
-	def initialize props={}
-		@props = props
-		@props.each do |k,v|
-			fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
-		end
-	end
-
 	initialize
 end
 
 class ManagedObject < ObjectWithMethods
-	def initialize ref
-		@ref = ref
+  def initialize soap, ref
+		super({})
+    @soap = soap
+    @ref = ref
+  end
+
+	def _ref
+		@ref
 	end
 
+  def call method, o={}
+    fail unless o.is_a? Hash
+    @soap.call method, {'_this' => self}.merge(o)
+  end
+
+  def method_missing sym, *args, &b
+    if sym.to_s =~ /!$/
+      call $`.to_sym, *args, &b
+    else
+      property sym.to_s
+    end
+  end
+
+  def to_s
+    "MoRef(#{self.class.wsdl_name}, #{value})"
+  end
+
+  def pretty_print pp
+    pp.text to_s
+  end
+
+  def property key
+    @soap.propertyCollector.RetrieveProperties!(:specSet => {
+      :propSet => { :type => self.class.wsdl_name, :pathSet => [key] },
+      :objectSet => { :obj => self },
+    })[:propSet][:val]
+  end
+
+  def wait
+    filter = @soap.propertyCollector.CreateFilter! :spec => {
+      :propSet => { :type => self.class.wsdl_name, :all => true },
+      :objectSet => { :obj => self },
+    }, :partialUpdates => false
+    result = @soap.propertyCollector.WaitForUpdates!
+    filter.DestroyPropertyFilter!
+    changes = result.filterSets[0].objectSets[0].changeSets
+    NiceHash[changes.map { |h| [h[:name].to_sym, h[:val]] }]
+  end
+
+  def wait_until &b
+    loop do
+      props = wait
+      return props if b.call props
+    end
+  end
+
+  def wait_task
+    props = wait_until { |x| %w(success error).member? x[:info][:state] }
+    case props[:info][:state]
+    when 'success'
+      props[:info][:result]
+    when 'error'
+      fail "task #{props[:info][:key]} failed: #{props[:info][:error][:localizedMessage]}"
+    end
+  end
+
+  def [] k
+    property k.to_s
+  end
+
+  def == x
+    super unless x.is_a? self.class
+    x.type == type and x.value == value
+  end
+
+  def hash
+    [type, value].hash
+  end
 	initialize
 end
 

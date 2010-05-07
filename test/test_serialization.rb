@@ -19,7 +19,7 @@ class SerializationTest < Test::Unit::TestCase
   end
 
   def test_moref
-    check <<-EOS, RbVmomi::MoRef.new(nil, "Folder", "ha-folder-host")
+    check <<-EOS, VIM.Folder(nil, "ha-folder-host")
 <root type="Folder">ha-folder-host</root>
     EOS
   end
