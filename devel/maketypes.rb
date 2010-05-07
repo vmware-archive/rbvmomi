@@ -29,12 +29,20 @@ def self.make_managed_type name, desc
 	klass
 end
 
+def self.make_enum_type name, desc
+	klass = Class.new Enum
+	klass.initialize name, desc['values']
+	klass
+end
+
 def self.make_type name
 	name = name.to_s
 	if desc = VMODL['data'][name]
 		make_data_type name, desc
 	elsif desc = VMODL['managed'][name]
 		make_managed_type name, desc
+	elsif desc = VMODL['enum'][name]
+		make_enum_type name, desc
 	else fail "unknown VMODL type #{name}"
 	end
 end
@@ -109,6 +117,25 @@ class ManagedObject < Base
 	initialize
 end
 
+class Enum < Base
+	class << self
+		attr_accessor :values
+
+		def initialize name=self.name, values=[]
+			super name, []
+			@values = values
+		end
+	end
+
+	attr_reader :value
+
+	def initialize value
+		@value = value
+	end
+
+	initialize
+end
+
 class MethodFault < Base
 	initialize
 end
@@ -147,6 +174,11 @@ VMODL['data'].each do |name,desc|
 end
 
 VMODL['managed'].each do |name,desc|
+	puts "--"
+	VIM.const_get(name.to_sym)
+end
+
+VMODL['enum'].each do |name,desc|
 	puts "--"
 	VIM.const_get(name.to_sym)
 end
