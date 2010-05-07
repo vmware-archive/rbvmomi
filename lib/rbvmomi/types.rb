@@ -89,8 +89,8 @@ class ObjectWithProperties < Base
 			@props_desc = props
 			@props_desc.each do |d|
 				sym = d['name'].to_sym
-				define_method(sym) { @props[sym] }
-				define_method(:"#{sym}=") { |x| @props[sym] = x }
+				define_method(sym) { _get_property sym }
+				define_method(:"#{sym}=") { |x| _set_propery sym, x }
 			end
 		end
 
@@ -104,13 +104,12 @@ class ObjectWithProperties < Base
 		end
 	end
 
-	attr_reader :props
+	def _get_property sym
+		fail 'unimplemented'
+	end
 
-	def initialize props={}
-		@props = props
-		@props.each do |k,v|
-			fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
-		end
+	def _set_property sym, val
+		fail 'unimplemented'
 	end
 
 	initialize
@@ -140,18 +139,43 @@ class ObjectWithMethods < ObjectWithProperties
 end
 
 class DataObject < ObjectWithProperties
+	attr_reader :props
+
+	def initialize props={}
+		@props = props
+		@props.each do |k,v|
+			fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
+		end
+	end
+
+	def _get_property sym
+		@props[sym]
+	end
+
+	def _set_property sym, val
+		@props[sym] = val
+	end
+
 	initialize
 end
 
 class ManagedObject < ObjectWithMethods
   def initialize soap, ref
-		super({})
+		super()
     @soap = soap
     @ref = ref
   end
 
 	def _ref
 		@ref
+	end
+
+	def _get_property sym
+		property sym.to_s
+	end
+
+	def _set_property sym, val
+		fail 'unimplemented'
 	end
 
   def call method, o={}
