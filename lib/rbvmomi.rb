@@ -148,6 +148,8 @@ class Soap < TrivialSoap
   def obj2xml xml, name, type, o, attrs={}
     case o
     when VIM::ManagedObject
+      expected = RbVmomi.type(type)
+      fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
       xml.tag! name, o._ref, :type => o.class.wsdl_name
     when VIM::DataObject
       expected = RbVmomi.type(type)
