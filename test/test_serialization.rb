@@ -33,10 +33,10 @@ class SerializationTest < Test::Unit::TestCase
   end
 
   def test_config
-    cfg = {
+    cfg = VIM.VirtualMachineConfigSpec(
       name: 'vm',
-      guestId: 'otherGuest64',
       files: { vmPathName: '[datastore1]' },
+      guestId: 'otherGuest64',
       numCPUs: 2,
       memoryMB: 3072,
       deviceChange: [
@@ -82,9 +82,9 @@ class SerializationTest < Test::Unit::TestCase
           value: XSD.string('ethernet0')
         }
       ]
-    }
+    )
     check <<-EOS, cfg
-<root>
+<root xsi:type="VirtualMachineConfigSpec">
   <name>vm</name>
   <guestId>otherGuest64</guestId>
   <files>
