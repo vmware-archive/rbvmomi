@@ -12,6 +12,14 @@ def self.load fn
   Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }
 end
 
+def self.type name
+  if @typenames.member? name.to_s
+    const_get(name.to_sym)
+  else
+    fail "no such type #{name.inspect}"
+  end
+end
+
 def self.const_missing sym
   if @typenames.member? sym.to_s
     load_type sym

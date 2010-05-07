@@ -3,10 +3,10 @@ require 'rbvmomi'
 include RbVmomi
 
 class SerializationTest < Test::Unit::TestCase
-  def check str, obj
+  def check str, obj, type
     soap = RbVmomi::Soap.new URI.parse("http://localhost/")
     xml = Builder::XmlMarkup.new :indent => 2
-    soap.obj2xml(xml, 'root', nil, obj)
+    soap.obj2xml(xml, 'root', type, obj)
 
     puts "expected:"
     puts str
@@ -19,13 +19,13 @@ class SerializationTest < Test::Unit::TestCase
   end
 
   def test_moref
-    check <<-EOS, VIM.Folder(nil, "ha-folder-host")
+    check <<-EOS, VIM.Folder(nil, "ha-folder-host"), "Folder"
 <root type="Folder">ha-folder-host</root>
     EOS
   end
 
   def test_typed
-    check <<-EOS, VIM.VirtualLsiLogicController(:key => XSD.int(1000))
+    check <<-EOS, VIM.VirtualLsiLogicController(:key => XSD.int(1000)), "VirtualLsiLogicController"
 <root xsi:type="VirtualLsiLogicController">
   <key xsi:type="xsd:int">1000</key>
 </root>
@@ -83,7 +83,7 @@ class SerializationTest < Test::Unit::TestCase
         }
       ]
     )
-    check <<-EOS, cfg
+    check <<-EOS, cfg, "VirtualMachineConfigSpec"
 <root xsi:type="VirtualMachineConfigSpec">
   <name>vm</name>
   <guestId>otherGuest64</guestId>

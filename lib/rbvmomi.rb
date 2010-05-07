@@ -36,7 +36,31 @@ class NiceHash < Hash
   end
 end
 
+def self.type name
+  return unless name
+  name = name.to_s
+  return [type($')] if name =~ /^ArrayOf/
+
+  if name =~ /^xsd:/
+    XSD.type $'
+  else
+    VIM.type name
+  end
+end
+
 module XSD
+  def self.type name
+    case name
+    when 'boolean'
+      nil
+    when "string"
+      String
+    when "int", "long", "short", "byte"
+      Integer
+    else fail "no such xsd type #{name.inspect}"
+    end
+  end
+
   def self.method_missing sym, arg
     RbVmomi::Typed.new "xsd:#{sym}", arg
   end
@@ -126,6 +150,8 @@ class Soap < TrivialSoap
     when VIM::ManagedObject
       xml.tag! name, o._ref, :type => o.class.wsdl_name
     when VIM::DataObject
+      expected = RbVmomi.type(type)
+      fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
       xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
           k = desc['name'].to_sym
