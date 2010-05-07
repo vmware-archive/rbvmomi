@@ -7,13 +7,25 @@ module RbVmomi
 module VIM
 
 def self.load fn
-	const_set :VMODL, YAML.load_file(fn)
-	typenames = VMODL.map { |x,v| v.keys }.flatten
-	Object.constants.select { |x| typenames.member? x.to_s }.each { |x| load_type x }
+	@vmodl = YAML.load_file(fn)
+	@typenames = @vmodl.map { |x,v| v.keys }.flatten
+	Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }
 end
 
 def self.const_missing sym
-	load_type sym
+	if @typenames.member? sym.to_s
+		load_type sym
+	else
+		super
+	end
+end
+
+def self.method_missing sym, *a
+	if @typenames.member? sym.to_s
+		const_get(sym).new *a
+	else
+		super
+	end
 end
 
 def self.load_type sym
@@ -22,13 +34,13 @@ end
 
 def self.make_type name
 	name = name.to_s
-	if desc = VMODL['data'][name]
+	if desc = @vmodl['data'][name]
 		make_data_type name, desc
-	elsif desc = VMODL['managed'][name]
+	elsif desc = @vmodl['managed'][name]
 		make_managed_type name, desc
-	elsif desc = VMODL['enum'][name]
+	elsif desc = @vmodl['enum'][name]
 		make_enum_type name, desc
-	else fail "unknown VMODL type #{name}"
+	else fail "unknown @vmodl type #{name}"
 	end
 end
 
@@ -54,12 +66,14 @@ end
 
 class Base
 	class << self
-		def initialize name=self.name
-			@name = name
+		attr_reader :wsdl_name
+
+		def initialize wsdl_name=self.name
+			@wsdl_name = wsdl_name
 		end
 
 		def to_s
-			@name
+			@wsdl_name
 		end
 	end
 
@@ -89,6 +103,8 @@ class ObjectWithProperties < Base
 			full_props_desc.find { |x| x['name'] == name.to_s }
 		end
 	end
+
+	attr_reader :props
 
 	initialize
 end

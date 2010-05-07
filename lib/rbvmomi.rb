@@ -1,5 +1,4 @@
 require 'trivial_soap'
-require 'rbvmomi/types'
 require 'linguistics'
 Linguistics.use :en
 
@@ -34,12 +33,6 @@ class NiceHash < Hash
 
   def self.[] *a
     new.tap { |h| h.merge! super }
-  end
-end
-
-module VIM
-  def self.method_missing sym, arg
-    RbVmomi::Typed.new sym.to_s, arg
   end
 end
 
@@ -133,6 +126,18 @@ class Soap < TrivialSoap
 
   def obj2xml xml, name, o, attrs={}
     case o
+    when VIM::ManagedObject
+      xml.tag! name, o.value, :type => o.class.wsdl_name
+    when VIM::DataObject
+      xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
+        o.class.full_props_desc.each do |desc|
+          k = desc['name'].to_sym
+          v = o.props[k] or next
+          obj2xml xml, k.to_s, v
+        end
+      end
+    when VIM::Enum
+      obj2xml xml, name, o.value
     when Hash
       xml.tag! name, attrs do
         o.each do |k,v|
@@ -251,3 +256,6 @@ def self.connect uri
 end
 
 end
+
+require 'rbvmomi/types'
+RbVmomi::VIM.load "vmodl.yaml"
