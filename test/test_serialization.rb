@@ -47,9 +47,9 @@ class SerializationTest < Test::Unit::TestCase
             busNumber: XSD.int(0),
             sharedBus: :noSharing,
           )
-        }, {
-          operation: :add,
-          fileOperation: :create,
+        }, VIM.VirtualDeviceConfigSpec(
+          operation: VIM.VirtualDeviceConfigSpecOperation(:add),
+          fileOperation: VIM.VirtualDeviceConfigSpecFileOperation(:create),
           device: VIM.VirtualDisk(
             key: XSD.int(0),
             backing: VIM.VirtualDiskFlatVer2BackingInfo(
@@ -61,7 +61,7 @@ class SerializationTest < Test::Unit::TestCase
             unitNumber: 0,
             capacityInKB: XSD.long(4000000),
           )
-        }, {
+        ), {
           operation: :add,
           device: VIM.VirtualE1000(
             key: XSD.int(0),
@@ -100,7 +100,7 @@ class SerializationTest < Test::Unit::TestCase
       <sharedBus>noSharing</sharedBus>
     </device>
   </deviceChange>
-  <deviceChange>
+  <deviceChange xsi:type="VirtualDeviceConfigSpec">
     <operation>add</operation>
     <fileOperation>create</fileOperation>
     <device xsi:type="VirtualDisk">

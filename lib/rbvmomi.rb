@@ -162,6 +162,8 @@ class Soap < TrivialSoap
         end
       end
     when VIM::Enum
+      expected = RbVmomi.type(type)
+      fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected == o.class
       obj2xml xml, name, nil, o.value
     when Hash
       xml.tag! name, attrs do
