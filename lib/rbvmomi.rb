@@ -44,7 +44,7 @@ def self.type name
 
   if name =~ /^xsd:/
     XSD.type $'
-  elsif %w(String).member? name
+  elsif XSD::TYPES.member? name
     XSD.type name
   else
     VIM.type name
@@ -52,13 +52,15 @@ def self.type name
 end
 
 module XSD
+  TYPES = %w(anytype boolean string int long short byte datetime)
+
   def self.type name
-    case name
-    when 'anyType'
+    case name.downcase
+    when 'anytype'
       nil
     when 'boolean'
       nil
-    when "string", "String"
+    when "string"
       String
     when "int", "long", "short", "byte"
       Integer
@@ -112,9 +114,11 @@ class Soap < TrivialSoap
   end
 
   def xml2obj xml, type
-    type = xml.attribute_with_ns('type', NS_XSI) || type.to_s
+    type = (xml.attribute_with_ns('type', NS_XSI) || type).to_s
     if type =~ /^xsd:/
       xml2obj_xsd xml, $'
+    elsif XSD::TYPES.member? type.downcase
+      xml2obj_xsd xml, type
     else
       t = RbVmomi.type type
       if t.is_a? Array
@@ -145,18 +149,18 @@ class Soap < TrivialSoap
         xml.text
       elsif t <= String
         xml.text
-      else fail t.inspect
+      else fail "unexpected type #{t.inspect}"
       end
     end
   end
 
   def xml2obj_xsd xml, type
-    case type
+    case type.downcase
     when 'string' then xml.text
     when 'byte', 'short', 'int', 'long' then xml.text.to_i
     when 'boolean' then xml.text == 'true' || xml.text == '1'
-    when 'dateTime' then Time.parse xml.text
-    when 'anyType' then fail "attempted to deserialize an anyType"
+    when 'datetime' then Time.parse xml.text
+    when 'anytype' then fail "attempted to deserialize an anyType"
     else fail "unexpected XSD type #{type.inspect}"
     end
   end
