@@ -6,9 +6,11 @@ module RbVmomi
 
 module VIM
 
+BUILTIN_TYPES = %w(ManagedObject TypeName PropertyPath ManagedObjectReference MethodName)
+
 def self.load fn
   @vmodl = YAML.load_file(fn)
-  @typenames = @vmodl.map { |x,v| v.keys }.flatten + %w(ManagedObject TypeName PropertyPath ManagedObjectReference)
+  @typenames = @vmodl.map { |x,v| v.keys }.flatten + BUILTIN_TYPES
   Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }
 end
 
@@ -232,8 +234,8 @@ class ManagedObject < ObjectWithMethods
     }, :partialUpdates => false
     result = @soap.propertyCollector.WaitForUpdates!
     filter.DestroyPropertyFilter!
-    changes = result.filterSets[0].objectSets[0].changeSets
-    NiceHash[changes.map { |h| [h[:name].to_sym, h[:val]] }]
+    changes = result.filterSet[0].objectSet[0].changeSet
+    NiceHash[changes.map { |h| [h.name.to_sym, h.val] }]
   end
 
   def wait_until &b
@@ -244,12 +246,12 @@ class ManagedObject < ObjectWithMethods
   end
 
   def wait_task
-    props = wait_until { |x| %w(success error).member? x[:info][:state] }
-    case props[:info][:state]
+    props = wait_until { |x| %w(success error).member? x.info.state }
+    case props[:info].state
     when 'success'
-      props[:info][:result]
+      props[:info].result
     when 'error'
-      fail "task #{props[:info][:key]} failed: #{props[:info][:error][:localizedMessage]}"
+      fail "task #{props[:info].key} failed: #{props.info.error.localizedMessage}"
     end
   end
 

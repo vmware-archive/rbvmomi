@@ -34,7 +34,7 @@ VMODL2WSDL.merge!(
 	'string' => 'xsd:string',
 	'string[]' => 'ArrayOfString',
 	'vmodl.DateTime' => 'xsd:dateTime',
-	'vmodl.DateTime[]' => 'ArrayOfDateTime',
+	'vmodl.DateTime[]' => 'ArrayOfDateTime'
 )
 
 %w(DataObject ManagedObject MethodFault MethodName
@@ -85,9 +85,9 @@ class ModelBuilder
 							'vmodl_type' => pType,
 						}
 					end,
-					'result' => (mResult[2] != 'void') && {
+					'result' => (mResult[1] != 'void') && {
 						'flags' => decode_property_flags(mResult[0]),
-						'vmodl_type' => mResult[2],
+						'vmodl_type' => mResult[1],
 					} || nil
 				}]
 			end]
