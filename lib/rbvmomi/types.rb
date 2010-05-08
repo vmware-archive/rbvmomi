@@ -219,10 +219,10 @@ class ManagedObject < ObjectWithMethods
   end
 
   def property key
-    @soap.propertyCollector.RetrieveProperties!(:specSet => [{
+    o = @soap.propertyCollector.RetrieveProperties!(:specSet => [{
       :propSet => [{ :type => self.class.wsdl_name, :pathSet => [key] }],
       :objectSet => [{ :obj => self }],
-    }])[:propSet][:val]
+    }])[0].propSet[0].val
   end
 
   def wait
