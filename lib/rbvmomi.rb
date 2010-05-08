@@ -97,7 +97,7 @@ class Soap < TrivialSoap
       fail "#{resp.at('faultcode').text}: #{resp.at('faultstring').text}"
     else
       if desc['result']['wsdl_type']
-        xml2obj resp.at('returnval'), desc['result']['wsdl_type']
+        xml2obj resp.children.first, desc['result']['wsdl_type']
       else
         nil
       end
