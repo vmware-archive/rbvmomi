@@ -146,13 +146,12 @@ class Soap < TrivialSoap
   end
 
   def obj2xml xml, name, type, o, attrs={}
+    expected = RbVmomi.type(type)
     case o
     when VIM::ManagedObject
-      expected = RbVmomi.type(type)
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
       xml.tag! name, o._ref, :type => o.class.wsdl_name
     when VIM::DataObject
-      expected = RbVmomi.type(type)
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
       xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
@@ -162,7 +161,6 @@ class Soap < TrivialSoap
         end
       end
     when VIM::Enum
-      expected = RbVmomi.type(type)
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected == o.class
       obj2xml xml, name, nil, o.value
     when Hash
