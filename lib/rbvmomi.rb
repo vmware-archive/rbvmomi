@@ -1,4 +1,5 @@
 require 'trivial_soap'
+require 'time'
 require 'linguistics'
 Linguistics.use :en
 
@@ -43,6 +44,8 @@ def self.type name
 
   if name =~ /^xsd:/
     XSD.type $'
+  elsif %w(String).member? name
+    XSD.type name
   else
     VIM.type name
   end
@@ -55,7 +58,7 @@ module XSD
       nil
     when 'boolean'
       nil
-    when "string"
+    when "string", "String"
       String
     when "int", "long", "short", "byte"
       Integer
@@ -109,15 +112,19 @@ class Soap < TrivialSoap
     if type =~ /^xsd:/
       xml2obj_xsd xml, $'
     else
-      t = VIM.type type
-      if t <= VIM::DataObject
+      t = RbVmomi.type type
+      if t.is_a? Array
+        xml.children.select { |c| c.element? }.map do |c|
+          xml2obj c, t[0].wsdl_name
+        end
+      elsif t <= VIM::DataObject
         props_desc = t.full_props_desc
         h = {}
         props_desc.select { |d| d['wsdl_type'] =~ /^ArrayOf/ }.each { |d| h[d['name'].to_sym] = [] }
         xml.children.each do |c|
           next unless c.element?
           field = c.name.to_sym
-          d = t.find_prop_desc(field.to_s) or fail("unexpected field #{field}")
+          d = t.find_prop_desc(field.to_s) or fail("unexpected field #{field.inspect} in #{t}")
           if h[field].is_a? Array
             d['wsdl_type'] =~ /^ArrayOf/ or fail
             h[field] << xml2obj(c,$')
@@ -126,9 +133,13 @@ class Soap < TrivialSoap
           end
         end
         t.new h
+      elsif t == VIM::ManagedObjectReference
+        RbVmomi.type(xml['type']).new self, xml.text
       elsif t <= VIM::ManagedObject
         t.new self, xml.text
       elsif t <= VIM::Enum
+        xml.text
+      elsif t <= String
         xml.text
       else fail t.inspect
       end
@@ -140,6 +151,8 @@ class Soap < TrivialSoap
     when 'string' then xml.text
     when 'byte', 'short', 'int', 'long' then xml.text.to_i
     when 'boolean' then xml.text == 'true' || xml.text == '1'
+    when 'dateTime' then Time.parse xml.text
+    when 'anyType' then fail "attempted to deserialize an anyType"
     else fail "unexpected XSD type #{type.inspect}"
     end
   end

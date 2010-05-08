@@ -8,7 +8,7 @@ module VIM
 
 def self.load fn
   @vmodl = YAML.load_file(fn)
-  @typenames = @vmodl.map { |x,v| v.keys }.flatten + %w(ManagedObject TypeName PropertyPath)
+  @typenames = @vmodl.map { |x,v| v.keys }.flatten + %w(ManagedObject TypeName PropertyPath ManagedObjectReference)
   Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }
 end
 
@@ -211,7 +211,7 @@ class ManagedObject < ObjectWithMethods
   end
 
   def to_s
-    "MoRef(#{self.class.wsdl_name}, #{@ref})"
+    "#{self.class.wsdl_name}(#{@ref.inspect})"
   end
 
   def pretty_print pp
@@ -264,7 +264,8 @@ class ManagedObject < ObjectWithMethods
   def hash
     [type, value].hash
   end
-  initialize
+
+  initialize 'ManagedObject'
 end
 
 class Enum < Base
@@ -304,6 +305,10 @@ end
 
 class TypeName < String
   def self.wsdl_name; 'TypeName' end
+end
+
+class ManagedObjectReference
+  def self.wsdl_name; 'ManagedObjectReference' end
 end
 
 end
