@@ -99,8 +99,12 @@ class Soap < TrivialSoap
     if resp.at('faultcode')
       fail "#{resp.at('faultcode').text}: #{resp.at('faultstring').text}"
     else
-      if desc['result']['wsdl_type']
-        xml2obj resp.children.first, desc['result']['wsdl_type']
+      if rtype = desc['result']['wsdl_type']
+        if rtype =~ /^ArrayOf/
+          xml2obj resp, rtype
+        else
+          xml2obj resp.children.first, rtype
+        end
       else
         nil
       end
