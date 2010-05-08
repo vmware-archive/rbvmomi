@@ -51,6 +51,8 @@ end
 module XSD
   def self.type name
     case name
+    when 'anyType'
+      nil
     when 'boolean'
       nil
     when "string"
@@ -164,14 +166,13 @@ class Soap < TrivialSoap
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected == o.class
       obj2xml xml, name, nil, o.value
     when Hash
-      xml.tag! name, attrs do
-        o.each do |k,v|
-          obj2xml xml, k.to_s, nil, v
-        end
-      end
+      fail unless expected
+      obj2xml xml, name, type, expected.new(o), attrs
     when Array
+      fail "expected array for field #{name.inspect}" unless type =~ /^ArrayOf/
+      expected = RbVmomi.type($')
       o.each do |v|
-        obj2xml xml, name, nil, v, attrs
+        obj2xml xml, name, expected, v, attrs
       end
     when Symbol, String, Integer, true, false
       xml.tag! name, o.to_s, attrs

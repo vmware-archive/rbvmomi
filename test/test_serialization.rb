@@ -87,12 +87,12 @@ class SerializationTest < Test::Unit::TestCase
 <root xsi:type="VirtualMachineConfigSpec">
   <name>vm</name>
   <guestId>otherGuest64</guestId>
-  <files>
+  <files xsi:type="VirtualMachineFileInfo">
     <vmPathName>[datastore1]</vmPathName>
   </files>
   <numCPUs>2</numCPUs>
   <memoryMB>3072</memoryMB>
-  <deviceChange>
+  <deviceChange xsi:type="VirtualDeviceConfigSpec">
     <operation>add</operation>
     <device xsi:type="VirtualLsiLogicController">
       <key xsi:type="xsd:int">1000</key>
@@ -115,11 +115,11 @@ class SerializationTest < Test::Unit::TestCase
       <capacityInKB xsi:type="xsd:long">4000000</capacityInKB>
     </device>
   </deviceChange>
-  <deviceChange>
+  <deviceChange xsi:type="VirtualDeviceConfigSpec">
     <operation>add</operation>
     <device xsi:type="VirtualE1000">
       <key xsi:type="xsd:int">0</key>
-      <deviceInfo>
+      <deviceInfo xsi:type="Description">
         <label>Network Adapter 1</label>
         <summary>VM Network</summary>
       </deviceInfo>
@@ -129,7 +129,7 @@ class SerializationTest < Test::Unit::TestCase
       <addressType>generated</addressType>
     </device>
   </deviceChange>
-  <extraConfig>
+  <extraConfig xsi:type="OptionValue">
     <key>bios.bootOrder</key>
     <value xsi:type="xsd:string">ethernet0</value>
   </extraConfig>
