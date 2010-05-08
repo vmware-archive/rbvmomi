@@ -79,12 +79,18 @@ class Soap < TrivialSoap
     @propertyCollector ||= serviceInstance.RetrieveServiceContent!.propertyCollector
   end
 
-  def call method, o={}
+  def call method, desc, o
+    fail unless o.is_a? Hash
+    fail unless desc.is_a? Hash
     resp = request 'urn:vim25/4.0' do |xml|
-      fail unless o.is_a? Hash
       xml.tag! method, :xmlns => 'urn:vim25' do
         yield xml if block_given?
-        o.each { |k,v| obj2xml xml, k.to_s, nil, v }
+        obj2xml xml, '_this', 'ManagedObject', o['_this']
+        desc['params'].each do |d|
+          k = d['name'].to_sym
+          next unless o.member? k
+          obj2xml xml, d['name'], d['wsdl_type'], o[k]
+        end
       end
     end
     if resp.at('faultcode')
@@ -149,6 +155,7 @@ class Soap < TrivialSoap
 
   def obj2xml xml, name, type, o, attrs={}
     expected = RbVmomi.type(type)
+    fail "expected array for field #{name}" if expected.is_a? Array and not o.is_a? Array
     case o
     when VIM::ManagedObject
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
@@ -172,7 +179,7 @@ class Soap < TrivialSoap
       fail "expected array for field #{name.inspect}" unless type =~ /^ArrayOf/
       expected = RbVmomi.type($')
       o.each do |v|
-        obj2xml xml, name, expected, v, attrs
+        obj2xml xml, name, expected.wsdl_name, v, attrs
       end
     when Symbol, String, Integer, true, false
       xml.tag! name, o.to_s, attrs

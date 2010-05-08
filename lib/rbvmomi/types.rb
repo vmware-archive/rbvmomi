@@ -8,7 +8,7 @@ module VIM
 
 def self.load fn
   @vmodl = YAML.load_file(fn)
-  @typenames = @vmodl.map { |x,v| v.keys }.flatten
+  @typenames = @vmodl.map { |x,v| v.keys }.flatten + %w(ManagedObject TypeName PropertyPath)
   Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }
 end
 
@@ -188,7 +188,8 @@ class ManagedObject < ObjectWithMethods
 
   def call method, o={}
     fail unless o.is_a? Hash
-    @soap.call method, {'_this' => self}.merge(o)
+    desc = self.class.full_methods_desc[method.to_s] or fail "unknown method"
+    @soap.call method, desc, {'_this' => self}.merge(o)
   end
 
   def method_missing sym, *args, &b
@@ -208,16 +209,16 @@ class ManagedObject < ObjectWithMethods
   end
 
   def property key
-    @soap.propertyCollector.RetrieveProperties!(:specSet => {
-      :propSet => { :type => self.class.wsdl_name, :pathSet => [key] },
-      :objectSet => { :obj => self },
-    })[:propSet][:val]
+    @soap.propertyCollector.RetrieveProperties!(:specSet => [{
+      :propSet => [{ :type => self.class.wsdl_name, :pathSet => [key] }],
+      :objectSet => [{ :obj => self }],
+    }])[:propSet][:val]
   end
 
   def wait
     filter = @soap.propertyCollector.CreateFilter! :spec => {
-      :propSet => { :type => self.class.wsdl_name, :all => true },
-      :objectSet => { :obj => self },
+      :propSet => [{ :type => self.class.wsdl_name, :all => true }],
+      :objectSet => [{ :obj => self }],
     }, :partialUpdates => false
     result = @soap.propertyCollector.WaitForUpdates!
     filter.DestroyPropertyFilter!
@@ -284,12 +285,15 @@ class RuntimeFault < DataObject
 end
 
 class MethodName < String
+  def self.wsdl_name; 'MethodName' end
 end
 
 class PropertyPath < String
+  def self.wsdl_name; 'PropertyPath' end
 end
 
 class TypeName < String
+  def self.wsdl_name; 'TypeName' end
 end
 
 end
