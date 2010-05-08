@@ -164,6 +164,16 @@ class DataObject < ObjectWithProperties
     @props[sym] = val
   end
 
+  def == o
+    return false unless o.class == self.class
+    keys = (props.keys + o.props.keys).uniq
+    keys.all? { |k| props[k] == o.props[k] }
+  end
+
+  def hash
+    props.hash
+  end
+
   initialize
 end
 

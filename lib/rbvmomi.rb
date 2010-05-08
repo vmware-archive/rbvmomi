@@ -96,60 +96,51 @@ class Soap < TrivialSoap
     if resp.at('faultcode')
       fail "#{resp.at('faultcode').text}: #{resp.at('faultstring').text}"
     else
-      xml2obj(resp).returnval
+      if desc['result']['wsdl_type']
+        xml2obj resp.at('returnval'), desc['result']['wsdl_type']
+      else
+        nil
+      end
     end
   end
 
-  def xml2obj xml, type=nil
-    type = xml.attribute_with_ns('type', NS_XSI) || type
-    if type
-      typed_xml2obj xml, type
+  def xml2obj xml, type
+    type = xml.attribute_with_ns('type', NS_XSI) || type.to_s
+    if type =~ /^xsd:/
+      xml2obj_xsd xml, $'
     else
-      untyped_xml2obj xml
-    end
-  end
-
-  def typed_xml2obj xml, type
-    case type.to_s
-    when 'xsd:string' then xml.text
-    when 'xsd:int', 'xsd:long' then xml.text.to_i
-    when 'xsd:boolean' then xml.text == 'true'
-    when /^xsd:/ then fail "unexpected xsd type #{type}"
-    when 'ManagedObjectReference' then
-      VIM.const_get(xml['type']).new(self, xml.text)
-    when /^ArrayOf(\w+)$/ then
-      etype = $1
-      xml.children.select(&:element?).map { |x| xml2obj x, etype }
-    when 'ManagedEntityStatus' then xml.text
-    else untyped_xml2obj xml
-    end
-  end
-
-  def untyped_xml2obj xml
-    if xml.children.nil?
-      nil
-    elsif xml.children.size == 1 and
-          xml.children.first.text? and
-          xml.attributes.keys == %w(type) and
-          xml['type'] =~ /^[A-Z]/
-      VIM.const_get(xml['type']).new(self, xml.text)
-    elsif xml.children.size == 1 && xml.children.first.text?
-      xml.text
-    else
-      NiceHash.new.tap do |hash|
-        xml.children.select(&:element?).each do |child|
-          key = child.name.to_sym
-          current = hash[key] if hash.member? key
-          case current
-          when Array
-            hash[key] << xml2obj(child)
-          when nil
-            hash[key] = xml2obj(child)
+      t = VIM.type type
+      if t <= VIM::DataObject
+        props_desc = t.full_props_desc
+        h = {}
+        props_desc.select { |d| d['wsdl_type'] =~ /^ArrayOf/ }.each { |d| h[d['name'].to_sym] = [] }
+        xml.children.each do |c|
+          next unless c.element?
+          field = c.name.to_sym
+          d = t.find_prop_desc(field.to_s) or fail("unexpected field #{field}")
+          if h[field].is_a? Array
+            d['wsdl_type'] =~ /^ArrayOf/ or fail
+            h[field] << xml2obj(c,$')
           else
-            hash[key] = [current, xml2obj(child)]
+            h[field] = xml2obj(c,d['wsdl_type'])
           end
         end
+        t.new h
+      elsif t <= VIM::ManagedObject
+        t.new self, xml.text
+      elsif t <= VIM::Enum
+        xml.text
+      else fail t.inspect
       end
+    end
+  end
+
+  def xml2obj_xsd xml, type
+    case type
+    when 'string' then xml.text
+    when 'byte', 'short', 'int', 'long' then xml.text.to_i
+    when 'boolean' then xml.text == 'true' || xml.text == '1'
+    else fail "unexpected XSD type #{type.inspect}"
     end
   end
 

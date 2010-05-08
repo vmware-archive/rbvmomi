@@ -7,9 +7,8 @@ class DeserializationTest < Test::Unit::TestCase
     @soap = RbVmomi::Soap.new URI.parse("http://localhost/")
   end
 
-  def check str, expected
-    expected = { :root => expected }
-    got = @soap.xml2obj Nokogiri(str)
+  def check str, expected, type
+    got = @soap.xml2obj Nokogiri(str).root, type
 
     puts "expected:"
     pp expected
@@ -22,21 +21,41 @@ class DeserializationTest < Test::Unit::TestCase
   end
 
   def test_moref
-    check <<-EOS, VIM.Folder(nil, 'ha-folder-root')
+    check <<-EOS, VIM.Folder(nil, 'ha-folder-root'), 'Folder'
 <root type="Folder">ha-folder-root</root>
     EOS
   end
 
-  def test_primitives
-    check <<-EOS, :int => 42, :bool => false, :string => "foo", :string2 => "bar", :arr => [1, "baz"]
-<root xmlns:xsi="#{RbVmomi::Soap::NS_XSI}">
-  <int xsi:type="xsd:int">42</int>
-  <bool xsi:type="xsd:boolean">false</bool>
-  <string>foo</string>
-  <string2 xsi:type="xsd:string">bar</string2>
-  <arr xsi:type="xsd:int">1</arr>
-  <arr xsi:type="xsd:string">baz</arr>
+  def test_dataobject
+    obj = VIM.DatastoreSummary(
+      capacity: 1000,
+      accessible: true,
+      datastore: VIM.Datastore(nil, "foo"),
+      freeSpace: 31,
+      multipleHostAccess: false,
+      name: "baz",
+      type: "VMFS",
+      url: "http://foo/",
+      dynamicProperty: []
+    )
+
+    check <<-EOS, obj, 'DatastoreSummary'
+<root>
+  <capacity>1000</capacity>
+  <accessible>1</accessible>
+  <datastore type="Datastore">foo</datastore>
+  <freeSpace>31</freeSpace>
+  <multipleHostAccess>false</multipleHostAccess>
+  <name>baz</name>
+  <type>VMFS</type>
+  <url>http://foo/</url>
 </root>
+    EOS
+  end
+
+  def test_enum
+    check <<-EOS, 'add', 'ConfigSpecOperation'
+<root>add</root>
     EOS
   end
 end
