@@ -6,7 +6,7 @@ module RbVmomi
 
 module VIM
 
-BUILTIN_TYPES = %w(ManagedObject TypeName PropertyPath ManagedObjectReference MethodName)
+BUILTIN_TYPES = %w(ManagedObject TypeName PropertyPath ManagedObjectReference MethodName MethodFault)
 
 def self.load fn
   @vmodl = YAML.load_file(fn)
@@ -290,7 +290,12 @@ class Enum < Base
 end
 
 class MethodFault < DataObject
-  initialize
+  initialize 'MethodFault', [
+    { 'name' => 'faultCause', 'wsdl_type' => 'LocalizedMethodFault' },
+    { 'name' => 'faultMessage', 'wsdl_type' => 'LocalizableMessage[]' },
+    { 'name' => 'fault', 'wsdl_type' => 'xsd:string' },
+    { 'name' => 'localizedMessage', 'wsdl_type' => 'xsd:string' },
+  ]
 end
 
 class RuntimeFault < DataObject
