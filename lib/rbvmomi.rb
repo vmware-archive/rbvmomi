@@ -51,7 +51,7 @@ class Soap < TrivialSoap
   end
 
   def propertyCollector
-    @propertyCollector ||= serviceInstance.RetrieveServiceContent!.propertyCollector
+    @propertyCollector ||= serviceInstance.RetrieveServiceContent.propertyCollector
   end
 
   def call method, desc, o
@@ -185,7 +185,7 @@ def self.connect uri
 
   Soap.new(uri).tap do |vim|
     vim.debug = true if ENV['RBVMOMI_DEBUG']
-    vim.serviceInstance.RetrieveServiceContent!.sessionManager.Login! :userName => user, :password => password
+    vim.serviceInstance.RetrieveServiceContent.sessionManager.Login :userName => user, :password => password
   end
 end
 

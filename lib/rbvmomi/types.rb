@@ -135,7 +135,8 @@ class ObjectWithMethods < ObjectWithProperties
 
       @methods_desc.each do |k,d|
         sym = k.to_sym
-        define_method(sym) { call sym }
+        define_method(sym) { |*args| _call sym, *args }
+        define_method(:"#{sym}!") { |*args| _call sym, *args }
       end
     end
 
@@ -192,7 +193,7 @@ class ManagedObject < ObjectWithMethods
   end
 
   def _get_property_uncached sym
-    @soap.propertyCollector.RetrieveProperties!(:specSet => [{
+    @soap.propertyCollector.RetrieveProperties(:specSet => [{
       :propSet => [{ :type => self.class.wsdl_name, :pathSet => [sym.to_s] }],
       :objectSet => [{ :obj => self }],
     }])[0].propSet[0].val
@@ -210,18 +211,10 @@ class ManagedObject < ObjectWithMethods
     @cache.clear
   end
 
-  def call method, o={}
+  def _call method, o={}
     fail unless o.is_a? Hash
     desc = self.class.full_methods_desc[method.to_s] or fail "unknown method"
     @soap.call method, desc, {'_this' => self}.merge(o)
-  end
-
-  def method_missing sym, *args, &b
-    if sym.to_s =~ /!$/
-      call $`.to_sym, *args, &b
-    else
-      _get_property sym
-    end
   end
 
   def to_s
@@ -233,12 +226,12 @@ class ManagedObject < ObjectWithMethods
   end
 
   def wait
-    filter = @soap.propertyCollector.CreateFilter! :spec => {
+    filter = @soap.propertyCollector.CreateFilter :spec => {
       :propSet => [{ :type => self.class.wsdl_name, :all => true }],
       :objectSet => [{ :obj => self }],
     }, :partialUpdates => false
-    result = @soap.propertyCollector.WaitForUpdates!
-    filter.DestroyPropertyFilter!
+    result = @soap.propertyCollector.WaitForUpdates
+    filter.DestroyPropertyFilter
     changes = result.filterSet[0].objectSet[0].changeSet
     changes.map { |h| [h.name.to_sym, h.val] }.each do |k,v|
       @cache[k] = v

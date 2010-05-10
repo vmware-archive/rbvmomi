@@ -4,7 +4,7 @@ include RbVmomi
 
 vim = RbVmomi.connect ENV['RBVMOMI_URI']
 
-rootFolder = vim.serviceInstance.RetrieveServiceContent!.rootFolder
+rootFolder = vim.serviceInstance.RetrieveServiceContent.rootFolder
 
 dc = rootFolder.childEntity.first
 vmFolder = dc.vmFolder
@@ -64,6 +64,6 @@ vm_cfg = {
 }
 
 N = 2
-create_tasks = (0...N).map { vmFolder.CreateVM_Task!(:config => vm_cfg, :pool => rp) }
-destroy_tasks = create_tasks.map { |x| x.wait_task.Destroy_Task! }
+create_tasks = (0...N).map { vmFolder.CreateVM_Task(:config => vm_cfg, :pool => rp) }
+destroy_tasks = create_tasks.map { |x| x.wait_task.Destroy_Task }
 destroy_tasks.each { |x| x.wait_task }
