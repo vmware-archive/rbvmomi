@@ -7,36 +7,6 @@ module RbVmomi
 
 Typed = Struct.new(:type, :value)
 
-class NiceHash < Hash
-  def initialize
-    super do |h,k|
-      if k2 = h.keys.find { |x| x.to_s.en.plural.to_sym == k }
-        case v = h[k2]
-        when Array then v
-        when nil then []
-        else [v]
-        end
-      else
-        nil
-      end
-    end
-  end
-
-  def method_missing sym, *args
-    if sym.to_s =~ /=$/
-      super unless args.size == 1
-      self[$`.to_sym] = args.first
-    else
-      super unless args.empty?
-      self[sym]
-    end
-  end
-
-  def self.[] *a
-    new.tap { |h| h.merge! super }
-  end
-end
-
 def self.type name
   return unless name
   name = name.to_s

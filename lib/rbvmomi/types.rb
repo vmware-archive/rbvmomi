@@ -100,7 +100,7 @@ class ObjectWithProperties < Base
       @props_desc.each do |d|
         sym = d['name'].to_sym
         define_method(sym) { _get_property sym }
-        define_method(:"#{sym}=") { |x| _set_propery sym, x }
+        define_method(:"#{sym}=") { |x| _set_property sym, x }
       end
     end
 
@@ -184,18 +184,30 @@ class ManagedObject < ObjectWithMethods
     super()
     @soap = soap
     @ref = ref
+    @cache = {}
   end
 
   def _ref
     @ref
   end
 
+  def _get_property_uncached sym
+    @soap.propertyCollector.RetrieveProperties!(:specSet => [{
+      :propSet => [{ :type => self.class.wsdl_name, :pathSet => [sym.to_s] }],
+      :objectSet => [{ :obj => self }],
+    }])[0].propSet[0].val
+  end
+
   def _get_property sym
-    property sym.to_s
+    @cache[sym] ||= _get_property_uncached(sym)
   end
 
   def _set_property sym, val
     fail 'unimplemented'
+  end
+
+  def _clear_property_cache
+    @cache.clear
   end
 
   def call method, o={}
@@ -208,7 +220,7 @@ class ManagedObject < ObjectWithMethods
     if sym.to_s =~ /!$/
       call $`.to_sym, *args, &b
     else
-      property sym.to_s
+      _get_property sym
     end
   end
 
@@ -220,13 +232,6 @@ class ManagedObject < ObjectWithMethods
     pp.text to_s
   end
 
-  def property key
-    o = @soap.propertyCollector.RetrieveProperties!(:specSet => [{
-      :propSet => [{ :type => self.class.wsdl_name, :pathSet => [key] }],
-      :objectSet => [{ :obj => self }],
-    }])[0].propSet[0].val
-  end
-
   def wait
     filter = @soap.propertyCollector.CreateFilter! :spec => {
       :propSet => [{ :type => self.class.wsdl_name, :all => true }],
@@ -235,28 +240,32 @@ class ManagedObject < ObjectWithMethods
     result = @soap.propertyCollector.WaitForUpdates!
     filter.DestroyPropertyFilter!
     changes = result.filterSet[0].objectSet[0].changeSet
-    NiceHash[changes.map { |h| [h.name.to_sym, h.val] }]
+    changes.map { |h| [h.name.to_sym, h.val] }.each do |k,v|
+      @cache[k] = v
+    end
   end
 
   def wait_until &b
     loop do
-      props = wait
-      return props if b.call props
+      wait
+      if x = b.call
+        return x
+      end
     end
   end
 
   def wait_task
-    props = wait_until { |x| %w(success error).member? x.info.state }
-    case props[:info].state
+    wait_until { %w(success error).member? info.state }
+    case info.state
     when 'success'
-      props[:info].result
+      info.result
     when 'error'
-      fail "task #{props[:info].key} failed: #{props.info.error.localizedMessage}"
+      fail "task #{info.key} failed: #{info.error.localizedMessage}"
     end
   end
 
   def [] k
-    property k.to_s
+    _get_property k
   end
 
   def == x
@@ -264,7 +273,7 @@ class ManagedObject < ObjectWithMethods
   end
 
   def hash
-    [type, value].hash
+    [self.class, value].hash
   end
 
   initialize 'ManagedObject'
