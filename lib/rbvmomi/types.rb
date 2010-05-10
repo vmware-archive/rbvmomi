@@ -163,6 +163,10 @@ class DataObject < ObjectWithProperties
     @props[sym]
   end
 
+  def [] sym
+    _get_property sym
+  end
+
   def _set_property sym, val
     @props[sym] = val
   end
