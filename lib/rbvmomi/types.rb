@@ -189,30 +189,21 @@ class ManagedObject < ObjectWithMethods
     super()
     @soap = soap
     @ref = ref
-    @cache = {}
   end
 
   def _ref
     @ref
   end
 
-  def _get_property_uncached sym
+  def _get_property sym
     @soap.propertyCollector.RetrieveProperties(:specSet => [{
       :propSet => [{ :type => self.class.wsdl_name, :pathSet => [sym.to_s] }],
       :objectSet => [{ :obj => self }],
     }])[0].propSet[0].val
   end
 
-  def _get_property sym
-    @cache[sym] ||= _get_property_uncached(sym)
-  end
-
   def _set_property sym, val
     fail 'unimplemented'
-  end
-
-  def _clear_property_cache
-    @cache.clear
   end
 
   def _call method, o={}

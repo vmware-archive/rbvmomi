@@ -13,7 +13,7 @@ class ManagedObject
     changes.map { |h| [h.name.split('.').map(&:to_sym), h.val] }.each do |path,v|
       k = path.pop
       o = path.inject(self) { |b,k| b[k] }
-      o._set_property k, v
+      o._set_property k, v unless o == self
     end
     nil
   end
@@ -32,7 +32,6 @@ Task
 class Task
   def wait_for_completion
     wait_until('info.state') { %w(success error).member? info.state }
-    _clear_property_cache
     case info.state
     when 'success'
       info.result
