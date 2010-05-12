@@ -2,24 +2,24 @@ require 'rubygems'
 require 'builder'
 require 'nokogiri'
 require 'net/http'
-require 'net/https'
 require 'pp'
 require 'rbvmomi/profile'
 
 class TrivialSoap
   attr_accessor :debug
 
-  def initialize uri
-    raise ArgumentError, "Endpoint URI must be valid" unless uri.scheme
-    @uri = uri
-    @http = Net::HTTP.new(uri.host, uri.port)
-    if @uri.scheme == 'https'
+  def initialize opts
+    fail unless opts.is_a? Hash
+    @opts = opts
+    @http = Net::HTTP.new(@opts[:host], @opts[:port])
+    if @opts[:ssl]
+      require 'net/https'
       @http.use_ssl = true
-      @http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      @http.verify_mode = OpenSSL::SSL::VERIFY_NONE # XXX
     end
     @http.set_debug_output(STDERR) if $DEBUG
     @http.read_timeout = 5
-    @debug = false
+    @debug = @opts[:debug]
     @cookie = nil
   end
 
@@ -47,7 +47,7 @@ class TrivialSoap
       puts
     end
 
-    response = profile(:post) { @http.request_post(@uri.path, body, headers) }
+    response = profile(:post) { @http.request_post(@opts[:path], body, headers) }
     @cookie = response['set-cookie'] if response.key? 'set-cookie'
 
     nk = Nokogiri(response.body)

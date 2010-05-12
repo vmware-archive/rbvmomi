@@ -173,19 +173,19 @@ class Soap < TrivialSoap
   end
 end
 
-def self.connect uri
-  uri = case uri
-        when String then URI.parse uri
-        when URI then uri
-        else fail "invalid URI"
-        end
+# host, port, ssl, user, password, path, debug
+def self.connect opts
+  fail unless opts.is_a? Hash
+  fail "host option required" unless opts[:host]
+  opts[:user] ||= 'root'
+  opts[:password] ||= ''
+  opts[:ssl] = true unless opts.member? :ssl
+  opts[:port] ||= (opts[:ssl] ? 443 : 80)
+  opts[:path] ||= '/sdk'
+  opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
 
-  user = uri.user || 'root'
-  password = uri.password || ''
-
-  Soap.new(uri).tap do |vim|
-    vim.debug = true if ENV['RBVMOMI_DEBUG']
-    vim.serviceInstance.RetrieveServiceContent.sessionManager.Login :userName => user, :password => password
+  Soap.new(opts).tap do |vim|
+    vim.serviceInstance.RetrieveServiceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
   end
 end
 
