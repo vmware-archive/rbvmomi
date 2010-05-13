@@ -181,6 +181,23 @@ class DataObject < ObjectWithProperties
     props.hash
   end
 
+  def pretty_print q
+    q.text self.class.name
+    q.group 2 do
+      q.text '('
+      q.breakable
+      q.seplist @props, nil, :each_pair do |k, v|
+        q.group do
+          q.text k.to_s
+          q.text ': '
+          q.pp v
+        end
+      end
+    end
+    q.breakable
+    q.text ')'
+  end
+
   initialize
 end
 
