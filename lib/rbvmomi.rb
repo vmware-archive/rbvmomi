@@ -141,7 +141,7 @@ class Soap < TrivialSoap
 
   def obj2xml xml, name, type, o, attrs={}
     expected = RbVmomi.type(type)
-    fail "expected array for field #{name}" if expected.is_a? Array and not o.is_a? Array
+    fail "expected array for field #{name.inspect} in #{type}" if expected.is_a? Array and not o.is_a? Array
     case o
     when VIM::ManagedObject
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
@@ -162,7 +162,7 @@ class Soap < TrivialSoap
       fail unless expected
       obj2xml xml, name, type, expected.new(o), attrs
     when Array
-      fail "expected array for field #{name.inspect}" unless type =~ /^ArrayOf/
+      fail "user expected array for field #{name.inspect}, but was a #{type}" unless type =~ /^ArrayOf/
       expected = RbVmomi.type($')
       o.each do |v|
         obj2xml xml, name, expected.wsdl_name, v, attrs
