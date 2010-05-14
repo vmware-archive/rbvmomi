@@ -50,6 +50,10 @@ class Soap < TrivialSoap
     VIM::ServiceInstance self, 'ServiceInstance'
   end
 
+  def root
+    @rootFolder ||= serviceInstance.content.rootFolder
+  end
+
   def propertyCollector
     @propertyCollector ||= serviceInstance.RetrieveServiceContent.propertyCollector
   end

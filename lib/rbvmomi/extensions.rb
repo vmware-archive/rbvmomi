@@ -41,4 +41,30 @@ class Task
   end
 end
 
+Folder
+class Folder
+  def find name, type=Object
+    childEntity.grep(type).find { |x| x.name == name }
+  end
+
+  def traverse path, type=Object
+    es = path.split('/')
+    return self if es.empty?
+    final = es.pop
+    es.inject(self) do |f,e|
+      f.find e, Folder or return nil
+    end.find final, type
+  end
+
+  def children
+    childEntity
+  end
+
+  def ls
+    Hash[children.map { |x| [x.name, x] }]
+  end
+end
+
+
+
 end
