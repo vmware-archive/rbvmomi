@@ -18,7 +18,8 @@ class TrivialSoap
       @http.verify_mode = OpenSSL::SSL::VERIFY_NONE # XXX
     end
     @http.set_debug_output(STDERR) if $DEBUG
-    @http.read_timeout = 5
+    @http.read_timeout = 60
+    @http.open_timeout = 5
     @debug = @opts[:debug]
     @cookie = nil
   end
