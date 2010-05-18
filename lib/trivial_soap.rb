@@ -7,6 +7,7 @@ require 'rbvmomi/profile'
 
 class TrivialSoap
   attr_accessor :debug
+  attr_reader :http, :cookie
 
   def initialize opts
     fail unless opts.is_a? Hash

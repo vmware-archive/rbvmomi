@@ -65,6 +65,44 @@ class Folder
   end
 end
 
+Datastore
+class Datastore
+  def datacenter
+    return @datacenter if @datacenter
+    x = parent
+    while not x.is_a? Datacenter
+      x = x.parent
+    end
+    fail unless x.is_a? Datacenter
+    @datacenter = x
+  end
 
+  def mkuripath path
+    "/folder/#{URI.escape path}?dcName=#{URI.escape datacenter.name}&dsName=#{URI.escape name}"
+  end
+
+  def head path
+    req = Net::HTTP::Head.new mkuripath(path)
+    req.initialize_http_header 'cookie' => @soap.cookie
+    @soap.http.request req
+  end
+
+  def get path, io
+    req = Net::HTTP::Get.new mkuripath(path)
+    req.initialize_http_header 'cookie' => @soap.cookie
+    @soap.http.request(req).tap do |resp|
+      io.write resp.body if resp.is_a? Net::HTTPSuccess
+    end
+  end
+
+  def put path, io
+    req = Net::HTTP::Put.new mkuripath(path)
+    req.initialize_http_header 'cookie' => @soap.cookie,
+                               'Transfer-Encoding' => 'chunked',
+                               'Content-Type' => 'application/octet-stream'
+    req.body_stream = io
+    @soap.http.request req
+  end
+end
 
 end
