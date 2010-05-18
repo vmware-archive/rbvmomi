@@ -47,13 +47,26 @@ class Folder
     childEntity.grep(type).find { |x| x.name == name }
   end
 
-  def traverse path, type=Object
+  def traverse! path, type=Object
+    traverse path, type, true
+  end
+
+  def traverse path, type=Object, create=false
     es = path.split('/')
     return self if es.empty?
     final = es.pop
-    es.inject(self) do |f,e|
-      f.find e, Folder or return nil
-    end.find final, type
+
+    p = es.inject(self) do |f,e|
+      f.find(e, Folder) || (create && f.CreateFolder(name: e)) || return
+    end
+
+    if x = p.find(final, type)
+      x
+    elsif create and type == Folder
+      p.CreateFolder(name: final)
+    else
+      nil
+    end
   end
 
   def children
