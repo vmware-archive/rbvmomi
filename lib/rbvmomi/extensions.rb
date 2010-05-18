@@ -81,20 +81,59 @@ class Datastore
     "/folder/#{URI.escape path}?dcName=#{URI.escape datacenter.name}&dsName=#{URI.escape name}"
   end
 
-  def head path
+  def exists? path
     req = Net::HTTP::Head.new mkuripath(path)
     req.initialize_http_header 'cookie' => @soap.cookie
-    @soap.http.request req
+    resp = @soap.http.request req
+    case resp
+    when Net::HTTPSuccess
+      true
+    when Net::HTTPNotFound
+      false
+    else
+      fail resp.inspect
+    end
   end
 
   def get path, io
     req = Net::HTTP::Get.new mkuripath(path)
     req.initialize_http_header 'cookie' => @soap.cookie
-    @soap.http.request(req).tap do |resp|
+    resp = @soap.http.request(req)
+    case resp
+    when Net::HTTPSuccess
       io.write resp.body if resp.is_a? Net::HTTPSuccess
+      true
+    else
+      fail resp.inspect
     end
   end
 
+  def put path, io
+    s = TCPSocket.new @soap.http.address, @soap.http.port
+    if @soap.http.use_ssl?
+      s = OpenSSL::SSL::SSLSocket.new s
+      s.sync_close = true
+      s.connect
+    end
+
+    s.write <<-EOS
+PUT #{URI.escape mkuripath(path)} HTTP/1.1\r
+Cookie: #{@soap.cookie}\r
+Connection: close\r
+Host: #{@soap.http.address}\r
+Transfer-Encoding: chunked\r
+\r
+    EOS
+
+    while chunk = (io.readpartial(65536) rescue nil)
+      s.write "#{chunk.size.to_s(16)}\r\n#{chunk}\r\n"
+      yield chunk.size
+    end
+
+    s.write "0\r\n\r\n"
+  end
+
+=begin
   def put path, io
     req = Net::HTTP::Put.new mkuripath(path)
     req.initialize_http_header 'cookie' => @soap.cookie,
@@ -102,7 +141,14 @@ class Datastore
                                'Content-Type' => 'application/octet-stream'
     req.body_stream = io
     @soap.http.request req
+    case resp
+    when Net::HTTPSuccess
+      true
+    else
+      fail resp.inspect
+    end
   end
+=end
 end
 
 end
