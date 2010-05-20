@@ -1,7 +1,5 @@
 require 'trivial_soap'
 require 'time'
-require 'linguistics'
-Linguistics.use :en
 
 module RbVmomi
 
