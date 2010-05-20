@@ -8,7 +8,7 @@ Typed = Struct.new(:type, :value)
 def self.type name
   return unless name
   name = name.to_s
-  return [type($')] if name =~ /^ArrayOf/
+  return [type($1)] if name =~ /^ArrayOf(.+)$/ or name =~ /^(.+)\[\]$/
 
   if name =~ /^xsd:/
     XSD.type $'
