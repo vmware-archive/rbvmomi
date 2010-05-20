@@ -121,7 +121,7 @@ class Soap < TrivialSoap
         xml.children.each do |c|
           next unless c.element?
           field = c.name.to_sym
-          d = t.find_prop_desc(field.to_s) or fail("unexpected field #{field.inspect} in #{t}")
+          d = t.find_prop_desc(field.to_s) or next
           if h[field].is_a? Array
             d['wsdl_type'] =~ /^ArrayOf/ or dfail xml, "expected array"
             h[field] << xml2obj(c,$')
