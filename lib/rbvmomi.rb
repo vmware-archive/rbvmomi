@@ -41,6 +41,18 @@ module XSD
   end
 end
 
+class DeserializationFailed < Exception
+  attr_accessor :xml
+
+  def extra
+    { xml: xml.to_s }
+  end
+end
+
+def dfail xml, msg
+  raise DeserializationFailed.new.tap { |e| e.xml = xml }
+end
+
 class Soap < TrivialSoap
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
@@ -111,7 +123,7 @@ class Soap < TrivialSoap
           field = c.name.to_sym
           d = t.find_prop_desc(field.to_s) or fail("unexpected field #{field.inspect} in #{t}")
           if h[field].is_a? Array
-            d['wsdl_type'] =~ /^ArrayOf/ or fail
+            d['wsdl_type'] =~ /^ArrayOf/ or dfail xml, "expected array"
             h[field] << xml2obj(c,$')
           else
             h[field] = xml2obj(c,d['wsdl_type'])
@@ -126,7 +138,7 @@ class Soap < TrivialSoap
         xml.text
       elsif t <= String
         xml.text
-      else fail "unexpected type #{t.inspect}"
+      else dfail xml, "unexpected type #{t.inspect}"
       end
     end
   end
@@ -137,8 +149,8 @@ class Soap < TrivialSoap
     when 'byte', 'short', 'int', 'long' then xml.text.to_i
     when 'boolean' then xml.text == 'true' || xml.text == '1'
     when 'datetime' then Time.parse xml.text
-    when 'anytype' then fail "attempted to deserialize an anyType"
-    else fail "unexpected XSD type #{type.inspect}"
+    when 'anytype' then dfail xml, "attempted to deserialize an anyType"
+    else dfail xml, "unexpected XSD type #{type.inspect}"
     end
   end
 
