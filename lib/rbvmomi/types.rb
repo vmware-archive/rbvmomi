@@ -213,10 +213,18 @@ class ManagedObject < ObjectWithMethods
   end
 
   def _get_property sym
-    @soap.propertyCollector.RetrieveProperties(:specSet => [{
+    ret = @soap.propertyCollector.RetrieveProperties(:specSet => [{
       :propSet => [{ :type => self.class.wsdl_name, :pathSet => [sym.to_s] }],
       :objectSet => [{ :obj => self }],
-    }])[0].propSet[0].val
+    }])[0]
+
+    if ret.propSet.empty?
+      fail if ret.missingSet.empty?
+      fault = ret.missingSet[0].fault
+      fail fault.localizedMessage
+    else
+      ret.propSet[0].val
+    end
   end
 
   def _set_property sym, val
