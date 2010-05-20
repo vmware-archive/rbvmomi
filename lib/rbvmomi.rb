@@ -44,6 +44,11 @@ end
 class Soap < TrivialSoap
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
+  def initialize opts
+    @rev = opts[:rev] || '4.1'
+    super opts
+  end
+
   def serviceInstance
     VIM::ServiceInstance self, 'ServiceInstance'
   end
@@ -59,7 +64,7 @@ class Soap < TrivialSoap
   def call method, desc, o
     fail unless o.is_a? Hash
     fail unless desc.is_a? Hash
-    resp = request 'urn:vim25/4.0' do |xml|
+    resp = request "urn:vim25/#{@rev}" do |xml|
       xml.tag! method, :xmlns => 'urn:vim25' do
         yield xml if block_given?
         obj2xml xml, '_this', 'ManagedObject', o['_this']
