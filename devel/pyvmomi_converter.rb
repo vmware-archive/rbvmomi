@@ -5,7 +5,8 @@ require 'ostruct'
 require 'json'
 require 'yaml'
 
-PYVMOMI='/mts/home5/rlane/dbc/1/bora/build/build/vmodl/obj/generic/pyVmomi'
+BORA="/mts/home5/rlane/dbc/3/bora"
+PYVMOMI=BORA + '/build/build/vmodl/obj/generic/pyVmomi'
 PYTHON_MODELS=%w(CoreTypes HostdObjects InternalServerObjects ServerObjects)
 
 F_LINK = 1
@@ -41,6 +42,8 @@ VMODL2WSDL.merge!(
    PropertyPath RuntimeFault TypeName).each do |x|
 	VMODL2WSDL['vmodl.' + x] = x
 	VMODL2WSDL['vmodl.' + x + '[]'] = 'ArrayOf' + x
+	VMODL2WSDL[x] = x
+	VMODL2WSDL[x + '[]'] = 'ArrayOf' + x
 end
 
 DATA_TYPES = {}
@@ -57,11 +60,11 @@ class ModelBuilder
 	def CreateDataType vmodlName, wsdlName, parentType, version, props
 		update_vmodl2wsdl vmodlName, wsdlName
 		DATA_TYPES[wsdlName] = {
-			'vmodl_base' => parentType,
+			'wsdl_base' => parentType,
 			'props' => props.map { |mName,mType,mVersion,mFoo|
 				{
 					'name' => mName,
-					'vmodl_type' => mType,
+					'wsdl_type' => mType,
 				}
 			}
 		}
@@ -70,11 +73,11 @@ class ModelBuilder
 	def CreateManagedType vmodlName, wsdlName, parentType, version, props, methods
 		update_vmodl2wsdl vmodlName, wsdlName
 		MANAGED_TYPES[wsdlName] = {
-			'vmodl_base' => parentType,
+			'wsdl_base' => parentType,
 			'props' => props.map do |mName,mType,mVersion,mFoo|
 				{
 					'name' => mName,
-					'vmodl_type' => mType,
+					'wsdl_type' => mType,
 				}
 			end,
 			'methods' => Hash[methods.map do |mName,mWsdlName,mVersion,mParams,mResult|
@@ -82,12 +85,11 @@ class ModelBuilder
 					'params' => mParams.map do |pName, pType, pVersion, pFoo|
 						{
 							'name' => pName,
-							'vmodl_type' => pType,
+							'wsdl_type' => pType,
 						}
 					end,
-					'result' => (mResult[1] != 'void') && {
-						'flags' => decode_property_flags(mResult[0]),
-						'vmodl_type' => mResult[1],
+					'result' => (mResult != 'void') && {
+						'wsdl_type' => mResult,
 					} || nil
 				}]
 			end]
@@ -131,24 +133,45 @@ PYTHON_MODELS.each do |e|
 	builder.instance_eval code, __FILE__, __LINE__
 end
 
+require 'set'
+builtin = %w(DataObject ManagedObject MethodFault MethodName PropertyPath RuntimeFault TypeName)
+builtin_array = builtin.map { |x| "ArrayOf#{x}" }
+primitives = %w(string int short long byte boolean float double anyType dateTime)
+primitive_array = %w(ArrayOfString ArrayOfInt ArrayOfShort ArrayOfLong ArrayOfByte ArrayOfFloat ArrayOfDOuble ArrayOfAnyType ArrayOfDateTime ArrayOfBoolean)
+valid_types = Set.new(ENUM_TYPES.keys + DATA_TYPES.keys + MANAGED_TYPES.keys + primitives + builtin + builtin_array + primitive_array)
+(ENUM_TYPES.keys+DATA_TYPES.keys+MANAGED_TYPES.keys).each { |k| valid_types << "ArrayOf#{k}" }
+
+check = lambda { |x| fail "missing #{x}" unless valid_types.member?(x) }
+munge_fault = lambda { |x| x['wsdl_type'] = 'LocalizedMethodFault' if x['wsdl_type'] == 'MethodFault' }
+
 DATA_TYPES.each do |k,t|
-	t['wsdl_base'] = VMODL2WSDL[t['vmodl_base']]
+	#t['wsdl_base'] = VMODL2WSDL[t['vmodl_base']]
+	check[t['wsdl_base']]
 	t['props'].each do |x|
-		x['wsdl_type'] = VMODL2WSDL[x['vmodl_type']]
+		#x['wsdl_type'] = VMODL2WSDL[x['vmodl_type']]
+		check[x['wsdl_type']]
+		munge_fault[x]
 	end
 end
 
 MANAGED_TYPES.each do |k,t|
-	t['wsdl_base'] = VMODL2WSDL[t['vmodl_base']]
+	#t['wsdl_base'] = VMODL2WSDL[t['vmodl_base']]
+	check[t['wsdl_base']]
 	t['props'].each do |x|
-		x['wsdl_type'] = VMODL2WSDL[x['vmodl_type']]
+		#x['wsdl_type'] = VMODL2WSDL[x['vmodl_type']]
+		check[x['wsdl_type']]
+		munge_fault[x]
 	end
 	t['methods'].each do |mName,x|
 		if y = x['result']
-			y['wsdl_type'] = VMODL2WSDL[y['vmodl_type']]
+			#y['wsdl_type'] = VMODL2WSDL[y['vmodl_type']]
+			check[y['wsdl_type']]
+			munge_fault[y]
 		end
 		x['params'].each do |r|
-			r['wsdl_type'] = VMODL2WSDL[r['vmodl_type']]
+			#r['wsdl_type'] = VMODL2WSDL[r['vmodl_type']]
+			check[r['wsdl_type']]
+			munge_fault[r]
 		end
 	end
 end
@@ -156,4 +179,3 @@ end
 puts YAML.dump('data' => DATA_TYPES,
                'managed' => MANAGED_TYPES,
                'enum' => ENUM_TYPES)
-
