@@ -36,7 +36,7 @@ class Task
     when 'success'
       info.result
     when 'error'
-      raise info.error.exception
+      raise info.error
     end
   end
 end
