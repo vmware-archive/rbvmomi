@@ -4,7 +4,7 @@ include RbVmomi
 
 class DeserializationTest < Test::Unit::TestCase
   def setup
-    @soap = RbVmomi::Soap.new URI.parse("http://localhost/")
+    @soap = RbVmomi::Soap.new({})
   end
 
   def check str, expected, type

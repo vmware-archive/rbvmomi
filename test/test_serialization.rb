@@ -4,7 +4,7 @@ include RbVmomi
 
 class SerializationTest < Test::Unit::TestCase
   def check str, obj, type
-    soap = RbVmomi::Soap.new URI.parse("http://localhost/")
+    soap = RbVmomi::Soap.new({})
     xml = Builder::XmlMarkup.new :indent => 2
     soap.obj2xml(xml, 'root', type, obj)
 
