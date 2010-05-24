@@ -106,4 +106,24 @@ class DeserializationTest < Test::Unit::TestCase
 </root>
     EOS
   end
+
+  def test_fault
+    obj = VIM.LocalizedMethodFault(
+      localizedMessage: "The attempted operation cannot be performed in the current state (Powered off).",
+      fault: VIM.InvalidPowerState(
+        requestedState: 'poweredOn',
+        existingState: 'poweredOff'
+      )
+    )
+
+    check <<-EOS, obj, "LocalizedMethodFault"
+<error xmlns:xsi="#{RbVmomi::Soap::NS_XSI}">
+  <fault xsi:type="InvalidPowerState">
+    <requestedState>poweredOn</requestedState>
+    <existingState>poweredOff</existingState>
+  </fault>
+  <localizedMessage>The attempted operation cannot be performed in the current state (Powered off).</localizedMessage>
+</error>
+    EOS
+  end
 end
