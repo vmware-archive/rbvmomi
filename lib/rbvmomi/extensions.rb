@@ -52,7 +52,7 @@ class Folder
   end
 
   def traverse path, type=Object, create=false
-    es = path.split('/')
+    es = path.split('/').reject(&:empty?)
     return self if es.empty?
     final = es.pop
 
@@ -162,6 +162,36 @@ Transfer-Encoding: chunked\r
     end
   end
 =end
+end
+
+ServiceInstance
+class ServiceInstance
+  def find_datacenter path=nil
+    if path
+      content.rootFolder.traverse path, VIM::Datacenter
+    else
+      content.rootFolder.childEntity.grep(VIM::Datacenter).first
+    end
+  end
+end
+
+Datacenter
+class Datacenter
+  def find_compute_resource path=nil
+    if path
+      hostFolder.traverse path, VIM::ComputeResource
+    else
+      hostFolder.childEntity.grep(VIM::ComputeResource).first
+    end
+  end
+
+  def find_datastore name
+    datastore.find { |x| x.name == name }
+  end
+
+  def find_vm folder_path, name
+    vmFolder.traverse "#{folder_path}/#{name}", VIM::VirtualMachine
+  end
 end
 
 end
