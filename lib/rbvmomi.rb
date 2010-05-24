@@ -90,7 +90,7 @@ class Soap < TrivialSoap
     if resp.at('faultcode')
       fault = xml2obj(resp.at('detail').children.first, 'MethodFault')
       msg = resp.at('faultstring').text
-      RbVmomi.raise_fault msg, fault
+      raise RbVmomi.fault msg, fault
     else
       if desc['result'] and rtype = desc['result']['wsdl_type']
         if rtype =~ /^ArrayOf/
@@ -197,8 +197,8 @@ end
 class Fault < Exception
 end
 
-def self.raise_fault msg, fault
-  raise Fault.new("#{fault.class.wsdl_name}: #{msg}")
+def self.fault msg, fault
+  Fault.new("#{fault.class.wsdl_name}: #{msg}")
 end
 
 # host, port, ssl, user, password, path, debug
