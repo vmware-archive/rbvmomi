@@ -6,7 +6,7 @@ module RbVmomi
 
 module VIM
 
-BUILTIN_TYPES = %w(ManagedObject TypeName PropertyPath ManagedObjectReference MethodName MethodFault)
+BUILTIN_TYPES = %w(ManagedObject TypeName PropertyPath ManagedObjectReference MethodName MethodFault LocalizedMethodFault)
 
 def self.load fn
   @vmodl = YAML.load_file(fn)
@@ -220,8 +220,7 @@ class ManagedObject < ObjectWithMethods
 
     if ret.propSet.empty?
       fail if ret.missingSet.empty?
-      fault = ret.missingSet[0].fault
-      fail fault.localizedMessage
+      raise ret.missingSet[0].fault
     else
       ret.propSet[0].val
     end
@@ -283,12 +282,21 @@ class MethodFault < DataObject
   initialize 'MethodFault', [
     { 'name' => 'faultCause', 'wsdl_type' => 'LocalizedMethodFault' },
     { 'name' => 'faultMessage', 'wsdl_type' => 'LocalizableMessage[]' },
-    { 'name' => 'fault', 'wsdl_type' => 'xsd:string' },
-    { 'name' => 'localizedMessage', 'wsdl_type' => 'xsd:string' },
   ]
 end
 
-class RuntimeFault < DataObject
+class LocalizedMethodFault < DataObject
+  initialize 'LocalizedMethodFault', [
+    { 'name' => 'fault', 'wsdl_type' => 'MethodFault' },
+    { 'name' => 'localizedMessage', 'wsdl_type' => 'xsd:string' },
+  ]
+
+  def exception
+    RbVmomi.raise_fault self.localizedMessage, self.fault
+  end
+end
+
+class RuntimeFault < MethodFault
   initialize
 end
 

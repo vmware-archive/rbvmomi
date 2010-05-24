@@ -36,7 +36,7 @@ class Task
     when 'success'
       info.result
     when 'error'
-      fail "task #{info.key} failed: #{info.error.localizedMessage}"
+      raise info.error
     end
   end
 end

@@ -12,7 +12,7 @@ def self.type name
 
   if name =~ /^xsd:/
     XSD.type $'
-  elsif XSD::TYPES.member? name
+  elsif XSD::TYPES.member? name.downcase
     XSD.type name
   else
     VIM.type name
@@ -88,7 +88,9 @@ class Soap < TrivialSoap
       end
     end
     if resp.at('faultcode')
-      fail "#{resp.at('faultcode').text}: #{resp.at('faultstring').text}"
+      fault = xml2obj(resp.at('detail').children.first, 'MethodFault')
+      msg = resp.at('faultstring').text
+      RbVmomi.raise_fault msg, fault
     else
       if desc['result'] and rtype = desc['result']['wsdl_type']
         if rtype =~ /^ArrayOf/
@@ -190,6 +192,13 @@ class Soap < TrivialSoap
     end
     xml
   end
+end
+
+class Fault < Exception
+end
+
+def self.raise_fault msg, fault
+  raise Fault.new("#{fault.class.wsdl_name}: #{msg}")
 end
 
 # host, port, ssl, user, password, path, debug
