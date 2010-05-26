@@ -3,41 +3,25 @@ require 'time'
 
 module RbVmomi
 
-Typed = Struct.new(:type, :value)
+Boolean = Class.new
+AnyType = Class.new
 
 def self.type name
-  return unless name
-  name = name.to_s
-  return [type($1)] if name =~ /^ArrayOf(.+)$/ or name =~ /^(.+)\[\]$/
-
-  if name =~ /^xsd:/
-    XSD.type $'
-  elsif XSD::TYPES.member? name.downcase
-    XSD.type name
+  fail unless name
+  name = $' if name.to_s =~ /^xsd:/
+  case name.to_sym
+  when :anyType then AnyType
+  when :boolean then Boolean
+  when :string then String
+  when :int, :long, :short, :byte then Integer
+  when :float, :double then Float
+  when :dateTime then Time
   else
-    VIM.type name
-  end
-end
-
-module XSD
-  TYPES = %w(anytype boolean string int long short byte datetime)
-
-  def self.type name
-    case name.downcase
-    when 'anytype'
-      nil
-    when 'boolean'
-      nil
-    when "string"
-      String
-    when "int", "long", "short", "byte"
-      Integer
-    else fail "no such xsd type #{name.inspect}"
+    if VIM.has_type? name
+      VIM.type name
+    else
+      fail "no such type #{name.inspect}"
     end
-  end
-
-  def self.method_missing sym, arg
-    RbVmomi::Typed.new "xsd:#{sym}", arg
   end
 end
 
@@ -79,11 +63,11 @@ class Soap < TrivialSoap
     resp = request "urn:vim25/#{@rev}" do |xml|
       xml.tag! method, :xmlns => 'urn:vim25' do
         yield xml if block_given?
-        obj2xml xml, '_this', 'ManagedObject', o['_this']
+        obj2xml xml, '_this', 'ManagedObject', false, o['_this']
         desc['params'].each do |d|
           k = d['name'].to_sym
           next unless o.member? k
-          obj2xml xml, d['name'], d['wsdl_type'], o[k]
+          obj2xml xml, d['name'], d['wsdl_type'], d['is-array'], o[k]
         end
       end
     end
@@ -92,74 +76,85 @@ class Soap < TrivialSoap
       msg = resp.at('faultstring').text
       raise RbVmomi.fault msg, fault
     else
-      if desc['result'] and rtype = desc['result']['wsdl_type']
-        if rtype =~ /^ArrayOf/
-          xml2obj resp, rtype
-        else
-          xml2obj resp.children.first, rtype
-        end
+      if rdesc = desc['result']
+        type = rdesc['is-task'] ? 'Task' : rdesc['wsdl_type']
+        returnvals = resp.children.select(&:element?).map { |c| xml2obj c, type }
+        rdesc['is-array'] ? returnvals : returnvals.first
       else
         nil
       end
     end
   end
 
+  def demangle_array_type x
+    case x
+    when 'AnyType' then 'anyType'
+    when 'DateTime' then 'dateTime'
+    when 'Boolean', 'String', 'Byte', 'Short', 'Int', 'Long', 'Float', 'Double' then x.downcase
+    else x
+    end
+  end
+
   def xml2obj xml, type
     type = (xml.attribute_with_ns('type', NS_XSI) || type).to_s
-    if type =~ /^xsd:/
-      xml2obj_xsd xml, $'
-    elsif XSD::TYPES.member? type.downcase
-      xml2obj_xsd xml, type
-    else
-      t = RbVmomi.type type
-      if t.is_a? Array
-        xml.children.select { |c| c.element? }.map do |c|
-          xml2obj c, t[0].wsdl_name
+
+    if type =~ /^ArrayOf/
+      type = demangle_array_type $'
+      return xml.children.select(&:element?).map { |c| xml2obj c, type }
+    end
+
+    t = RbVmomi.type type
+    if t <= VIM::DataObject
+      #puts "deserializing data object #{t} from #{xml.name}"
+      props_desc = t.full_props_desc
+      h = {}
+      props_desc.select { |d| d['is-array'] }.each { |d| h[d['name'].to_sym] = [] }
+      xml.children.each do |c|
+        next unless c.element?
+        field = c.name.to_sym
+        #puts "field #{field.to_s}: #{t.find_prop_desc(field.to_s).inspect}"
+        d = t.find_prop_desc(field.to_s) or next
+        o = xml2obj c, d['wsdl_type']
+        if h[field].is_a? Array
+          h[field] << o
+        else
+          h[field] = o
         end
-      elsif t <= VIM::DataObject
-        props_desc = t.full_props_desc
-        h = {}
-        props_desc.select { |d| d['wsdl_type'] =~ /^ArrayOf/ }.each { |d| h[d['name'].to_sym] = [] }
-        xml.children.each do |c|
-          next unless c.element?
-          field = c.name.to_sym
-          d = t.find_prop_desc(field.to_s) or next
-          if h[field].is_a? Array
-            d['wsdl_type'] =~ /^ArrayOf/ or dfail xml, "expected array"
-            h[field] << xml2obj(c,$')
-          else
-            h[field] = xml2obj(c,d['wsdl_type'])
-          end
-        end
-        t.new h
-      elsif t == VIM::ManagedObjectReference
-        RbVmomi.type(xml['type']).new self, xml.text
-      elsif t <= VIM::ManagedObject
-        t.new self, xml.text
-      elsif t <= VIM::Enum
-        xml.text
-      elsif t <= String
-        xml.text
-      else dfail xml, "unexpected type #{t.inspect}"
       end
+      t.new h
+    elsif t == VIM::ManagedObjectReference
+      RbVmomi.type(xml['type']).new self, xml.text
+    elsif t <= VIM::ManagedObject
+      t.new self, xml.text
+    elsif t <= VIM::Enum
+      xml.text
+    elsif t <= String
+      xml.text
+    elsif t <= Symbol
+      xml.text.to_sym
+    elsif t <= Integer
+      xml.text.to_i
+    elsif t <= Float
+      xml.text.to_f
+    elsif t <= Time
+      Time.parse xml.text
+    elsif t == Boolean
+      xml.text == 'true' || xml.text == '1'
+    elsif t == AnyType
+      fail "attempted to deserialize an AnyType"
+    else fail "unexpected type #{t.inspect}"
     end
   end
 
-  def xml2obj_xsd xml, type
-    case type.downcase
-    when 'string' then xml.text
-    when 'byte', 'short', 'int', 'long' then xml.text.to_i
-    when 'boolean' then xml.text == 'true' || xml.text == '1'
-    when 'datetime' then Time.parse xml.text
-    when 'anytype' then dfail xml, "attempted to deserialize an anyType"
-    else dfail xml, "unexpected XSD type #{type.inspect}"
-    end
-  end
-
-  def obj2xml xml, name, type, o, attrs={}
+  def obj2xml xml, name, type, is_array, o, attrs={}
     expected = RbVmomi.type(type)
-    fail "expected array for field #{name.inspect} in #{type}" if expected.is_a? Array and not o.is_a? Array
+    fail "expected array, got #{o.class.wsdl_name}" if is_array and not o.is_a? Array
     case o
+    when Array
+      fail "expected #{expected.wsdl_name}, got array" unless is_array
+      o.each do |e|
+        obj2xml xml, name, expected.wsdl_name, false, e, attrs
+      end
     when VIM::ManagedObject
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
       xml.tag! name, o._ref, :type => o.class.wsdl_name
@@ -167,27 +162,28 @@ class Soap < TrivialSoap
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
       xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
-          k = desc['name'].to_sym
-          v = o.props[k] or next
-          obj2xml xml, k.to_s, desc['wsdl_type'], v
+          v = o.props[desc['name'].to_sym] or next  # TODO check is-optional
+          obj2xml xml, desc['name'], desc['wsdl_type'], desc['is-array'], v
         end
       end
     when VIM::Enum
-      fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected == o.class
-      obj2xml xml, name, nil, o.value
+      xml.tag! name, o.value.to_s, attrs
     when Hash
-      fail unless expected
-      obj2xml xml, name, type, expected.new(o), attrs
-    when Array
-      fail "user expected array for field #{name.inspect}, but was a #{type}" unless type =~ /^ArrayOf/
-      expected = RbVmomi.type($')
-      o.each do |v|
-        obj2xml xml, name, expected.wsdl_name, v, attrs
-      end
-    when Symbol, String, Integer, true, false
+      fail "expected #{expected.wsdl_name}, got a hash" unless expected <= VIM::DataObject
+      obj2xml xml, name, type, false,expected.new(o), attrs
+    when true, false
+      fail "expected #{expected.wsdl_name}, got a boolean" unless expected == Boolean
+      attrs['xsi:type'] = 'xsd:boolean' if expected == AnyType
+      xml.tag! name, (o ? '1' : '0'), attrs
+    when Symbol, String
+      attrs['xsi:type'] = 'xsd:string' if expected == AnyType
       xml.tag! name, o.to_s, attrs
-    when Typed
-      obj2xml xml, name, nil, o.value, 'xsi:type' => o.type.to_s
+    when Integer
+      attrs['xsi:type'] = 'xsd:long' if expected == AnyType
+      xml.tag! name, o.to_s, attrs
+    when Float
+      attrs['xsi:type'] = 'xsd:double' if expected == AnyType
+      xml.tag! name, o.to_s, attrs
     else fail "unexpected object class #{o.class}"
     end
     xml
@@ -220,6 +216,7 @@ end
 end
 
 require 'rbvmomi/types'
-RbVmomi::VIM.load File.join(File.dirname(__FILE__), "../vmodl.yaml")
+vmodl_fn = ENV['VMODL'] || File.join(File.dirname(__FILE__), "../vmodl.yaml")
+RbVmomi::VIM.load vmodl_fn
 
 require 'rbvmomi/extensions'

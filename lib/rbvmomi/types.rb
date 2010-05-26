@@ -2,6 +2,12 @@ require 'yaml'
 require 'pp'
 require 'set'
 
+class Class
+  def wsdl_name
+    self.class.name
+  end
+end
+
 module RbVmomi
 
 module VIM
@@ -10,12 +16,16 @@ BUILTIN_TYPES = %w(ManagedObject TypeName PropertyPath ManagedObjectReference Me
 
 def self.load fn
   @vmodl = YAML.load_file(fn)
-  @typenames = @vmodl.map { |x,v| v.keys }.flatten + BUILTIN_TYPES
+  @typenames = @vmodl.keys + BUILTIN_TYPES
   Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }
 end
 
+def self.has_type? name
+  @typenames.member? name.to_s
+end
+
 def self.type name
-  if @typenames.member? name.to_s
+  if has_type? name
     const_get(name.to_sym)
   else
     fail "no such type #{name.inspect}"
@@ -44,13 +54,12 @@ end
 
 def self.make_type name
   name = name.to_s
-  if desc = @vmodl['data'][name]
-    make_data_type name, desc
-  elsif desc = @vmodl['managed'][name]
-    make_managed_type name, desc
-  elsif desc = @vmodl['enum'][name]
-    make_enum_type name, desc
-  else fail "unknown @vmodl type #{name}"
+  desc = @vmodl[name] or fail "unknown VIM type #{name}"
+  case desc['kind']
+  when 'data' then make_data_type name, desc
+  when 'managed' then make_managed_type name, desc
+  when 'enum' then make_enum_type name, desc
+  else fail desc.inspect
   end
 end
 

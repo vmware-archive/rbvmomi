@@ -91,21 +91,52 @@ class DeserializationTest < Test::Unit::TestCase
     EOS
   end
 
-  def test_array2
-    obj = VIM.HostdHostFileSystemVolumeInfo(
-      dynamicProperty: [],
-      volumeTypes: ["foo", "bar", "baz"],
-      volume: []
-    )
+def test_array2
+  obj = VIM.DVPortStatus(
+    dynamicProperty: [],
+    linkUp: true,
+    blocked: false,
+    vmDirectPathGen2InactiveReasonNetwork: [],
+    vmDirectPathGen2InactiveReasonOther: [],
+    vlanIds: [
+      VIM::NumericRange(dynamicProperty: [], start: 5, end: 7),
+      VIM::NumericRange(dynamicProperty: [], start: 10, end: 20),
+    ]
+  )
 
-    check <<-EOS, obj, 'HostdHostFileSystemVolumeInfo'
+  check <<-EOS, obj, 'DVPortStatus'
 <root>
-  <volumeTypes>foo</volumeTypes>
-  <volumeTypes>bar</volumeTypes>
-  <volumeTypes>baz</volumeTypes>
+  <linkUp>1</linkUp>
+  <blocked>false</blocked>
+  <vlanIds>
+    <start>5</start>
+    <end>7</end>
+  </vlanIds>
+  <vlanIds>
+    <start>10</start>
+    <end>20</end>
+  </vlanIds>
 </root>
-    EOS
-  end
+  EOS
+end
+
+def test_empty_array
+  obj = VIM.DVPortStatus(
+    dynamicProperty: [],
+    vmDirectPathGen2InactiveReasonNetwork: [],
+    vmDirectPathGen2InactiveReasonOther: [],
+    linkUp: true,
+    blocked: false,
+    vlanIds: []
+  )
+
+  check <<-EOS, obj, 'DVPortStatus'
+<root>
+  <linkUp>1</linkUp>
+  <blocked>false</blocked>
+</root>
+  EOS
+end
 
   def test_fault
     obj = VIM.LocalizedMethodFault(

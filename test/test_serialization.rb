@@ -6,7 +6,7 @@ class SerializationTest < Test::Unit::TestCase
   def check str, obj, type
     soap = RbVmomi::Soap.new({})
     xml = Builder::XmlMarkup.new :indent => 2
-    soap.obj2xml(xml, 'root', type, obj)
+    soap.obj2xml(xml, 'root', type, false, obj)
 
     puts "expected:"
     puts str
@@ -24,14 +24,6 @@ class SerializationTest < Test::Unit::TestCase
     EOS
   end
 
-  def test_typed
-    check <<-EOS, VIM.VirtualLsiLogicController(:key => XSD.int(1000)), "VirtualLsiLogicController"
-<root xsi:type="VirtualLsiLogicController">
-  <key xsi:type="xsd:int">1000</key>
-</root>
-    EOS
-  end
-
   def test_config
     cfg = VIM.VirtualMachineConfigSpec(
       name: 'vm',
@@ -43,15 +35,15 @@ class SerializationTest < Test::Unit::TestCase
         {
           operation: :add,
           device: VIM.VirtualLsiLogicController(
-            key: XSD.int(1000),
-            busNumber: XSD.int(0),
+            key: 1000,
+            busNumber: 0,
             sharedBus: :noSharing,
           )
         }, VIM.VirtualDeviceConfigSpec(
           operation: VIM.VirtualDeviceConfigSpecOperation(:add),
           fileOperation: VIM.VirtualDeviceConfigSpecFileOperation(:create),
           device: VIM.VirtualDisk(
-            key: XSD.int(0),
+            key: 0,
             backing: VIM.VirtualDiskFlatVer2BackingInfo(
               fileName: '[datastore1]',
               diskMode: :persistent,
@@ -59,12 +51,12 @@ class SerializationTest < Test::Unit::TestCase
             ),
             controllerKey: 1000,
             unitNumber: 0,
-            capacityInKB: XSD.long(4000000),
+            capacityInKB: 4000000,
           )
         ), {
           operation: :add,
           device: VIM.VirtualE1000(
-            key: XSD.int(0),
+            key: 0,
             deviceInfo: {
               label: 'Network Adapter 1',
               summary: 'VM Network',
@@ -79,7 +71,7 @@ class SerializationTest < Test::Unit::TestCase
       extraConfig: [
         {
           key: 'bios.bootOrder',
-          value: XSD.string('ethernet0')
+          value: 'ethernet0'
         }
       ]
     )
@@ -95,8 +87,8 @@ class SerializationTest < Test::Unit::TestCase
   <deviceChange xsi:type="VirtualDeviceConfigSpec">
     <operation>add</operation>
     <device xsi:type="VirtualLsiLogicController">
-      <key xsi:type="xsd:int">1000</key>
-      <busNumber xsi:type="xsd:int">0</busNumber>
+      <key>1000</key>
+      <busNumber>0</busNumber>
       <sharedBus>noSharing</sharedBus>
     </device>
   </deviceChange>
@@ -104,21 +96,21 @@ class SerializationTest < Test::Unit::TestCase
     <operation>add</operation>
     <fileOperation>create</fileOperation>
     <device xsi:type="VirtualDisk">
-      <key xsi:type="xsd:int">0</key>
+      <key>0</key>
       <backing xsi:type="VirtualDiskFlatVer2BackingInfo">
         <fileName>[datastore1]</fileName>
         <diskMode>persistent</diskMode>
-        <thinProvisioned>true</thinProvisioned>
+        <thinProvisioned>1</thinProvisioned>
       </backing>
       <controllerKey>1000</controllerKey>
       <unitNumber>0</unitNumber>
-      <capacityInKB xsi:type="xsd:long">4000000</capacityInKB>
+      <capacityInKB>4000000</capacityInKB>
     </device>
   </deviceChange>
   <deviceChange xsi:type="VirtualDeviceConfigSpec">
     <operation>add</operation>
     <device xsi:type="VirtualE1000">
-      <key xsi:type="xsd:int">0</key>
+      <key>0</key>
       <deviceInfo xsi:type="Description">
         <label>Network Adapter 1</label>
         <summary>VM Network</summary>
