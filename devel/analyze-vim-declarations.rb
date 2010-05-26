@@ -1,11 +1,16 @@
 require 'nokogiri'
-require 'pp'
-require 'yaml'
+require 'gdbm'
 
-xml = Nokogiri.parse ARGF.read, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS
+XML_FN = ARGV[0] or abort "must specify path to vim-declarations.xml"
+OUT_FN = ARGV[1] or abort "must specify path to output database"
+
+abort "given XML file does not exist" unless File.exists? XML_FN
+
+xml = Nokogiri.parse File.read(XML_FN), nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS
+db = GDBM.new OUT_FN, 0666, GDBM::NEWDB
+TYPES = {}
 
 ID2NAME = Hash.new { |h,k| fail "unknown type-id #{k.inspect}" }
-TYPES = {}
 
 ID2NAME.merge!({
   'java.lang.String' => 'xsd:string',
@@ -138,4 +143,10 @@ TYPES.each do |k,t|
   end
 end
 
-puts YAML.dump(TYPES)
+TYPES.each do |k,t|
+  db[k] = Marshal.dump t
+end
+
+db['_typenames'] = Marshal.dump TYPES.keys
+
+db.close

@@ -216,7 +216,7 @@ end
 end
 
 require 'rbvmomi/types'
-vmodl_fn = ENV['VMODL'] || File.join(File.dirname(__FILE__), "../vmodl.yaml")
+vmodl_fn = ENV['VMODL'] || File.join(File.dirname(__FILE__), "../vmodl")
 RbVmomi::VIM.load vmodl_fn
 
 require 'rbvmomi/extensions'

@@ -1,4 +1,4 @@
-require 'yaml'
+require 'gdbm'
 require 'pp'
 require 'set'
 
@@ -14,9 +14,11 @@ module VIM
 
 BUILTIN_TYPES = %w(ManagedObject TypeName PropertyPath ManagedObjectReference MethodName MethodFault LocalizedMethodFault)
 
+# TODO make this a CDB
 def self.load fn
-  @vmodl = YAML.load_file(fn)
-  @typenames = @vmodl.keys + BUILTIN_TYPES
+  @db = GDBM.new fn, nil, GDBM::READER
+  @vmodl = Hash.new { |h,k| h[k] = Marshal.load(@db[k]) }
+  @typenames = Marshal.load(@db['_typenames']) + BUILTIN_TYPES
   Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }
 end
 
