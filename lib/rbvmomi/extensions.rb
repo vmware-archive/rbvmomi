@@ -91,7 +91,7 @@ class Datastore
   end
 
   def mkuripath path
-    "/folder/#{URI.escape path}?dcName=#{URI.escape datacenter.name}&dsName=#{URI.escape name}"
+    "/folder/#{URI.escape path}?dcPath=#{URI.escape datacenter.name}&dsName=#{URI.escape name}"
   end
 
   def exists? path
@@ -121,47 +121,16 @@ class Datastore
     end
   end
 
-  def put path, io
-    s = TCPSocket.new @soap.http.address, @soap.http.port
-    if @soap.http.use_ssl?
-      s = OpenSSL::SSL::SSLSocket.new s
-      s.sync_close = true
-      s.connect
-    end
-
-    s.write <<-EOS
-PUT #{URI.escape mkuripath(path)} HTTP/1.1\r
-Cookie: #{@soap.cookie}\r
-Connection: close\r
-Host: #{@soap.http.address}\r
-Transfer-Encoding: chunked\r
-\r
-    EOS
-
-    while chunk = (io.readpartial(65536) rescue nil)
-      s.write "#{chunk.size.to_s(16)}\r\n#{chunk}\r\n"
-      yield chunk.size
-    end
-
-    s.write "0\r\n\r\n"
+  def upload remote_path, local_path
+    url = "https://#{@soap.http.address}:#{@soap.http.port}#{mkuripath(remote_path)}"
+    pid = spawn "curl", "-k", '--noproxy', '*',
+                "-T", local_path,
+                "-b", @soap.cookie,
+                url,
+                out: '/dev/null'
+    Process.waitpid(pid, 0)
+    fail "upload failed" unless $?.success?
   end
-
-=begin
-  def put path, io
-    req = Net::HTTP::Put.new mkuripath(path)
-    req.initialize_http_header 'cookie' => @soap.cookie,
-                               'Transfer-Encoding' => 'chunked',
-                               'Content-Type' => 'application/octet-stream'
-    req.body_stream = io
-    @soap.http.request req
-    case resp
-    when Net::HTTPSuccess
-      true
-    else
-      fail resp.inspect
-    end
-  end
-=end
 end
 
 ServiceInstance
