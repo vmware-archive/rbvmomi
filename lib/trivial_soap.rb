@@ -12,6 +12,7 @@ class TrivialSoap
   def initialize opts
     fail unless opts.is_a? Hash
     @opts = opts
+    return unless @opts[:host] # for testcases
     @http = Net::HTTP.new(@opts[:host], @opts[:port])
     if @opts[:ssl]
       require 'net/https'
@@ -21,8 +22,10 @@ class TrivialSoap
     @http.set_debug_output(STDERR) if $DEBUG
     @http.read_timeout = 60
     @http.open_timeout = 5
+    @http.start
     @debug = @opts[:debug]
     @cookie = nil
+    @lock = Mutex.new
   end
 
   def soap_envelope
@@ -49,7 +52,7 @@ class TrivialSoap
       puts
     end
 
-    response = profile(:post) { @http.request_post(@opts[:path], body, headers) }
+    response = @lock.synchronize { profile(:post) { @http.request_post(@opts[:path], body, headers) } }
     @cookie = response['set-cookie'] if response.key? 'set-cookie'
 
     nk = Nokogiri(response.body)
