@@ -17,7 +17,7 @@ BUILTIN_TYPES = %w(ManagedObject TypeName PropertyPath ManagedObjectReference Me
 # TODO make this a CDB
 def self.load fn
   @db = GDBM.new fn, nil, GDBM::READER
-  @vmodl = Hash.new { |h,k| h[k] = Marshal.load(@db[k]) }
+  @vmodl = Hash.new { |h,k| if e = @db[k] then h[k] = Marshal.load(e) end }
   @typenames = Marshal.load(@db['_typenames']) + BUILTIN_TYPES
   Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }
 end
