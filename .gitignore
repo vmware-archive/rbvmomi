@@ -1,1 +1,4 @@
 *.swp
+pkg/
+*.gemspec
+vmodl
