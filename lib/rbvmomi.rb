@@ -162,15 +162,19 @@ class Soap < TrivialSoap
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
       xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
-          v = o.props[desc['name'].to_sym] or next  # TODO check is-optional
-          obj2xml xml, desc['name'], desc['wsdl_type'], desc['is-array'], v
+          if o.props.member? desc['name'].to_sym
+            v = o.props[desc['name'].to_sym]
+            obj2xml xml, desc['name'], desc['wsdl_type'], desc['is-array'], v
+          else
+            # TODO check is-optional
+          end
         end
       end
     when VIM::Enum
       xml.tag! name, o.value.to_s, attrs
     when Hash
       fail "expected #{expected.wsdl_name}, got a hash" unless expected <= VIM::DataObject
-      obj2xml xml, name, type, false,expected.new(o), attrs
+      obj2xml xml, name, type, false, expected.new(o), attrs
     when true, false
       fail "expected #{expected.wsdl_name}, got a boolean" unless expected == Boolean
       attrs['xsi:type'] = 'xsd:boolean' if expected == AnyType
