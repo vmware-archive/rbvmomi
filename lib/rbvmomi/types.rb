@@ -197,7 +197,8 @@ class DataObject < ObjectWithProperties
     q.group 2 do
       q.text '('
       q.breakable
-      q.seplist @props, nil, :each_pair do |k, v|
+      props = @props.sort_by { |k,v| k.to_s }
+      q.seplist props, nil, :each do |k, v|
         q.group do
           q.text k.to_s
           q.text ': '
