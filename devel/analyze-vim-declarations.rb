@@ -115,15 +115,15 @@ TYPES.each do |k,t|
     t.delete 'base-type-id'
     t['props'].each do |x|
       x['wsdl_type'] = ID2NAME[x['type-id-ref']]
-      t.delete 'type-id-ref'
+      x.delete 'type-id-ref'
       munge_fault[x]
     end
   when 'managed'
     t['wsdl_base'] = t['base-type-id'] ? ID2NAME[t['base-type-id']] : 'ManagedObject'
     t.delete 'base-type-id'
     t['props'].each do |x|
-      t['wsdl_type'] = ID2NAME[x['type-id-ref']]
-      t.delete 'type-id-ref'
+      x['wsdl_type'] = ID2NAME[x['type-id-ref']]
+      x.delete 'type-id-ref'
       munge_fault[x]
     end
     t['methods'].each do |mName,x|
