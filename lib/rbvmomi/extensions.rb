@@ -1,13 +1,14 @@
 module RbVmomi::VIM
 
 class ManagedObject
-  def wait *pathSet
+  def wait version, *pathSet
+    version ||= ''
     all = pathSet.empty?
     filter = @soap.propertyCollector.CreateFilter :spec => {
       :propSet => [{ :type => self.class.wsdl_name, :all => all, :pathSet => pathSet }],
       :objectSet => [{ :obj => self }],
     }, :partialUpdates => false
-    result = @soap.propertyCollector.WaitForUpdates
+    result = @soap.propertyCollector.WaitForUpdates(version: version)
     filter.DestroyPropertyFilter
     changes = result.filterSet[0].objectSet[0].changeSet
     changes.map { |h| [h.name.split('.').map(&:to_sym), h.val] }.each do |path,v|
@@ -15,12 +16,13 @@ class ManagedObject
       o = path.inject(self) { |b,k| b[k] }
       o._set_property k, v unless o == self
     end
-    nil
+    result.version
   end
 
   def wait_until *pathSet, &b
+    ver = nil
     loop do
-      wait *pathSet
+      ver = wait ver, *pathSet
       if x = b.call
         return x
       end
