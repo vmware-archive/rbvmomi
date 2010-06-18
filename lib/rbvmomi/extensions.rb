@@ -30,6 +30,19 @@ class ManagedObject
   end
 end
 
+ManagedEntity
+class ManagedEntity
+  def path
+    [self].tap do |es|
+      x = parent
+      while x.is_a? Folder
+        es.unshift x
+        x = x.parent
+      end
+    end
+  end
+end
+
 Task
 class Task
   def wait_for_completion
