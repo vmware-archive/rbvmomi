@@ -157,4 +157,52 @@ end
 </error>
     EOS
   end
+
+  def test_wait_for_updates
+    obj = VIM.UpdateSet(
+      version: '7',
+      dynamicProperty: [],
+      filterSet: [
+        VIM.PropertyFilterUpdate(
+          dynamicProperty: [],
+          filter: VIM.PropertyFilter(nil, "session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF"),
+          missingSet: [],
+          objectSet: [
+            VIM.ObjectUpdate(
+              dynamicProperty: [],
+              kind: 'enter',
+              obj: VIM.VirtualMachine(nil, 'vm-1106'),
+              missingSet: [],
+              changeSet: [
+                VIM.PropertyChange(
+                  dynamicProperty: [],
+                  name: 'runtime.powerState',
+                  op: 'assign',
+                  val: 'poweredOn'
+                )
+              ]
+            )
+          ]
+        )
+      ]
+    )
+
+    check <<-EOS, obj, "UpdateSet"
+<returnval xmlns:xsi="#{RbVmomi::Soap::NS_XSI}">
+  <version>7</version>
+  <filterSet>
+    <filter type="PropertyFilter">session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF</filter>
+    <objectSet>
+      <kind>enter</kind>
+      <obj type="VirtualMachine">vm-1106</obj>
+      <changeSet>
+        <name>runtime.powerState</name>
+        <op>assign</op>
+        <val xsi:type="VirtualMachinePowerState">poweredOn</val>
+      </changeSet>
+    </objectSet>
+  </filterSet>
+</returnval>
+    EOS
+  end
 end
