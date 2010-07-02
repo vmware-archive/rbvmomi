@@ -25,17 +25,7 @@ def self.type name
   end
 end
 
-class DeserializationFailed < Exception
-  attr_accessor :xml
-
-  def extra
-    { xml: xml.to_s }
-  end
-end
-
-def dfail xml, msg
-  raise DeserializationFailed.new.tap { |e| e.xml = xml }
-end
+class DeserializationFailed < Exception; end
 
 class Soap < TrivialSoap
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
@@ -194,8 +184,8 @@ class Soap < TrivialSoap
   end
 end
 
-class Fault < Exception
-end
+# XXX fault class hierarchy
+class Fault < Exception; end
 
 def self.fault msg, fault
   Fault.new("#{fault.class.wsdl_name}: #{msg}")
