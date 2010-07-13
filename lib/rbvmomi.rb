@@ -32,6 +32,7 @@ class Soap < TrivialSoap
 
   def initialize opts
     @rev = opts[:rev] || '4.1'
+    @vim_debug = opts[:vim_debug]
     super opts
   end
 
@@ -52,6 +53,14 @@ class Soap < TrivialSoap
   def call method, desc, o
     fail unless o.is_a? Hash
     fail unless desc.is_a? Hash
+
+    if @vim_debug
+      $stderr.puts "Request #{method}:"
+      PP.pp o, $stderr
+      $stderr.puts
+      start_time = Time.now
+    end
+
     resp = request "urn:vim25/#{@rev}" do |xml|
       xml.tag! method, :xmlns => 'urn:vim25' do
         yield xml if block_given?
@@ -63,7 +72,8 @@ class Soap < TrivialSoap
         end
       end
     end
-    if resp.at('faultcode')
+
+    ret = if resp.at('faultcode')
       fault = xml2obj(resp.at('detail').children.first, 'MethodFault')
       msg = resp.at('faultstring').text
       raise RbVmomi.fault msg, fault
@@ -76,6 +86,15 @@ class Soap < TrivialSoap
         nil
       end
     end
+
+    if @vim_debug
+      end_time = Time.now
+      $stderr.puts "Response (in #{'%.3f' % (end_time - start_time)} s)"
+      PP.pp ret, $stderr
+      $stderr.puts
+    end
+
+    ret
   end
 
   def demangle_array_type x
@@ -205,7 +224,7 @@ def self.connect opts
   opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
 
   Soap.new(opts).tap do |vim|
-    vim.serviceInstance.RetrieveServiceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
+    vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
   end
 end
 

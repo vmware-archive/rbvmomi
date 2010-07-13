@@ -47,9 +47,10 @@ class TrivialSoap
     body = soap_envelope(&b).target!
     
     if @debug
-      puts "Request:"
-      puts body
-      puts
+      $stderr.puts "Request:"
+      $stderr.puts body
+      $stderr.puts
+      start_time = Time.now
     end
 
     response = @lock.synchronize { profile(:post) { @http.request_post(@opts[:path], body, headers) } }
@@ -58,9 +59,10 @@ class TrivialSoap
     nk = Nokogiri(response.body)
 
     if @debug
-      puts "Response"
-      puts nk
-      puts
+      end_time = Time.now
+      $stderr.puts "Response (in #{'%.3f' % (end_time - start_time)} s)"
+      $stderr.puts nk
+      $stderr.puts
     end
 
     nk.xpath('//soapenv:Body/*').select(&:element?).first
