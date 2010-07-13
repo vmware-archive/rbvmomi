@@ -117,7 +117,7 @@ class Soap < TrivialSoap
     elsif t == VIM::ManagedObjectReference
       RbVmomi.type(xml['type']).new self, xml.text
     elsif t <= VIM::ManagedObject
-      t.new self, xml.text
+      RbVmomi.type(xml['type'] || t.wsdl_name).new self, xml.text
     elsif t <= VIM::Enum
       xml.text
     elsif t <= String
