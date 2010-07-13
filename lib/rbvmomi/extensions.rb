@@ -72,7 +72,8 @@ end
 Folder
 class Folder
   def find name, type=Object
-    childEntity.grep(type).find { |x| x.name == name }
+    x = @soap.searchIndex.FindChild(entity: self, name: name)
+    x if x.is_a? type
   end
 
   def traverse! path, type=Object
