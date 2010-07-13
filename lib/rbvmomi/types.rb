@@ -264,8 +264,10 @@ class ManagedObject < ObjectWithMethods
     x.class == self.class and x._ref == @ref
   end
 
+  alias eql? ==
+
   def hash
-    [self.class, value].hash
+    [self.class, @ref].hash
   end
 
   initialize 'ManagedObject'
