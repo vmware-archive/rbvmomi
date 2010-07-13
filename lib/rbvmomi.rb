@@ -39,13 +39,15 @@ class Soap < TrivialSoap
     VIM::ServiceInstance self, 'ServiceInstance'
   end
 
-  def root
-    @rootFolder ||= serviceInstance.content.rootFolder
+  def serviceContent
+    @serviceContent ||= serviceInstance.RetrieveServiceContent
   end
 
-  def propertyCollector
-    @propertyCollector ||= serviceInstance.RetrieveServiceContent.propertyCollector
+  %w(rootFolder propertyCollector searchIndex).map(&:to_sym).each do |s|
+    define_method(s) { serviceContent.send s }
   end
+
+  alias root rootFolder
 
   def call method, desc, o
     fail unless o.is_a? Hash
