@@ -5,6 +5,15 @@ require 'net/http'
 require 'pp'
 require 'rbvmomi/profile'
 
+class Net::HTTPGenericRequest
+  alias old_exec exec
+
+  def exec sock, ver, path
+    old_exec sock, ver, path
+    sock.io.flush
+  end
+end
+
 class TrivialSoap
   attr_accessor :debug
   attr_reader :http, :cookie
