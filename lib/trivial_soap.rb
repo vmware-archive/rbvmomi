@@ -50,16 +50,17 @@ class TrivialSoap
       $stderr.puts "Request:"
       $stderr.puts body
       $stderr.puts
-      start_time = Time.now
     end
 
+    start_time = Time.now
     response = @lock.synchronize { profile(:post) { @http.request_post(@opts[:path], body, headers) } }
+    end_time = Time.now
+
     @cookie = response['set-cookie'] if response.key? 'set-cookie'
 
     nk = Nokogiri(response.body)
 
     if @debug
-      end_time = Time.now
       $stderr.puts "Response (in #{'%.3f' % (end_time - start_time)} s)"
       $stderr.puts nk
       $stderr.puts
