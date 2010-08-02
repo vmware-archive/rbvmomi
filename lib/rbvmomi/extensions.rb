@@ -152,7 +152,7 @@ class Datastore
 
   def upload remote_path, local_path
     url = "http#{@soap.http.use_ssl? ? 's' : ''}://#{@soap.http.address}:#{@soap.http.port}#{mkuripath(remote_path)}"
-    pid = spawn "curl", "-k", '--noproxy', '*',
+    pid = spawn (ENV['CURL'] || "curl"), "-k", '--noproxy', '*',
                 "-T", local_path,
                 "-b", @soap.cookie,
                 url,
