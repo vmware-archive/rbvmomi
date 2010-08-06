@@ -206,7 +206,14 @@ class Soap < TrivialSoap
 end
 
 # XXX fault class hierarchy
-class Fault < Exception; end
+class Fault < Exception
+  attr_reader :fault
+
+  def initialize msg, fault
+    super msg
+    @fault = fault
+  end
+end
 
 def self.fault msg, fault
   Fault.new("#{fault.class.wsdl_name}: #{msg}")
