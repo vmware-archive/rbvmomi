@@ -128,4 +128,13 @@ class SerializationTest < Test::Unit::TestCase
 </root>
     EOS
   end
+
+  def test_nil_field
+    obj = VIM.OptionValue(key: 'foo', value: nil)
+    check <<-EOS, obj, "OptionValue"
+<root xsi:type="OptionValue">
+  <key>foo</key>
+</root>
+    EOS
+  end
 end

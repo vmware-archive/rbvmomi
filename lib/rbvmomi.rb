@@ -174,7 +174,7 @@ class Soap < TrivialSoap
       xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
           if o.props.member? desc['name'].to_sym
-            v = o.props[desc['name'].to_sym]
+            v = o.props[desc['name'].to_sym] or next
             obj2xml xml, desc['name'], desc['wsdl_type'], desc['is-array'], v
           else
             # TODO check is-optional
