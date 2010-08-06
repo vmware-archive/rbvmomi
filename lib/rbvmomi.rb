@@ -210,13 +210,13 @@ class Fault < Exception
   attr_reader :fault
 
   def initialize msg, fault
-    super msg
+    super "#{fault.class.wsdl_name}: #{msg}"
     @fault = fault
   end
 end
 
 def self.fault msg, fault
-  Fault.new("#{fault.class.wsdl_name}: #{msg}")
+  Fault.new(msg, fault)
 end
 
 # host, port, ssl, user, password, path, debug
