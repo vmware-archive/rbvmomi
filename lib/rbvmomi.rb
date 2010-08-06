@@ -206,7 +206,7 @@ class Soap < TrivialSoap
 end
 
 # XXX fault class hierarchy
-class Fault < Exception
+class Fault < StandardError
   attr_reader :fault
 
   def initialize msg, fault
