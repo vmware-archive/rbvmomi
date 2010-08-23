@@ -66,7 +66,7 @@ class EmitRequestTest < Test::Unit::TestCase
     end
   end
 
-  def test_optinoal_param
+  def test_optional_param
     desc = [
       {
         'name' => 'blah',
@@ -79,6 +79,24 @@ class EmitRequestTest < Test::Unit::TestCase
     check desc, <<-EOS, MO, {}
 <root xmlns="urn:vim25">
   <_this type="VirtualMachine">foo</_this>
+</root>
+    EOS
+  end
+
+  def test_string_key
+    desc = [
+      {
+        'name' => 'blah',
+        'is-array' => false,
+        'is-optional' => false,
+        'wsdl_type' => 'xsd:string',
+      }
+    ]
+
+    check desc, <<-EOS, MO, 'blah' => 'a'
+<root xmlns="urn:vim25">
+  <_this type="VirtualMachine">foo</_this>
+  <blah>a</blah>
 </root>
     EOS
   end
