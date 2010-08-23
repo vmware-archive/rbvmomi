@@ -3,10 +3,10 @@ require 'rbvmomi'
 include RbVmomi
 
 class SerializationTest < Test::Unit::TestCase
-  def check str, obj, type
+  def check str, obj, type, array=false
     soap = RbVmomi::Soap.new({})
     xml = Builder::XmlMarkup.new :indent => 2
-    soap.obj2xml(xml, 'root', type, false, obj)
+    soap.obj2xml(xml, 'root', type, array, obj)
 
     puts "expected:"
     puts str
@@ -135,6 +135,42 @@ class SerializationTest < Test::Unit::TestCase
 <root xsi:type="OptionValue">
   <key>foo</key>
 </root>
+    EOS
+  end
+
+  def test_string_array
+    obj = ["foo", "bar", "baz"]
+    check <<-EOS, obj, "xsd:string", true
+<root>foo</root>
+<root>bar</root>
+<root>baz</root>
+    EOS
+  end
+
+  def test_int_array
+    obj = [1,2,3]
+    check <<-EOS, obj, "xsd:int", true
+<root>1</root>
+<root>2</root>
+<root>3</root>
+    EOS
+  end
+
+  def test_boolean_array
+    obj = [true,false,true]
+    check <<-EOS, obj, "xsd:boolean", true
+<root>1</root>
+<root>0</root>
+<root>1</root>
+    EOS
+  end
+
+  def test_float_array
+    obj = [0.0,1.5,3.14]
+    check <<-EOS, obj, "xsd:float", true
+<root>0.0</root>
+<root>1.5</root>
+<root>3.14</root>
     EOS
   end
 end

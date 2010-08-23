@@ -3,11 +3,11 @@ require 'time'
 
 module RbVmomi
 
-Boolean = Class.new
-AnyType = Class.new
+class Boolean; def self.wsdl_name; 'xsd:boolean' end end
+class AnyType; def self.wsdl_name; 'xsd:anyType' end end
 
 def self.type name
-  fail unless name
+  fail unless name and (name.is_a? String or name.is_a? Symbol)
   name = $' if name.to_s =~ /^xsd:/
   case name.to_sym
   when :anyType then AnyType

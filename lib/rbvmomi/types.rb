@@ -330,6 +330,18 @@ class ManagedObjectReference
   def self.wsdl_name; 'ManagedObjectReference' end
 end
 
+class ::String
+  def self.wsdl_name; 'xsd:string' end
+end
+
+class ::Integer
+  def self.wsdl_name; 'xsd:int' end
+end
+
+class ::Float
+  def self.wsdl_name; 'xsd:float' end
+end
+
 end
 
 end
