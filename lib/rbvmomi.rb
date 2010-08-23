@@ -50,42 +50,50 @@ class Soap < TrivialSoap
 
   alias root rootFolder
 
-  def call method, desc, o
-    fail unless o.is_a? Hash
+  def emit_request xml, method, descs, this, params
+    xml.tag! method, :xmlns => 'urn:vim25' do
+      obj2xml xml, '_this', 'ManagedObject', false, this
+      descs.each do |d|
+        k = d['name'].to_sym
+        next unless params.member? k
+        obj2xml xml, d['name'], d['wsdl_type'], d['is-array'], params[k]
+      end
+    end
+  end
+
+  def parse_response resp, desc
+    if resp.at('faultcode')
+      fault = xml2obj(resp.at('detail').children.first, 'MethodFault')
+      msg = resp.at('faultstring').text
+      raise RbVmomi.fault msg, fault
+    else
+      if desc
+        type = desc['is-task'] ? 'Task' : desc['wsdl_type']
+        returnvals = resp.children.select(&:element?).map { |c| xml2obj c, type }
+        desc['is-array'] ? returnvals : returnvals.first
+      else
+        nil
+      end
+    end
+  end
+
+  def call method, desc, this, params
+    fail "this is not a managed object" unless this.is_a? RbVmomi::VIM::ManagedObject
+    fail "parameters must be passed as a hash" unless params.is_a? Hash
     fail unless desc.is_a? Hash
 
     if @vim_debug
       $stderr.puts "Request #{method}:"
-      PP.pp o, $stderr
+      PP.pp({ _this: this }.merge(params), $stderr)
       $stderr.puts
       start_time = Time.now
     end
 
     resp = request "urn:vim25/#{@rev}" do |xml|
-      xml.tag! method, :xmlns => 'urn:vim25' do
-        yield xml if block_given?
-        obj2xml xml, '_this', 'ManagedObject', false, o['_this']
-        desc['params'].each do |d|
-          k = d['name'].to_sym
-          next unless o.member? k
-          obj2xml xml, d['name'], d['wsdl_type'], d['is-array'], o[k]
-        end
-      end
+      emit_request xml, method, desc['params'], this, params
     end
 
-    ret = if resp.at('faultcode')
-      fault = xml2obj(resp.at('detail').children.first, 'MethodFault')
-      msg = resp.at('faultstring').text
-      raise RbVmomi.fault msg, fault
-    else
-      if rdesc = desc['result']
-        type = rdesc['is-task'] ? 'Task' : rdesc['wsdl_type']
-        returnvals = resp.children.select(&:element?).map { |c| xml2obj c, type }
-        rdesc['is-array'] ? returnvals : returnvals.first
-      else
-        nil
-      end
-    end
+    ret = parse_response resp, desc['result']
 
     if @vim_debug
       end_time = Time.now

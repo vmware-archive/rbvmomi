@@ -164,7 +164,7 @@ class DataObject < ObjectWithProperties
   attr_reader :props
 
   def initialize props={}
-    @props = props
+    @props = Hash[props.map { |k,v| [k.to_sym, v] }]
     @props.each do |k,v|
       fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
     end
@@ -245,7 +245,7 @@ class ManagedObject < ObjectWithMethods
   def _call method, o={}
     fail unless o.is_a? Hash
     desc = self.class.full_methods_desc[method.to_s] or fail "unknown method"
-    @soap.call method, desc, {'_this' => self}.merge(o)
+    @soap.call method, desc, self, o
   end
 
   def to_s
