@@ -68,9 +68,14 @@ class Soap < TrivialSoap
 
   def parse_response resp, desc
     if resp.at('faultcode')
-      fault = xml2obj(resp.at('detail').children.first, 'MethodFault')
+      detail = resp.at('detail')
+      fault = detail && xml2obj(detail.children.first, 'MethodFault')
       msg = resp.at('faultstring').text
-      raise RbVmomi.fault msg, fault
+      if fault
+        raise RbVmomi.fault msg, fault
+      else
+        fail "#{resp.at('faultcode').text}: #{msg}"
+      end
     else
       if desc
         type = desc['is-task'] ? 'Task' : desc['wsdl_type']
