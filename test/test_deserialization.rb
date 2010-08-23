@@ -143,7 +143,8 @@ end
       localizedMessage: "The attempted operation cannot be performed in the current state (Powered off).",
       fault: VIM.InvalidPowerState(
         requestedState: 'poweredOn',
-        existingState: 'poweredOff'
+        existingState: 'poweredOff',
+        faultMessage: []
       )
     )
 

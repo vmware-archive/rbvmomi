@@ -57,8 +57,11 @@ class Soap < TrivialSoap
       obj2xml xml, '_this', 'ManagedObject', false, this
       descs.each do |d|
         k = d['name'].to_sym
-        next unless params.member? k
-        obj2xml xml, d['name'], d['wsdl_type'], d['is-array'], params[k]
+        if params.member? k
+          obj2xml xml, d['name'], d['wsdl_type'], d['is-array'], params[k]
+        else
+          fail "missing required parameter #{d['name']}" unless d['is-optional']
+        end
       end
     end
   end
@@ -189,8 +192,6 @@ class Soap < TrivialSoap
             v = o.props[desc['name'].to_sym]
             next if v.nil?
             obj2xml xml, desc['name'], desc['wsdl_type'], desc['is-array'], v
-          else
-            # TODO check is-optional
           end
         end
       end

@@ -2,19 +2,6 @@ require 'test/unit'
 require 'rbvmomi'
 include RbVmomi
 
-module D
-
-StringArray = [
-  {
-    'name' => 'blah',
-    'is-array' => true,
-    'is-optional' => true,
-    'wsdl_type' => 'xsd:string',
-  }
-]
-
-end
-
 class EmitRequestTest < Test::Unit::TestCase
   MO = VIM::VirtualMachine(nil, "foo")
 
@@ -34,7 +21,16 @@ class EmitRequestTest < Test::Unit::TestCase
   end
 
   def test_string_array
-    check D::StringArray, <<-EOS, MO, blah: ['a', 'b', 'c']
+    desc = [
+      {
+        'name' => 'blah',
+        'is-array' => true,
+        'is-optional' => true,
+        'wsdl_type' => 'xsd:string',
+      }
+    ]
+
+    check desc, <<-EOS, MO, blah: ['a', 'b', 'c']
 <root xmlns="urn:vim25">
   <_this type="VirtualMachine">foo</_this>
   <blah>a</blah>
@@ -42,6 +38,55 @@ class EmitRequestTest < Test::Unit::TestCase
   <blah>c</blah>
 </root>
     EOS
+  end
+
+  def test_required_param
+    desc = [
+      {
+        'name' => 'blah',
+        'is-array' => false,
+        'is-optional' => false,
+        'wsdl_type' => 'xsd:string',
+      }
+    ]
+
+    check desc, <<-EOS, MO, blah: 'a'
+<root xmlns="urn:vim25">
+  <_this type="VirtualMachine">foo</_this>
+  <blah>a</blah>
+</root>
+    EOS
+
+    assert_raise RuntimeError do
+      check desc, <<-EOS, MO, {}
+<root xmlns="urn:vim25">
+  <_this type="VirtualMachine">foo</_this>
+</root>
+      EOS
+    end
+  end
+
+  def test_optinoal_param
+    desc = [
+      {
+        'name' => 'blah',
+        'is-array' => false,
+        'is-optional' => true,
+        'wsdl_type' => 'xsd:string',
+      }
+    ]
+
+    check desc, <<-EOS, MO, {}
+<root xmlns="urn:vim25">
+  <_this type="VirtualMachine">foo</_this>
+</root>
+    EOS
+  end
+
+  def test_required_property
+    assert_raise RuntimeError do
+      VIM::AboutInfo()
+    end
   end
 end
 

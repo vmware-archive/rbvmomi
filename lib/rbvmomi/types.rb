@@ -165,6 +165,9 @@ class DataObject < ObjectWithProperties
 
   def initialize props={}
     @props = Hash[props.map { |k,v| [k.to_sym, v] }]
+    self.class.full_props_desc.each do |desc|
+      fail "missing required property #{desc['name'].inspect} of #{self.class.wsdl_name}" if @props[desc['name'].to_sym].nil? and not desc['is-optional']
+    end
     @props.each do |k,v|
       fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
     end
@@ -294,15 +297,33 @@ end
 
 class MethodFault < DataObject
   initialize 'MethodFault', [
-    { 'name' => 'faultCause', 'wsdl_type' => 'LocalizedMethodFault' },
-    { 'name' => 'faultMessage', 'wsdl_type' => 'LocalizableMessage[]' },
+    {
+      'name' => 'faultCause',
+      'wsdl_type' => 'LocalizedMethodFault',
+      'is-array' => false,
+      'is-optional' => true,
+    }, {
+      'name' => 'faultMessage',
+      'wsdl_type' => 'LocalizableMessage',
+      'is-array' => true,
+      'is-optional' => true,
+    },
   ]
 end
 
 class LocalizedMethodFault < DataObject
   initialize 'LocalizedMethodFault', [
-    { 'name' => 'fault', 'wsdl_type' => 'MethodFault' },
-    { 'name' => 'localizedMessage', 'wsdl_type' => 'xsd:string' },
+    {
+      'name' => 'fault',
+      'wsdl_type' => 'MethodFault',
+      'is-array' => false,
+      'is-optional' => false,
+    }, {
+      'name' => 'localizedMessage',
+      'wsdl_type' => 'xsd:string',
+      'is-array' => false,
+      'is-optional' => true,
+    },
   ]
 
   def exception
