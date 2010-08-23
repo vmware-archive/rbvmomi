@@ -5,6 +5,7 @@ module RbVmomi
 
 class Boolean; def self.wsdl_name; 'xsd:boolean' end end
 class AnyType; def self.wsdl_name; 'xsd:anyType' end end
+class Binary; def self.wsdl_name; 'xsd:base64Binary' end end
 
 def self.type name
   fail unless name and (name.is_a? String or name.is_a? Symbol)
@@ -16,6 +17,7 @@ def self.type name
   when :int, :long, :short, :byte then Integer
   when :float, :double then Float
   when :dateTime then Time
+  when :base64Binary then Binary
   else
     if VIM.has_type? name
       VIM.type name
@@ -159,6 +161,8 @@ class Soap < TrivialSoap
       Time.parse xml.text
     elsif t == Boolean
       xml.text == 'true' || xml.text == '1'
+    elsif t == Binary
+      xml.text.unpack('m')[0]
     elsif t == AnyType
       fail "attempted to deserialize an AnyType"
     else fail "unexpected type #{t.inspect}"
@@ -200,8 +204,13 @@ class Soap < TrivialSoap
       attrs['xsi:type'] = 'xsd:boolean' if expected == AnyType
       xml.tag! name, (o ? '1' : '0'), attrs
     when Symbol, String
-      attrs['xsi:type'] = 'xsd:string' if expected == AnyType
-      xml.tag! name, o.to_s, attrs
+      if expected == Binary
+        attrs['xsi:type'] = 'xsd:base64Binary' if expected == AnyType
+        xml.tag! name, [o].pack('m').chomp, attrs
+      else
+        attrs['xsi:type'] = 'xsd:string' if expected == AnyType
+        xml.tag! name, o.to_s, attrs
+      end
     when Integer
       attrs['xsi:type'] = 'xsd:long' if expected == AnyType
       xml.tag! name, o.to_s, attrs

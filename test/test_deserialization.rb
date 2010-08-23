@@ -205,4 +205,11 @@ end
 </returnval>
     EOS
   end
+
+  def test_binary
+    obj = "\x00foo\x01bar\x02baz"
+    check <<-EOS, obj, 'xsd:base64Binary'
+<root>AGZvbwFiYXICYmF6</root>
+    EOS
+  end
 end

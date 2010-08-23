@@ -22,6 +22,7 @@ ID2NAME.merge!({
   'FLOAT' => 'xsd:float',
   'DOUBLE' => 'xsd:double',
   'vmodl.DateTime' => 'xsd:dateTime',
+  'vmodl.Binary' => 'xsd:base64Binary',
   'vmodl.Any' => 'xsd:anyType',
   'void' => nil,
 })
