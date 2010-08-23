@@ -65,7 +65,7 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_array
     obj = VIM.ObjectContent(
-      obj: VIM.ManagedObject(nil, 'ha-folder-root'),
+      obj: VIM.Folder(nil, 'ha-folder-root'),
       dynamicProperty: [],
       missingSet: [],
       propSet: [
