@@ -166,7 +166,7 @@ class DataObject < ObjectWithProperties
   def initialize props={}
     @props = Hash[props.map { |k,v| [k.to_sym, v] }]
     self.class.full_props_desc.each do |desc|
-      $stderr.puts "missing required property #{desc['name'].inspect} of #{self.class.wsdl_name}" if @props[desc['name'].to_sym].nil? and not desc['is-optional']
+      #fail "missing required property #{desc['name'].inspect} of #{self.class.wsdl_name}" if @props[desc['name'].to_sym].nil? and not desc['is-optional']
     end
     @props.each do |k,v|
       fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
