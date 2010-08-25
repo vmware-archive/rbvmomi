@@ -246,7 +246,7 @@ class ManagedObject < ObjectWithMethods
   end
 
   def _call method, o={}
-    fail unless o.is_a? Hash
+    fail "parameters must be passed as a hash" unless o.is_a? Hash
     desc = self.class.full_methods_desc[method.to_s] or fail "unknown method"
     @soap.call method, desc, self, o
   end
