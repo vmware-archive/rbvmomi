@@ -180,4 +180,29 @@ class SerializationTest < Test::Unit::TestCase
 <root>AGZvbwFiYXICYmF6</root>
     EOS
   end
+
+  def test_property_spec
+    interested = %w(info.progress info.state info.entityName info.error)
+    tasks = [VIM::Task.new(nil, 'task-11')]
+    obj = {
+      :propSet => [{ :type => 'Task', :all => false, :pathSet => interested }],
+      :objectSet => tasks.map { |x| { :obj => x } },
+    }
+    check <<-EOS, obj, 'PropertyFilterSpec'
+<root xsi:type="PropertyFilterSpec">
+  <propSet xsi:type="PropertySpec">
+    <type>Task</type>
+    <all>0</all>
+    <pathSet>info.progress</pathSet>
+    <pathSet>info.state</pathSet>
+    <pathSet>info.entityName</pathSet>
+    <pathSet>info.error</pathSet>
+  </propSet>
+  <objectSet xsi:type="ObjectSpec">
+    <obj type="Task">task-11</obj>
+  </objectSet>
+</root>
+    EOS
+
+  end
 end
