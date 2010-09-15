@@ -54,13 +54,39 @@ end
 ManagedEntity
 class ManagedEntity
   def path
-    [self].tap do |es|
-      x = parent
-      while x.is_a? Folder
-        es.unshift x
-        x = x.parent
-      end
+    filterSpec = VIM.PropertyFilterSpec(
+      objectSet: [{
+        obj: self,
+        selectSet: [
+          VIM.TraversalSpec(
+            name: 'tsME',
+            type: 'ManagedEntity',
+            path: 'parent',
+            skip: false,
+            selectSet: [
+              VIM.SelectionSpec(name: 'tsME')
+            ]
+          )
+        ]
+      }],
+      propSet: [{
+        pathSet: %w(name parent),
+        type: 'ManagedEntity'
+      }]
+    )
+
+    result = @soap.propertyCollector.RetrieveProperties(specSet: [filterSpec])
+
+    tree = {}
+    result.each { |x| tree[x.obj] = [x['parent'], x['name']] }
+    a = []
+    cur = self
+    while cur
+      parent, name = *tree[cur]
+      a << [cur, name]
+      cur = parent
     end
+    a.reverse
   end
 end
 
@@ -304,6 +330,26 @@ VirtualMachine
 class VirtualMachine
   def macs
     Hash[self.config.hardware.device.grep(VIM::VirtualEthernetCard).map { |x| [x.deviceInfo.label, x.macAddress] }]
+  end
+end
+
+ObjectContent
+class ObjectContent
+  def [](k)
+    to_hash[k]
+  end
+
+  def to_hash_uncached
+    h = {}
+    propSet.each do |x|
+      fail if h.member? x.name
+      h[x.name] = x.val
+    end
+    h
+  end
+
+  def to_hash
+    @cached_hash ||= to_hash_uncached
   end
 end
 
