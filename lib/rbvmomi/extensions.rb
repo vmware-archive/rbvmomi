@@ -28,6 +28,27 @@ class ManagedObject
       end
     end
   end
+
+  def collect! *props
+    spec = {
+      objectSet: [{ obj: self }],
+      propSet: [{
+        pathSet: props,
+        type: self.class.wsdl_name
+      }]
+    }
+    @soap.propertyCollector.RetrieveProperties(specSet: [spec])[0].to_hash
+  end
+
+  def collect *props
+    h = collect! *props
+    a = props.map { |k| h[k.to_s] }
+    if block_given?
+      yield a
+    else
+      a
+    end
+  end
 end
 
 ManagedEntity
