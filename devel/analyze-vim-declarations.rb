@@ -9,6 +9,7 @@ abort "given XML file does not exist" unless File.exists? XML_FN
 xml = Nokogiri.parse File.read(XML_FN), nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS
 db = GDBM.new OUT_FN, 0666, GDBM::NEWDB
 TYPES = {}
+VERSIONS = []
 
 ID2NAME = Hash.new { |h,k| fail "unknown type-id #{k.inspect}" }
 
@@ -102,10 +103,18 @@ def handle_fault node
   handle_data_object node
 end
 
+def handle_version x
+  attrs = %w(display-name name service-namespace type-id version-id vmodl-name)
+  h = Hash[attrs.map { |k| [k, x[k]] }]
+  h['compatible'] = x.children.select(&:element?).map { |y| y.text }
+  VERSIONS << h
+end
+
 xml.root.at('enums').children.each { |x| handle_enum x }
 xml.root.at('managed-objects').children.each { |x| handle_managed_object x }
 xml.root.at('data-objects').children.each { |x| handle_data_object x }
 xml.root.at('faults').children.each { |x| handle_fault x }
+xml.root.at('definitions').at('version-types').children.each { |x| handle_version x }
 
 munge_fault = lambda { |x| true }
 
@@ -149,5 +158,20 @@ TYPES.each do |k,t|
 end
 
 db['_typenames'] = Marshal.dump TYPES.keys
+db['_versions'] = Marshal.dump VERSIONS
 
 db.close
+
+if filename = ENV['VERSION_GRAPH']
+  File.open(filename, 'w') do |io|
+    io.puts "digraph versions\n{"
+    VERSIONS.each do |h|
+      io.puts "\"#{h['vmodl-name']}\" [label=\"#{h['vmodl-name']} (#{h['version-id']})\"]"
+      h['compatible'].each do |x|
+        x =~ /^interface / or fail x
+        io.puts "\"#{h['vmodl-name']}\" -> \"#{$'}\""
+      end
+    end
+    io.puts "}\n"
+  end
+end
