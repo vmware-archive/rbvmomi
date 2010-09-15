@@ -213,4 +213,112 @@ end
 <root>AGZvbwFiYXICYmF6</root>
     EOS
   end
+
+  def test_hba
+    obj = VIM::HostBlockHba(
+      dynamicProperty: [],
+      key: 'key-vim.host.BlockHba-vmhba0',
+      device: 'vmhba0',
+      bus: 0,
+      status: 'unknown',
+      model: 'Virtual Machine Chipset',
+      driver: 'ata_piix',
+      pci: '00:07.1')
+
+    check <<-EOS, obj, "HostBlockHba"
+<hostBusAdapter xsi:type="HostBlockHba">
+  <key>key-vim.host.BlockHba-vmhba0</key>
+  <device>vmhba0</device>
+  <bus>0</bus>
+  <status>unknown</status>
+  <model>Virtual Machine Chipset</model>
+  <driver>ata_piix</driver>
+  <pci>00:07.1</pci>
+</hostBusAdapter>
+    EOS
+  end
+
+  def test_runtime_state
+    obj = VIM::VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState(
+      dynamicProperty: [],
+      vmDirectPathGen2Active: false,
+      vmDirectPathGen2InactiveReasonOther: ["vmNptIncompatibleHost"],
+      vmDirectPathGen2InactiveReasonVm: []
+    )
+    check <<-EOS, obj, 'VirtualMachineDeviceRuntimeInfoDeviceRuntimeState'
+<runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState" xmlns:xsi="#{RbVmomi::Soap::NS_XSI}">
+  <vmDirectPathGen2Active>false</vmDirectPathGen2Active>
+  <vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleHost</vmDirectPathGen2InactiveReasonOther>
+</runtimeState>
+    EOS
+  end
+
+  def test_runtime_info
+    obj = RbVmomi::VIM::VirtualMachineRuntimeInfo(
+      bootTime: Time.parse('2010-08-20 05:44:35 UTC'),
+      connectionState: "connected",
+      device: [RbVmomi::VIM::VirtualMachineDeviceRuntimeInfo(
+        dynamicProperty: [],
+        key: 4000,
+        runtimeState: RbVmomi::VIM::VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState(
+          dynamicProperty: [],
+          vmDirectPathGen2Active: false,
+          vmDirectPathGen2InactiveReasonOther: [],
+          vmDirectPathGen2InactiveReasonVm: ["vmNptIncompatibleAdapterType"]
+        )
+      ),
+      RbVmomi::VIM::VirtualMachineDeviceRuntimeInfo(
+        dynamicProperty: [],
+        key: 4001,
+        runtimeState: RbVmomi::VIM::VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState(
+          dynamicProperty: [],
+          vmDirectPathGen2Active: false,
+          vmDirectPathGen2InactiveReasonOther: ["vmNptIncompatibleHost"],
+          vmDirectPathGen2InactiveReasonVm: []
+        )
+      )],
+      dynamicProperty: [],
+      faultToleranceState: "notConfigured",
+      host: RbVmomi::VIM::HostSystem(nil, "host-32"),
+      maxCpuUsage: 5612,
+      maxMemoryUsage: 3072,
+      memoryOverhead: 128671744,
+      numMksConnections: 1,
+      powerState: "poweredOn",
+      recordReplayState: "inactive",
+      suspendInterval: 0,
+      toolsInstallerMounted: false
+    )
+
+    check <<-EOS, obj, 'VirtualMachineRuntimeInfo'
+<val xsi:type="VirtualMachineRuntimeInfo" xmlns:xsi="#{RbVmomi::Soap::NS_XSI}">
+  <device>
+    <runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState">
+      <vmDirectPathGen2Active>false</vmDirectPathGen2Active>
+      <vmDirectPathGen2InactiveReasonVm>vmNptIncompatibleAdapterType</vmDirectPathGen2InactiveReasonVm>
+    </runtimeState>
+    <key>4000</key>
+  </device>
+  <device>
+    <runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState">
+      <vmDirectPathGen2Active>false</vmDirectPathGen2Active>
+      <vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleHost</vmDirectPathGen2InactiveReasonOther>
+    </runtimeState>
+    <key>4001</key>
+  </device>
+  <host type="HostSystem">host-32</host>
+  <connectionState>connected</connectionState>
+  <powerState>poweredOn</powerState>
+  <faultToleranceState>notConfigured</faultToleranceState>
+  <toolsInstallerMounted>false</toolsInstallerMounted>
+  <bootTime>2010-08-20T05:44:35.0Z</bootTime>
+  <suspendInterval>0</suspendInterval>
+  <memoryOverhead>128671744</memoryOverhead>
+  <maxCpuUsage>5612</maxCpuUsage>
+  <maxMemoryUsage>3072</maxMemoryUsage>
+  <numMksConnections>1</numMksConnections>
+  <recordReplayState>inactive</recordReplayState>
+</val>
+    EOS
+  end
 end
