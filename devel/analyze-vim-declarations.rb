@@ -1,5 +1,8 @@
+#!/usr/bin/env ruby
 require 'nokogiri'
-require 'gdbm'
+require 'tokyocabinet'
+
+include TokyoCabinet
 
 # usage: analyze-vim-declarations.rb vim-declarations.xml foo-declarations.xml vmodl.db
 
@@ -11,7 +14,11 @@ XML_FNS.each do |x|
   abort "XML file #{x} does not exist" unless File.exists? x
 end
 
-db = GDBM.new OUT_FN, 0666, GDBM::NEWDB
+db = HDB.new
+if !db.open(OUT_FN, HDB::OWRITER | HDB::OCREAT | HDB::OTRUNC | HDB::TDEFLATE)
+  abort "VMODL db open error: #{db.errmsg(db.ecode)}"
+end
+
 TYPES = {}
 VERSIONS = []
 
