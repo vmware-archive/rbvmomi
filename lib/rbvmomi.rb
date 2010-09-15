@@ -33,9 +33,14 @@ class Soap < TrivialSoap
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
   def initialize opts
-    @rev = opts[:rev] || '4.1'
     @vim_debug = opts[:vim_debug]
     super opts
+    if @opts[:rev]
+      @rev = @opts[:rev]
+    elsif @opts[:host]
+      @rev = '4.0'
+      @rev = serviceContent.about.apiVersion
+    end
   end
 
   def serviceInstance
