@@ -15,8 +15,8 @@ class Net::HTTPGenericRequest
 end
 
 class TrivialSoap
-  attr_accessor :debug
-  attr_reader :http, :cookie
+  attr_accessor :debug, :cookie
+  attr_reader :http
 
   def initialize opts
     fail unless opts.is_a? Hash
