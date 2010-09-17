@@ -35,6 +35,7 @@ class Soap < TrivialSoap
   def initialize opts
     @vim_debug = opts[:vim_debug]
     super opts
+    @ns = @opts[:ns] or fail "no namespace specified"
     if @opts[:rev]
       @rev = @opts[:rev]
     elsif @opts[:host]
@@ -58,7 +59,7 @@ class Soap < TrivialSoap
   alias root rootFolder
 
   def emit_request xml, method, descs, this, params
-    xml.tag! method, :xmlns => 'urn:vim25' do
+    xml.tag! method, :xmlns => @ns do
       obj2xml xml, '_this', 'ManagedObject', false, this
       descs.each do |d|
         k = d['name'].to_sym
@@ -105,7 +106,7 @@ class Soap < TrivialSoap
       start_time = Time.now
     end
 
-    resp = request "urn:vim25/#{@rev}" do |xml|
+    resp = request "#{@ns}/#{@rev}" do |xml|
       emit_request xml, method, desc['params'], this, params
     end
 
@@ -258,6 +259,7 @@ def self.connect opts
   opts[:ssl] = true unless opts.member? :ssl
   opts[:port] ||= (opts[:ssl] ? 443 : 80)
   opts[:path] ||= '/sdk'
+  opts[:ns] ||= 'urn:vim25'
   opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
   opts[:vim_debug] = (!ENV['RBVMOMI_VIM_DEBUG'].empty? rescue false) unless opts.member? :vim_debug
 
