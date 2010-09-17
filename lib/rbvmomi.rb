@@ -230,6 +230,9 @@ class Soap < TrivialSoap
     when Float
       attrs['xsi:type'] = 'xsd:double' if expected == AnyType
       xml.tag! name, o.to_s, attrs
+    when DateTime
+      attrs['xsi:type'] = 'xsd:dateTime' if expected == AnyType
+      xml.tag! name, o.to_s, attrs
     else fail "unexpected object class #{o.class}"
     end
     xml
