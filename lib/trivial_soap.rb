@@ -22,11 +22,16 @@ class TrivialSoap
     fail unless opts.is_a? Hash
     @opts = opts
     return unless @opts[:host] # for testcases
-    @http = Net::HTTP.new(@opts[:host], @opts[:port])
+    @http = Net::HTTP.new(@opts[:host], @opts[:port], @opts[:proxyHost], @opts[:proxyPort])
     if @opts[:ssl]
       require 'net/https'
       @http.use_ssl = true
       @http.verify_mode = OpenSSL::SSL::VERIFY_NONE # XXX
+      certFile = "/mts/home2/cdickmann/src/client.pem"
+      keyFile = "/mts/home2/cdickmann/src/client.pem"
+      @http.cert = OpenSSL::X509::Certificate.new( File.read(certFile) )
+      @http.key = OpenSSL::PKey::RSA.new( File.read(keyFile) )
+#      @http.ca_file =  "/mts/dbc4-a/cdickmann/vmkernel-main-dbc4-3/vmkernel-main/bora/vc.pem"
     end
     @http.set_debug_output(STDERR) if $DEBUG
     @http.read_timeout = 60
