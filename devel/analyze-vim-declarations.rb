@@ -1,18 +1,16 @@
 require 'nokogiri'
 require 'gdbm'
 
-xmlFileArg = ARGV[0] or abort "must specify path to vim-declarations.xml"
-OUT_FN = ARGV[1] or abort "must specify path to output database"
+# usage: analyze-vim-declarations.rb vim-declarations.xml foo-declarations.xml vmodl.db
 
-xmlFiles = xmlFileArg.split(/,/)
+XML_FNS = ARGV[0...-1]
+abort "must specify path to vim-declarations.xml" if XML_FNS.empty?
+OUT_FN = ARGV[-1] or abort "must specify path to output database"
 
-xmlFiles.each do |x|
+XML_FNS.each do |x|
   abort "XML file #{x} does not exist" unless File.exists? x
 end
 
-xmls = xmlFiles.map do |x| 
-  [x, Nokogiri.parse(File.read(x), nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS)]
-end
 db = GDBM.new OUT_FN, 0666, GDBM::NEWDB
 TYPES = {}
 VERSIONS = []
@@ -130,9 +128,9 @@ def handle_version x
   VERSIONS << h
 end
 
-xmls.each do |xmlInfo|
-  puts "Parsing #{xmlInfo[0]} ..."
-  xml = xmlInfo[1]
+XML_FNS.each do |fn|
+  puts "parsing #{fn} ..."
+  xml = Nokogiri.parse(File.read(fn), nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS)
   xml.root.at('enums').children.each { |x| handle_enum x }
   xml.root.at('managed-objects').children.each { |x| handle_managed_object x }
   xml.root.at('data-objects').children.each { |x| handle_data_object x }
