@@ -1,12 +1,18 @@
 require 'nokogiri'
 require 'gdbm'
 
-XML_FN = ARGV[0] or abort "must specify path to vim-declarations.xml"
+xmlFileArg = ARGV[0] or abort "must specify path to vim-declarations.xml"
 OUT_FN = ARGV[1] or abort "must specify path to output database"
 
-abort "given XML file does not exist" unless File.exists? XML_FN
+xmlFiles = xmlFileArg.split(/,/)
 
-xml = Nokogiri.parse File.read(XML_FN), nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS
+xmlFiles.each do |x|
+  abort "XML file #{x} does not exist" unless File.exists? x
+end
+
+xmls = xmlFiles.map do |x| 
+  [x, Nokogiri.parse(File.read(x), nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS)]
+end
 db = GDBM.new OUT_FN, 0666, GDBM::NEWDB
 TYPES = {}
 VERSIONS = []
@@ -34,6 +40,11 @@ ID2NAME.merge!({
 end
 
 def handle_data_object node
+  if TYPES[node['name']]
+    puts "Type #{node['name']} already exists"
+    return
+  end
+
   ID2NAME[node['type-id']] = node['name']
   TYPES[node['name']] = {
     'kind' => 'data',
@@ -51,6 +62,10 @@ def handle_data_object node
 end
 
 def handle_managed_object node
+  if TYPES[node['name']]
+    puts "Type #{node['name']} already exists"
+    return
+  end
   ID2NAME[node['type-id']] = node['name']
   TYPES[node['name']] = {
     'kind' => 'managed',
@@ -92,6 +107,11 @@ def handle_managed_object node
 end
 
 def handle_enum node
+  if TYPES[node['name']]
+    puts "Type #{node['name']} already exists"
+    return
+  end
+
   ID2NAME[node['type-id']] = node['name']
   TYPES[node['name']] = {
     'kind' => 'enum',
@@ -110,11 +130,15 @@ def handle_version x
   VERSIONS << h
 end
 
-xml.root.at('enums').children.each { |x| handle_enum x }
-xml.root.at('managed-objects').children.each { |x| handle_managed_object x }
-xml.root.at('data-objects').children.each { |x| handle_data_object x }
-xml.root.at('faults').children.each { |x| handle_fault x }
-xml.root.at('definitions').at('version-types').children.each { |x| handle_version x }
+xmls.each do |xmlInfo|
+  puts "Parsing #{xmlInfo[0]} ..."
+  xml = xmlInfo[1]
+  xml.root.at('enums').children.each { |x| handle_enum x }
+  xml.root.at('managed-objects').children.each { |x| handle_managed_object x }
+  xml.root.at('data-objects').children.each { |x| handle_data_object x }
+  xml.root.at('faults').children.each { |x| handle_fault x }
+  xml.root.at('definitions').at('version-types').children.each { |x| handle_version x }
+end
 
 munge_fault = lambda { |x| true }
 
