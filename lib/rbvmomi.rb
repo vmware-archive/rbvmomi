@@ -42,6 +42,8 @@ class Soap < TrivialSoap
     elsif @opts[:host]
       @rev = '4.0'
       @rev = serviceContent.about.apiVersion
+    else
+      fail "no revision specified"
     end
   end
 

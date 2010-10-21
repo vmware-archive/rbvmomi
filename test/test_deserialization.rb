@@ -4,7 +4,7 @@ include RbVmomi
 
 class DeserializationTest < Test::Unit::TestCase
   def setup
-    @soap = RbVmomi::Soap.new({})
+    @soap = RbVmomi::Soap.new(ns: 'urn:vim25', rev: '4.0')
   end
 
   def check str, expected, type

@@ -4,7 +4,7 @@ include RbVmomi
 
 class SerializationTest < Test::Unit::TestCase
   def check str, obj, type, array=false
-    soap = RbVmomi::Soap.new({})
+    @soap = RbVmomi::Soap.new(ns: 'urn:vim25', rev: '4.0')
     xml = Builder::XmlMarkup.new :indent => 2
     soap.obj2xml(xml, 'root', type, array, obj)
 
