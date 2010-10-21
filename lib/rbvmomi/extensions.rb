@@ -1,3 +1,4 @@
+# Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
 CURLBIN = ENV['CURL'] || "curl"
 
 module RbVmomi::VIM

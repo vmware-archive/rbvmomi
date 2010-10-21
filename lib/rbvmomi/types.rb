@@ -1,3 +1,4 @@
+# Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
 require 'gdbm'
 require 'pp'
 require 'set'

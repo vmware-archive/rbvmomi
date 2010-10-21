@@ -1,3 +1,5 @@
+# Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
+
 module Kernel
   PROFILE_TIMES = Hash.new 0.0
 

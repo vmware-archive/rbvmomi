@@ -1,3 +1,4 @@
+# Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
 require 'trivial_soap'
 require 'time'
 
