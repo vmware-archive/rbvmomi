@@ -241,22 +241,20 @@ class Datastore
     end
   end
 
-  def get path, io
-    req = Net::HTTP::Get.new mkuripath(path)
-    req.initialize_http_header 'cookie' => @soap.cookie
-    resp = @soap.http.request(req)
-    case resp
-    when Net::HTTPSuccess
-      io.write resp.body if resp.is_a? Net::HTTPSuccess
-      true
-    else
-      fail resp.inspect
-    end
+  def download remote_path, local_path
+    url = "http#{@soap.http.use_ssl? ? 's' : ''}://#{@soap.http.address}:#{@soap.http.port}#{mkuripath(remote_path)}"
+    pid = spawn CURLBIN, "-k", '--noproxy', '*', '-f',
+                "-o", local_path,
+                "-b", @soap.cookie,
+                url,
+                out: '/dev/null'
+    Process.waitpid(pid, 0)
+    fail "download failed" unless $?.success?
   end
 
   def upload remote_path, local_path
     url = "http#{@soap.http.use_ssl? ? 's' : ''}://#{@soap.http.address}:#{@soap.http.port}#{mkuripath(remote_path)}"
-    pid = spawn CURLBIN, "-k", '--noproxy', '*',
+    pid = spawn CURLBIN, "-k", '--noproxy', '*', '-f',
                 "-T", local_path,
                 "-b", @soap.cookie,
                 url,
