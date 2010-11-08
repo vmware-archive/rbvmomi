@@ -10,6 +10,7 @@ begin
     gem.add_dependency 'nokogiri', '>= 1.4.1'
     gem.add_dependency 'builder'
     gem.add_dependency 'trollop'
+    gem.add_dependency 'tokyocabinet'
     gem.files.include 'vmodl'
   end
 rescue LoadError
