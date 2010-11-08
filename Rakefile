@@ -12,7 +12,7 @@ begin
     gem.add_dependency 'trollop'
     gem.add_dependency 'tokyocabinet'
     gem.required_ruby_version = '>= 1.9.1'
-    gem.files.include 'vmodl'
+    gem.files.include 'vmodl.tc'
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: gem install jeweler"
