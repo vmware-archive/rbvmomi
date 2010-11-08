@@ -11,6 +11,7 @@ begin
     gem.add_dependency 'builder'
     gem.add_dependency 'trollop'
     gem.add_dependency 'tokyocabinet'
+    gem.required_ruby_version = '>= 1.9.1'
     gem.files.include 'vmodl'
   end
 rescue LoadError
