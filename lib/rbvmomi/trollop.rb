@@ -24,6 +24,6 @@ class Trollop::Parser
   end
 
   def rbvmomi_datastore_opt
-    opt :datastore, "Datastore", short: 's', default: (ENV['RBVMOMI_DATASTORE'] || 'datstore1')
+    opt :datastore, "Datastore", short: 's', default: (ENV['RBVMOMI_DATASTORE'] || 'datastore1')
   end
 end
