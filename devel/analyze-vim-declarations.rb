@@ -142,7 +142,7 @@ XML_FNS.each do |fn|
   xml.root.at('managed-objects').children.each { |x| handle_managed_object x }
   xml.root.at('data-objects').children.each { |x| handle_data_object x }
   xml.root.at('faults').children.each { |x| handle_fault x }
-  xml.root.at('definitions').at('version-types').children.each { |x| handle_version x }
+  #xml.root.at('definitions').at('version-types').children.each { |x| handle_version x }
 end
 
 munge_fault = lambda { |x| true }
