@@ -1,9 +1,7 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
-require 'tokyocabinet'
+require 'cdb'
 require 'pp'
 require 'set'
-
-include TokyoCabinet
 
 class Class
   def wsdl_name
@@ -18,10 +16,7 @@ module VIM
 BUILTIN_TYPES = %w(ManagedObject TypeName PropertyPath ManagedObjectReference MethodName MethodFault LocalizedMethodFault)
 
 def self.load fn
-  @db = HDB.new
-  if !@db.open(fn, HDB::OREADER | HDB::ONOLCK)
-    raise "VMODL db open error: #{@db.errmsg(@db.ecode)}"
-  end
+  @db = CDB.new fn
   @vmodl = Hash.new { |h,k| if e = @db[k] then h[k] = Marshal.load(e) end }
   @typenames = Marshal.load(@db['_typenames']) + BUILTIN_TYPES
   Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }

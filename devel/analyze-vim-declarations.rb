@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 require 'nokogiri'
-require 'tokyocabinet'
-
-include TokyoCabinet
+require 'cdb'
 
 # usage: analyze-vim-declarations.rb vim-declarations.xml foo-declarations.xml vmodl.db
 
@@ -12,11 +10,6 @@ OUT_FN = ARGV[-1] or abort "must specify path to output database"
 
 XML_FNS.each do |x|
   abort "XML file #{x} does not exist" unless File.exists? x
-end
-
-db = HDB.new
-if !db.open(OUT_FN, HDB::OWRITER | HDB::OCREAT | HDB::OTRUNC | HDB::TDEFLATE)
-  abort "VMODL db open error: #{db.errmsg(db.ecode)}"
 end
 
 TYPES = {}
@@ -182,6 +175,8 @@ TYPES.each do |k,t|
   end
 end
 
+db = CDBMake.new(OUT_FN)
+
 TYPES.each do |k,t|
   db[k] = Marshal.dump t
 end
@@ -189,7 +184,7 @@ end
 db['_typenames'] = Marshal.dump TYPES.keys
 db['_versions'] = Marshal.dump VERSIONS
 
-db.close
+db.finish
 
 if filename = ENV['VERSION_GRAPH']
   File.open(filename, 'w') do |io|

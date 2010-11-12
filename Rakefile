@@ -10,9 +10,9 @@ begin
     gem.add_dependency 'nokogiri', '>= 1.4.1'
     gem.add_dependency 'builder'
     gem.add_dependency 'trollop'
-    gem.add_dependency 'tokyocabinet'
+    gem.add_dependency 'cdb-full'
     gem.required_ruby_version = '>= 1.9.1'
-    gem.files.include 'vmodl.tc'
+    gem.files.include 'vmodl.cdb'
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: gem install jeweler"
