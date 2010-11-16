@@ -23,6 +23,15 @@ class TrivialSoap
     fail unless opts.is_a? Hash
     @opts = opts
     return unless @opts[:host] # for testcases
+    @debug = @opts[:debug]
+    @cookie = nil
+    @lock = Mutex.new
+    @http = nil
+    restart_http
+  end
+
+  def restart_http
+    @http.finish if @http
     @http = Net::HTTP.new(@opts[:host], @opts[:port], @opts[:proxyHost], @opts[:proxyPort])
     if @opts[:ssl]
       require 'net/https'
@@ -35,9 +44,6 @@ class TrivialSoap
     @http.read_timeout = 60
     @http.open_timeout = 5
     @http.start
-    @debug = @opts[:debug]
-    @cookie = nil
-    @lock = Mutex.new
   end
 
   def soap_envelope
@@ -65,7 +71,14 @@ class TrivialSoap
     end
 
     start_time = Time.now
-    response = @lock.synchronize { profile(:post) { @http.request_post(@opts[:path], body, headers) } }
+    response = @lock.synchronize do
+      begin
+        profile(:post) { @http.request_post(@opts[:path], body, headers) }
+      rescue Exception
+        restart_http
+        raise
+      end
+    end
     end_time = Time.now
 
     @cookie = response['set-cookie'] if response.key? 'set-cookie'
