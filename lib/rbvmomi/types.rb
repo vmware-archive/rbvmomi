@@ -309,6 +309,10 @@ class MethodFault < DataObject
       'is-optional' => true,
     },
   ]
+
+  def self.=== exn
+    exn.class == RbVmomi::Fault and self <= exn.fault.class
+  end
 end
 
 class LocalizedMethodFault < DataObject
