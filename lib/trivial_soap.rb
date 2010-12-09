@@ -41,7 +41,7 @@ class TrivialSoap
       @http.key = OpenSSL::PKey::RSA.new(@opts[:key]) if @opts[:key]
     end
     @http.set_debug_output(STDERR) if $DEBUG
-    @http.read_timeout = 60
+    @http.read_timeout = 600
     @http.open_timeout = 5
     @http.start
   end
