@@ -490,8 +490,8 @@ class ComputeResource
       next if x['overallStatus'] == 'red'
       stats[:totalCPU] += x['summary.hardware.cpuMhz'] * x['summary.hardware.numCpuCores']
       stats[:totalMem] += x['summary.hardware.memorySize'] / (1024*1024)
-      stats[:usedCPU] += x['summary.quickStats.overallCpuUsage']
-      stats[:usedMem] += x['summary.quickStats.overallMemoryUsage']
+      stats[:usedCPU] += x['summary.quickStats.overallCpuUsage'] || 0
+      stats[:usedMem] += x['summary.quickStats.overallMemoryUsage'] || 0
     end
 
     stats
