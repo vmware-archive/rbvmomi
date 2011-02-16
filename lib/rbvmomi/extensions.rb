@@ -81,6 +81,10 @@ class ManagedEntity
     end
     a.reverse
   end
+
+  def pretty_path
+    path[1..-1].map { |x| x[1] } * '/'
+  end
 end
 
 Task
