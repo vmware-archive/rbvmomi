@@ -36,7 +36,12 @@ class TrivialSoap
     if @opts[:ssl]
       require 'net/https'
       @http.use_ssl = true
-      @http.verify_mode = OpenSSL::SSL::VERIFY_NONE # XXX
+      if @opts[:insecure]
+        $stderr.puts "warning: not verifying SSL certificates"
+        @http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      else
+        @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      end
       @http.cert = OpenSSL::X509::Certificate.new(@opts[:cert]) if @opts[:cert]
       @http.key = OpenSSL::PKey::RSA.new(@opts[:key]) if @opts[:key]
     end

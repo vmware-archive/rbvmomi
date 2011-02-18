@@ -5,6 +5,7 @@ class Trollop::Parser
     opt :host, "host", type: :string, short: 'o', default: ENV['RBVMOMI_HOST']
     opt :port, "port", type: :int, short: :none, default: (ENV.member?('RBVMOMI_PORT') ? ENV['RBVMOMI_PORT'].to_i : 443)
     opt :"no-ssl", "don't use ssl", short: :none, default: (ENV['RBVMOMI_SSL'] == '0') 
+    opt :insecure, "don't verify ssl certificate", short: 'k', default: (ENV['RBVMOMI_INSECURE'] == '1')
     opt :user, "username", short: 'u', default: (ENV['RBVMOMI_USER'] || 'root')
     opt :password, "password", short: 'p', default: (ENV['RBVMOMI_PASSWORD'] || '')
     opt :path, "SOAP endpoint path", short: :none, default: (ENV['RBVMOMI_PATH'] || '/sdk')

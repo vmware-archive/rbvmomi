@@ -266,6 +266,7 @@ def self.connect opts
   opts[:user] ||= 'root'
   opts[:password] ||= ''
   opts[:ssl] = true unless opts.member? :ssl
+  opts[:insecure] ||= false
   opts[:port] ||= (opts[:ssl] ? 443 : 80)
   opts[:path] ||= '/sdk'
   opts[:ns] ||= 'urn:vim25'
