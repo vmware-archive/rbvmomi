@@ -52,22 +52,23 @@ naive implementation; for example, the find_vm method on VIM::Datacenter used
 in the first example uses the SearchIndex for fast lookups.
 
 A few important points:
+
  * Ruby 1.9 is required.
- * Properties are exposed as methods: vm.summary
+ * Properties are exposed as accessor methods.
  * All class, method, parameter, and property names match the [official documentation](http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/index.html).
- * Data object types can usually be inferred from context, so you may simply use a hash instead.
+ * Data object types can usually be inferred from context, so you may use a hash instead.
  * Enumeration values are simply strings.
  * Example code is included in the examples/ directory.
  * A set of helper methods for Trollop is included to speed up development of
    command line apps. See the included examples for usage.
- * This is a side project of a VMware developer and is entirely unsupported by VMware.
+ * This is a side project of a VMware employee and is entirely unsupported by VMware.
 
 Built-in extensions are in lib/rbvmomi/extensions.rb. You are encouraged to
 reopen VIM classes in your applications and add extensions of your own. If you
 write something generally useful please send it to me and I'll add it in. One
 important point about extensions is that since VIM classes are lazily loaded,
 you need to trigger this loading before you can reopen the class. Putting the
-class name on a line by itself before reopening is enough.
+class name on a line by itself before reopening it is enough.
 
 Development
 -----------
