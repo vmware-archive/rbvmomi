@@ -28,6 +28,8 @@ Rake::TestTask.new do |t|
 end
 
 Rake::RDocTask.new do |rd|
-  rd.main = "README.md"
-  rd.rdoc_files.include("README.md", "lib/**/*.rb", "lib/*.rb")
+  rd.title = "RbVmomi - a Ruby interface to the vSphere API"
+  rd.main = "README.rdoc"
+  rd.rdoc_files.include("README.rdoc", "lib/rbvmomi/vim.rb", "lib/rbvmomi/vim/*.rb")
+  rd.rdoc_dir = "doc"
 end
