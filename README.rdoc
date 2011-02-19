@@ -51,15 +51,15 @@ in the first example uses the SearchIndex for fast lookups.
 
 A few important points:
 
- * Ruby 1.9 is required.
- * Properties are exposed as accessor methods.
- * All class, method, parameter, and property names match the [official documentation](http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/index.html).
- * Data object types can usually be inferred from context, so you may use a hash instead.
- * Enumeration values are simply strings.
- * Example code is included in the examples/ directory.
- * A set of helper methods for Trollop is included to speed up development of
-   command line apps. See the included examples for usage.
- * This is a side project of a VMware employee and is entirely unsupported by VMware.
+* Ruby 1.9 is required.
+* Properties are exposed as accessor methods.
+* All class, method, parameter, and property names match the official documentation[http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/index.html].
+* Data object types can usually be inferred from context, so you may use a hash instead.
+* Enumeration values are simply strings.
+* Example code is included in the examples/ directory.
+* A set of helper methods for Trollop is included to speed up development of
+  command line apps. See the included examples for usage.
+* This is a side project of a VMware employee and is entirely unsupported by VMware.
 
 Built-in extensions are in lib/rbvmomi/extensions.rb. You are encouraged to
 reopen VIM classes in your applications and add extensions of your own. If you
