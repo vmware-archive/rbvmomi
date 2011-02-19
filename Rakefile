@@ -1,3 +1,5 @@
+require 'rake/testtask'
+
 begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
@@ -18,3 +20,8 @@ rescue LoadError
   puts "Jeweler not available. Install it with: gem install jeweler"
 end
 
+Rake::TestTask.new do |t|
+  t.libs << "test"
+  t.test_files = FileList['test/test_*.rb']
+  t.verbose = true
+end
