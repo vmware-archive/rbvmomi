@@ -7,7 +7,7 @@ class ExceptionTest < Test::Unit::TestCase
     begin
       fault = VIM::InvalidArgument.new invalidProperty: 'foo'
       assert_raises RbVmomi::Fault do
-        raise RbVmomi.fault('A specified parameter was not correct.', fault)
+        raise RbVmomi::Fault.new('A specified parameter was not correct.', fault)
       end
     rescue VIM::InvalidArgument
       assert_equal 'foo', $!.invalidProperty

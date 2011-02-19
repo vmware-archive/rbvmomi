@@ -2,6 +2,7 @@
 require 'trivial_soap'
 require 'time'
 require 'rbvmomi/basic_types'
+require 'rbvmomi/fault'
 require 'rbvmomi/type_loader'
 
 module RbVmomi #:nodoc:all
@@ -41,7 +42,7 @@ class Connection < TrivialSoap
       fault = detail && xml2obj(detail.children.first, 'MethodFault')
       msg = resp.at('faultstring').text
       if fault
-        raise RbVmomi.fault msg, fault
+        raise RbVmomi::Fault.new(msg, fault)
       else
         fail "#{resp.at('faultcode').text}: #{msg}"
       end

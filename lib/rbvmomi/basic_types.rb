@@ -252,7 +252,7 @@ class LocalizedMethodFault < DataObject
   ]
 
   def exception
-    RbVmomi.fault self.localizedMessage, self.fault
+    RbVmomi::Fault.new(self.localizedMessage, self.fault)
   end
 end
 
