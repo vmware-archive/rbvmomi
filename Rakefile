@@ -1,4 +1,5 @@
 require 'rake/testtask'
+require 'rake/rdoctask'
 
 begin
   require 'jeweler'
@@ -24,4 +25,9 @@ Rake::TestTask.new do |t|
   t.libs << "test"
   t.test_files = FileList['test/test_*.rb']
   t.verbose = true
+end
+
+Rake::RDocTask.new do |rd|
+  rd.main = "README.md"
+  rd.rdoc_files.include("README.md", "lib/**/*.rb", "lib/*.rb")
 end
