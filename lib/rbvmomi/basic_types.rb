@@ -1,89 +1,6 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
-require 'cdb'
-require 'pp'
-require 'set'
-
-class Class #:nodoc:all
-  def wsdl_name
-    self.class.name
-  end
-end
-
-module RbVmomi #:nodoc:all
-
-module VIM
-
-BUILTIN_TYPES = %w(ManagedObject TypeName PropertyPath ManagedObjectReference MethodName MethodFault LocalizedMethodFault)
-
-def self.load fn
-  @db = CDB.new fn
-  @vmodl = Hash.new { |h,k| if e = @db[k] then h[k] = Marshal.load(e) end }
-  @typenames = Marshal.load(@db['_typenames']) + BUILTIN_TYPES
-  Object.constants.select { |x| @typenames.member? x.to_s }.each { |x| load_type x }
-end
-
-def self.has_type? name
-  @typenames.member? name.to_s
-end
-
-def self.type name
-  if has_type? name
-    const_get(name.to_sym)
-  else
-    fail "no such type #{name.inspect}"
-  end
-end
-
-def self.const_missing sym
-  if @typenames.member? sym.to_s
-    load_type sym
-  else
-    super
-  end
-end
-
-def self.method_missing sym, *a
-  if @typenames.member? sym.to_s
-    const_get(sym).new *a
-  else
-    super
-  end
-end
-
-def self.load_type sym
-  const_set sym, make_type(sym)
-end
-
-def self.make_type name
-  name = name.to_s
-  desc = @vmodl[name] or fail "unknown VIM type #{name}"
-  case desc['kind']
-  when 'data' then make_data_type name, desc
-  when 'managed' then make_managed_type name, desc
-  when 'enum' then make_enum_type name, desc
-  else fail desc.inspect
-  end
-end
-
-def self.make_data_type name, desc
-  superclass = const_get(desc['wsdl_base'].to_sym)
-  Class.new(superclass).tap do |klass|
-    klass.initialize name, desc['props']
-  end
-end
-
-def self.make_managed_type name, desc
-  superclass = const_get(desc['wsdl_base'].to_sym)
-  Class.new(superclass).tap do |klass|
-    klass.initialize name, desc['props'], desc['methods']
-  end
-end
-
-def self.make_enum_type name, desc
-  Class.new(Enum).tap do |klass|
-    klass.initialize name, desc['values']
-  end
-end
+module RbVmomi
+module BasicTypes
 
 class Base
   class << self
@@ -196,7 +113,7 @@ class DataObject < ObjectWithProperties
   end
 
   def pretty_print q
-    q.text self.class.name
+    q.text self.class.wsdl_name
     q.group 2 do
       q.text '('
       q.breakable
@@ -355,6 +272,22 @@ class ManagedObjectReference
   def self.wsdl_name; 'ManagedObjectReference' end
 end
 
+class Boolean
+	def self.wsdl_name; 'xsd:boolean' end
+end
+
+class AnyType
+	def self.wsdl_name; 'xsd:anyType' end
+end
+
+class Binary
+	def self.wsdl_name; 'xsd:base64Binary' end
+end
+
+class ::Class
+  def wsdl_name; self.class.name end
+end
+
 class ::String
   def self.wsdl_name; 'xsd:string' end
 end
@@ -368,5 +301,4 @@ class ::Float
 end
 
 end
-
 end

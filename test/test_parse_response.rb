@@ -1,10 +1,10 @@
 require 'test/unit'
 require 'rbvmomi'
-include RbVmomi
+VIM = RbVmomi::VIM
 
 class ParseResponseTest < Test::Unit::TestCase
   def check desc, str, expected
-    soap = RbVmomi::Soap.new(ns: 'urn:vim25', rev: '4.0')
+    soap = VIM.new(ns: 'urn:vim25', rev: '4.0')
     got = soap.parse_response Nokogiri(str).root, desc
 
     puts "expected:"

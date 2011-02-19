@@ -1,10 +1,10 @@
 require 'test/unit'
 require 'rbvmomi'
-include RbVmomi
+VIM = RbVmomi::VIM
 
 class DeserializationTest < Test::Unit::TestCase
   def setup
-    @soap = RbVmomi::Soap.new(ns: 'urn:vim25', rev: '4.0')
+    @soap = VIM.new(ns: 'urn:vim25', rev: '4.0')
   end
 
   def check str, expected, type
@@ -79,7 +79,7 @@ class DeserializationTest < Test::Unit::TestCase
     )
 
     check <<-EOS, obj, 'ObjectContent'
-<root xmlns:xsi="#{RbVmomi::Soap::NS_XSI}">
+<root xmlns:xsi="#{VIM::NS_XSI}">
    <obj type="Folder">ha-folder-root</obj>
    <propSet>
       <name>childEntity</name>
@@ -96,8 +96,6 @@ def test_array2
     dynamicProperty: [],
     linkUp: true,
     blocked: false,
-    vmDirectPathGen2InactiveReasonNetwork: [],
-    vmDirectPathGen2InactiveReasonOther: [],
     vlanIds: [
       VIM::NumericRange(dynamicProperty: [], start: 5, end: 7),
       VIM::NumericRange(dynamicProperty: [], start: 10, end: 20),
@@ -123,8 +121,6 @@ end
 def test_empty_array
   obj = VIM.DVPortStatus(
     dynamicProperty: [],
-    vmDirectPathGen2InactiveReasonNetwork: [],
-    vmDirectPathGen2InactiveReasonOther: [],
     linkUp: true,
     blocked: false,
     vlanIds: []
@@ -149,7 +145,7 @@ end
     )
 
     check <<-EOS, obj, "LocalizedMethodFault"
-<error xmlns:xsi="#{RbVmomi::Soap::NS_XSI}">
+<error xmlns:xsi="#{VIM::NS_XSI}">
   <fault xsi:type="InvalidPowerState">
     <requestedState>poweredOn</requestedState>
     <existingState>poweredOff</existingState>
@@ -189,7 +185,7 @@ end
     )
 
     check <<-EOS, obj, "UpdateSet"
-<returnval xmlns:xsi="#{RbVmomi::Soap::NS_XSI}">
+<returnval xmlns:xsi="#{VIM::NS_XSI}">
   <version>7</version>
   <filterSet>
     <filter type="PropertyFilter">session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF</filter>
@@ -238,6 +234,7 @@ end
     EOS
   end
 
+=begin
   def test_runtime_state
     obj = VIM::VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState(
       dynamicProperty: [],
@@ -246,40 +243,21 @@ end
       vmDirectPathGen2InactiveReasonVm: []
     )
     check <<-EOS, obj, 'VirtualMachineDeviceRuntimeInfoDeviceRuntimeState'
-<runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState" xmlns:xsi="#{RbVmomi::Soap::NS_XSI}">
+<runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState" xmlns:xsi="#{VIM::NS_XSI}">
   <vmDirectPathGen2Active>false</vmDirectPathGen2Active>
   <vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleHost</vmDirectPathGen2InactiveReasonOther>
 </runtimeState>
     EOS
   end
+=end
 
   def test_runtime_info
-    obj = RbVmomi::VIM::VirtualMachineRuntimeInfo(
+    obj = VIM::VirtualMachineRuntimeInfo(
       bootTime: Time.parse('2010-08-20 05:44:35 UTC'),
       connectionState: "connected",
-      device: [RbVmomi::VIM::VirtualMachineDeviceRuntimeInfo(
-        dynamicProperty: [],
-        key: 4000,
-        runtimeState: RbVmomi::VIM::VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState(
-          dynamicProperty: [],
-          vmDirectPathGen2Active: false,
-          vmDirectPathGen2InactiveReasonOther: [],
-          vmDirectPathGen2InactiveReasonVm: ["vmNptIncompatibleAdapterType"]
-        )
-      ),
-      RbVmomi::VIM::VirtualMachineDeviceRuntimeInfo(
-        dynamicProperty: [],
-        key: 4001,
-        runtimeState: RbVmomi::VIM::VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState(
-          dynamicProperty: [],
-          vmDirectPathGen2Active: false,
-          vmDirectPathGen2InactiveReasonOther: ["vmNptIncompatibleHost"],
-          vmDirectPathGen2InactiveReasonVm: []
-        )
-      )],
       dynamicProperty: [],
       faultToleranceState: "notConfigured",
-      host: RbVmomi::VIM::HostSystem(nil, "host-32"),
+      host: VIM::HostSystem(nil, "host-32"),
       maxCpuUsage: 5612,
       maxMemoryUsage: 3072,
       memoryOverhead: 128671744,
@@ -291,21 +269,7 @@ end
     )
 
     check <<-EOS, obj, 'VirtualMachineRuntimeInfo'
-<val xsi:type="VirtualMachineRuntimeInfo" xmlns:xsi="#{RbVmomi::Soap::NS_XSI}">
-  <device>
-    <runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState">
-      <vmDirectPathGen2Active>false</vmDirectPathGen2Active>
-      <vmDirectPathGen2InactiveReasonVm>vmNptIncompatibleAdapterType</vmDirectPathGen2InactiveReasonVm>
-    </runtimeState>
-    <key>4000</key>
-  </device>
-  <device>
-    <runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState">
-      <vmDirectPathGen2Active>false</vmDirectPathGen2Active>
-      <vmDirectPathGen2InactiveReasonOther>vmNptIncompatibleHost</vmDirectPathGen2InactiveReasonOther>
-    </runtimeState>
-    <key>4001</key>
-  </device>
+<val xsi:type="VirtualMachineRuntimeInfo" xmlns:xsi="#{VIM::NS_XSI}">
   <host type="HostSystem">host-32</host>
   <connectionState>connected</connectionState>
   <powerState>poweredOn</powerState>

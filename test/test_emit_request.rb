@@ -1,12 +1,12 @@
 require 'test/unit'
 require 'rbvmomi'
-include RbVmomi
+VIM = RbVmomi::VIM
 
 class EmitRequestTest < Test::Unit::TestCase
   MO = VIM::VirtualMachine(nil, "foo")
 
   def check desc, str, this, params
-    soap = RbVmomi::Soap.new(ns: 'urn:vim25', rev: '4.0')
+    soap = VIM.new(ns: 'urn:vim25', rev: '4.0')
     xml = Builder::XmlMarkup.new :indent => 2
     soap.emit_request xml, 'root', desc, this, params
 

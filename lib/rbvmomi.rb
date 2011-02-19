@@ -4,33 +4,9 @@ require 'time'
 
 module RbVmomi #:nodoc:all
 
-class Boolean; def self.wsdl_name; 'xsd:boolean' end end
-class AnyType; def self.wsdl_name; 'xsd:anyType' end end
-class Binary; def self.wsdl_name; 'xsd:base64Binary' end end
-
-def self.type name
-  fail unless name and (name.is_a? String or name.is_a? Symbol)
-  name = $' if name.to_s =~ /^xsd:/
-  case name.to_sym
-  when :anyType then AnyType
-  when :boolean then Boolean
-  when :string then String
-  when :int, :long, :short, :byte then Integer
-  when :float, :double then Float
-  when :dateTime then Time
-  when :base64Binary then Binary
-  else
-    if VIM.has_type? name
-      VIM.type name
-    else
-      fail "no such type #{name.inspect}"
-    end
-  end
-end
-
 class DeserializationFailed < Exception; end
 
-class Soap < TrivialSoap
+class Connection < TrivialSoap
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
   def initialize opts
@@ -46,20 +22,6 @@ class Soap < TrivialSoap
       fail "no revision specified"
     end
   end
-
-  def serviceInstance
-    VIM::ServiceInstance self, 'ServiceInstance'
-  end
-
-  def serviceContent
-    @serviceContent ||= serviceInstance.RetrieveServiceContent
-  end
-
-  %w(rootFolder propertyCollector searchIndex).map(&:to_sym).each do |s|
-    define_method(s) { serviceContent.send s }
-  end
-
-  alias root rootFolder
 
   def emit_request xml, method, descs, this, params
     xml.tag! method, :xmlns => @ns do
@@ -98,7 +60,7 @@ class Soap < TrivialSoap
   end
 
   def call method, desc, this, params
-    fail "this is not a managed object" unless this.is_a? RbVmomi::VIM::ManagedObject
+    fail "this is not a managed object" unless this.is_a? BasicTypes::ManagedObject
     fail "parameters must be passed as a hash" unless params.is_a? Hash
     fail unless desc.is_a? Hash
 
@@ -134,16 +96,16 @@ class Soap < TrivialSoap
     end
   end
 
-  def xml2obj xml, type
-    type = (xml.attribute_with_ns('type', NS_XSI) || type).to_s
+  def xml2obj xml, typename
+    typename = (xml.attribute_with_ns('type', NS_XSI) || typename).to_s
 
-    if type =~ /^ArrayOf/
-      type = demangle_array_type $'
-      return xml.children.select(&:element?).map { |c| xml2obj c, type }
+    if typename =~ /^ArrayOf/
+      typename = demangle_array_type $'
+      return xml.children.select(&:element?).map { |c| xml2obj c, typename }
     end
 
-    t = RbVmomi.type type
-    if t <= VIM::DataObject
+    t = type typename
+    if t <= BasicTypes::DataObject
       #puts "deserializing data object #{t} from #{xml.name}"
       props_desc = t.full_props_desc
       h = {}
@@ -161,11 +123,11 @@ class Soap < TrivialSoap
         end
       end
       t.new h
-    elsif t == VIM::ManagedObjectReference
-      RbVmomi.type(xml['type']).new self, xml.text
-    elsif t <= VIM::ManagedObject
-      RbVmomi.type(xml['type'] || t.wsdl_name).new self, xml.text
-    elsif t <= VIM::Enum
+    elsif t == BasicTypes::ManagedObjectReference
+      type(xml['type']).new self, xml.text
+    elsif t <= BasicTypes::ManagedObject
+      type(xml['type'] || t.wsdl_name).new self, xml.text
+    elsif t <= BasicTypes::Enum
       xml.text
     elsif t <= String
       xml.text
@@ -177,18 +139,18 @@ class Soap < TrivialSoap
       xml.text.to_f
     elsif t <= Time
       Time.parse xml.text
-    elsif t == Boolean
+    elsif t == BasicTypes::Boolean
       xml.text == 'true' || xml.text == '1'
-    elsif t == Binary
+    elsif t == BasicTypes::Binary
       xml.text.unpack('m')[0]
-    elsif t == AnyType
+    elsif t == BasicTypes::AnyType
       fail "attempted to deserialize an AnyType"
     else fail "unexpected type #{t.inspect}"
     end
   end
 
   def obj2xml xml, name, type, is_array, o, attrs={}
-    expected = RbVmomi.type(type)
+    expected = type(type)
     fail "expected array, got #{o.class.wsdl_name}" if is_array and not o.is_a? Array
     case o
     when Array
@@ -196,10 +158,10 @@ class Soap < TrivialSoap
       o.each do |e|
         obj2xml xml, name, expected.wsdl_name, false, e, attrs
       end
-    when VIM::ManagedObject
+    when BasicTypes::ManagedObject
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
       xml.tag! name, o._ref, :type => o.class.wsdl_name
-    when VIM::DataObject
+    when BasicTypes::DataObject
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
       xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
@@ -210,36 +172,60 @@ class Soap < TrivialSoap
           end
         end
       end
-    when VIM::Enum
+    when BasicTypes::Enum
       xml.tag! name, o.value.to_s, attrs
     when Hash
-      fail "expected #{expected.wsdl_name}, got a hash" unless expected <= VIM::DataObject
+      fail "expected #{expected.wsdl_name}, got a hash" unless expected <= BasicTypes::DataObject
       obj2xml xml, name, type, false, expected.new(o), attrs
     when true, false
-      fail "expected #{expected.wsdl_name}, got a boolean" unless expected == Boolean
-      attrs['xsi:type'] = 'xsd:boolean' if expected == AnyType
+      fail "expected #{expected.wsdl_name}, got a boolean" unless expected == BasicTypes::Boolean
+      attrs['xsi:type'] = 'xsd:boolean' if expected == BasicTypes::AnyType
       xml.tag! name, (o ? '1' : '0'), attrs
     when Symbol, String
-      if expected == Binary
-        attrs['xsi:type'] = 'xsd:base64Binary' if expected == AnyType
+      if expected == BasicTypes::Binary
+        attrs['xsi:type'] = 'xsd:base64Binary' if expected == BasicTypes::AnyType
         xml.tag! name, [o].pack('m').chomp, attrs
       else
-        attrs['xsi:type'] = 'xsd:string' if expected == AnyType
+        attrs['xsi:type'] = 'xsd:string' if expected == BasicTypes::AnyType
         xml.tag! name, o.to_s, attrs
       end
     when Integer
-      attrs['xsi:type'] = 'xsd:long' if expected == AnyType
+      attrs['xsi:type'] = 'xsd:long' if expected == BasicTypes::AnyType
       xml.tag! name, o.to_s, attrs
     when Float
-      attrs['xsi:type'] = 'xsd:double' if expected == AnyType
+      attrs['xsi:type'] = 'xsd:double' if expected == BasicTypes::AnyType
       xml.tag! name, o.to_s, attrs
     when DateTime
-      attrs['xsi:type'] = 'xsd:dateTime' if expected == AnyType
+      attrs['xsi:type'] = 'xsd:dateTime' if expected == BasicTypes::AnyType
       xml.tag! name, o.to_s, attrs
     else fail "unexpected object class #{o.class}"
     end
     xml
   end
+
+	def self.type name
+		fail unless name and (name.is_a? String or name.is_a? Symbol)
+		name = $' if name.to_s =~ /^xsd:/
+		case name.to_sym
+		when :anyType then BasicTypes::AnyType
+		when :boolean then BasicTypes::Boolean
+		when :string then String
+		when :int, :long, :short, :byte then Integer
+		when :float, :double then Float
+		when :dateTime then Time
+		when :base64Binary then BasicTypes::Binary
+		else
+			if @loader.has_type? name
+				@loader.lookup_type(name)
+			else
+				fail "no such type #{name.inspect}"
+			end
+		end
+	end
+
+	def type name
+		self.class.type name
+	end
 end
 
 class Fault < StandardError
@@ -259,39 +245,8 @@ def self.fault msg, fault
   Fault.new(msg, fault)
 end
 
-# Connect to a vSphere SDK endpoint
-#
-# Options:
-# * host
-# * port
-# * ssl
-# * insecure
-# * user
-# * password
-# * path
-# * debug
-def self.connect opts
-  fail unless opts.is_a? Hash
-  fail "host option required" unless opts[:host]
-  opts[:user] ||= 'root'
-  opts[:password] ||= ''
-  opts[:ssl] = true unless opts.member? :ssl
-  opts[:insecure] ||= false
-  opts[:port] ||= (opts[:ssl] ? 443 : 80)
-  opts[:path] ||= '/sdk'
-  opts[:ns] ||= 'urn:vim25'
-  opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
-  opts[:vim_debug] = (!ENV['RBVMOMI_VIM_DEBUG'].empty? rescue false) unless opts.member? :vim_debug
-
-  Soap.new(opts).tap do |vim|
-    vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
-  end
 end
 
-end
-
-require 'rbvmomi/types'
-vmodl_fn = ENV['VMODL'] || File.join(File.dirname(__FILE__), "../vmodl.cdb")
-RbVmomi::VIM.load vmodl_fn
-
-require 'rbvmomi/extensions'
+require 'rbvmomi/type_loader'
+require 'rbvmomi/basic_types'
+require 'rbvmomi/vim'
