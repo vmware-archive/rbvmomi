@@ -1,15 +1,42 @@
 #!/usr/bin/env ruby
+require 'trollop'
 require 'rbvmomi'
-include RbVmomi
+require 'rbvmomi/trollop'
 
-vim = RbVmomi.connect ENV['RBVMOMI_URI']
+VIM = RbVmomi::VIM
+N = 2
 
-rootFolder = vim.serviceInstance.RetrieveServiceContent.rootFolder
+opts = Trollop.options do
+  banner <<-EOS
+Create and destroy a couple of VMs.
 
-dc = rootFolder.childEntity.first
+Usage:
+    create_vm.rb [options]
+
+VIM connection options:
+    EOS
+
+    rbvmomi_connection_opts
+
+    text <<-EOS
+
+VM location options:
+    EOS
+
+    rbvmomi_datacenter_opt
+
+    text <<-EOS
+
+Other options:
+  EOS
+end
+
+Trollop.die("must specify host") unless opts[:host]
+
+vim = VIM.connect opts
+dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
 vmFolder = dc.vmFolder
-vms = vmFolder.childEntity
-hosts = dc.hostFolder.childEntity
+hosts = dc.hostFolder.children
 rp = hosts.first.resourcePool
 
 vm_cfg = {
@@ -58,12 +85,11 @@ vm_cfg = {
   extraConfig: [
     {
       key: 'bios.bootOrder',
-      value: XSD.string('ethernet0')
+      value: 'ethernet0'
     }
   ]
 }
 
-N = 2
 create_tasks = (0...N).map { vmFolder.CreateVM_Task(:config => vm_cfg, :pool => rp) }
-destroy_tasks = create_tasks.map { |x| x.wait_task.Destroy_Task }
-destroy_tasks.each { |x| x.wait_task }
+destroy_tasks = create_tasks.map { |x| x.wait_for_completion.Destroy_Task }
+destroy_tasks.each { |x| x.wait_for_completion }

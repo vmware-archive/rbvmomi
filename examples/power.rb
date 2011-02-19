@@ -37,11 +37,10 @@ end
 cmd = ARGV[0] or Trollop.die("no command given")
 vm_name = ARGV[1] or Trollop.die("no VM name given")
 Trollop.die("must specify host") unless opts[:host]
-Trollop.die("must specify datacenter") unless opts[:datacenter]
 
-conn = RbVmomi.connect opts
+vim = VIM.connect opts
 
-dc = conn.serviceInstance.content.rootFolder.traverse(opts[:datacenter], VIM::Datacenter) or abort "datacenter not found"
+dc = vim.serviceInstance.content.rootFolder.traverse(opts[:datacenter], VIM::Datacenter) or abort "datacenter not found"
 vm = dc.vmFolder.traverse(vm_name, VIM::VirtualMachine) or abort "VM not found"
 
 case cmd

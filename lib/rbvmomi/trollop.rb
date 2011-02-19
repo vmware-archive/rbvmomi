@@ -14,7 +14,7 @@ class Parser
   end
 
   def rbvmomi_datacenter_opt
-    opt :datacenter, "datacenter", type: :string, short: "D", default: (ENV['RBVMOMI_DATACENTER'])
+    opt :datacenter, "datacenter", type: :string, short: "D", default: (ENV['RBVMOMI_DATACENTER'] || 'ha-datacenter')
   end
 
   def rbvmomi_folder_opt

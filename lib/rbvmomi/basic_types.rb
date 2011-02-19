@@ -1,12 +1,16 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
+require 'pp'
+
 module RbVmomi
 module BasicTypes
+
+BUILTIN = %w(ManagedObject DataObject TypeName PropertyPath ManagedObjectReference MethodName MethodFault LocalizedMethodFault)
 
 class Base
   class << self
     attr_reader :wsdl_name
 
-    def initialize wsdl_name=self.name
+    def init wsdl_name=self.name
       @wsdl_name = wsdl_name
     end
 
@@ -15,14 +19,14 @@ class Base
     end
   end
 
-  initialize
+  init
 end
 
 class ObjectWithProperties < Base
   class << self
     attr_accessor :props_desc
 
-    def initialize name=self.name, props=[]
+    def init name=self.name, props=[]
       super name
       @props_desc = props
       @props_desc.each do |d|
@@ -50,14 +54,14 @@ class ObjectWithProperties < Base
     fail 'unimplemented'
   end
 
-  initialize
+  init
 end
 
 class ObjectWithMethods < ObjectWithProperties
   class << self
     attr_accessor :methods_desc
 
-    def initialize name=self.name, props=[], methods={}
+    def init name=self.name, props=[], methods={}
       super name, props
       @methods_desc = methods
 
@@ -74,7 +78,7 @@ class ObjectWithMethods < ObjectWithProperties
     end
   end
 
-  initialize
+  init
 end
 
 class DataObject < ObjectWithProperties
@@ -130,7 +134,7 @@ class DataObject < ObjectWithProperties
     q.text ')'
   end
 
-  initialize
+  init
 end
 
 class ManagedObject < ObjectWithMethods
@@ -190,14 +194,14 @@ class ManagedObject < ObjectWithMethods
     [self.class, @ref].hash
   end
 
-  initialize 'ManagedObject'
+  init 'ManagedObject'
 end
 
 class Enum < Base
   class << self
     attr_accessor :values
 
-    def initialize name=self.name, values=[]
+    def init name=self.name, values=[]
       super name
       @values = values
     end
@@ -209,11 +213,11 @@ class Enum < Base
     @value = value
   end
 
-  initialize
+  init
 end
 
 class MethodFault < DataObject
-  initialize 'MethodFault', [
+  init 'MethodFault', [
     {
       'name' => 'faultCause',
       'wsdl_type' => 'LocalizedMethodFault',
@@ -233,7 +237,7 @@ class MethodFault < DataObject
 end
 
 class LocalizedMethodFault < DataObject
-  initialize 'LocalizedMethodFault', [
+  init 'LocalizedMethodFault', [
     {
       'name' => 'fault',
       'wsdl_type' => 'MethodFault',
@@ -253,7 +257,7 @@ class LocalizedMethodFault < DataObject
 end
 
 class RuntimeFault < MethodFault
-  initialize
+  init
 end
 
 class MethodName < String

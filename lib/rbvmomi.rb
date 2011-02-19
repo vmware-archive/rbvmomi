@@ -1,6 +1,8 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
 require 'trivial_soap'
 require 'time'
+require 'rbvmomi/basic_types'
+require 'rbvmomi/type_loader'
 
 module RbVmomi #:nodoc:all
 
@@ -9,18 +11,13 @@ class DeserializationFailed < Exception; end
 class Connection < TrivialSoap
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
+	attr_accessor :rev
+
   def initialize opts
     @vim_debug = opts[:vim_debug]
     super opts
     @ns = @opts[:ns] or fail "no namespace specified"
-    if @opts[:rev]
-      @rev = @opts[:rev]
-    elsif @opts[:host]
-      @rev = '4.0'
-      @rev = serviceContent.about.apiVersion
-    else
-      fail "no revision specified"
-    end
+		@rev = @opts[:rev] or fail "no revision specified"
   end
 
   def emit_request xml, method, descs, this, params
@@ -216,7 +213,7 @@ class Connection < TrivialSoap
 		when :base64Binary then BasicTypes::Binary
 		else
 			if @loader.has_type? name
-				@loader.lookup_type(name)
+				const_get(name)
 			else
 				fail "no such type #{name.inspect}"
 			end
@@ -225,6 +222,29 @@ class Connection < TrivialSoap
 
 	def type name
 		self.class.type name
+	end
+
+protected
+
+  def self.const_missing sym
+    name = sym.to_s
+    if @loader and @loader.has_type? name
+      @loader.load_type name
+    else
+      super
+    end
+  end
+
+  def self.method_missing sym, *a
+    if @loader and @loader.has_type? sym.to_s
+      const_get(sym).new *a
+    else
+      super
+    end
+  end
+
+	def self.load_vmodl fn
+	  @loader = RbVmomi::TypeLoader.new self, fn
 	end
 end
 
@@ -247,6 +267,4 @@ end
 
 end
 
-require 'rbvmomi/type_loader'
-require 'rbvmomi/basic_types'
 require 'rbvmomi/vim'
