@@ -1,6 +1,7 @@
 require 'trollop'
 
-class Trollop::Parser
+module Trollop #:nodoc:
+class Parser
   def rbvmomi_connection_opts
     opt :host, "host", type: :string, short: 'o', default: ENV['RBVMOMI_HOST']
     opt :port, "port", type: :int, short: :none, default: (ENV.member?('RBVMOMI_PORT') ? ENV['RBVMOMI_PORT'].to_i : 443)
@@ -27,4 +28,5 @@ class Trollop::Parser
   def rbvmomi_datastore_opt
     opt :datastore, "Datastore", short: 's', default: (ENV['RBVMOMI_DATASTORE'] || 'datastore1')
   end
+end
 end

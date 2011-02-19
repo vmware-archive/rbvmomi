@@ -1,6 +1,6 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
 
-module Kernel
+module Kernel #:nodoc:all
   PROFILE_TIMES = Hash.new 0.0
 
   def profile sym, &b

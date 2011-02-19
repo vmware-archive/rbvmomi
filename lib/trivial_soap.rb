@@ -6,16 +6,18 @@ require 'net/http'
 require 'pp'
 require 'rbvmomi/profile'
 
-class Net::HTTPGenericRequest
-  alias old_exec exec
+module Net #:nodoc:all
+  class HTTPGenericRequest
+    alias old_exec exec
 
-  def exec sock, ver, path
-    old_exec sock, ver, path
-    sock.io.flush
+    def exec sock, ver, path
+      old_exec sock, ver, path
+      sock.io.flush
+    end
   end
 end
 
-class TrivialSoap
+class TrivialSoap #:nodoc:all
   attr_accessor :debug, :cookie
   attr_reader :http
 

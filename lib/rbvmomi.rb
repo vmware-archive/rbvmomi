@@ -2,7 +2,7 @@
 require 'trivial_soap'
 require 'time'
 
-module RbVmomi
+module RbVmomi #:nodoc:all
 
 class Boolean; def self.wsdl_name; 'xsd:boolean' end end
 class AnyType; def self.wsdl_name; 'xsd:anyType' end end
@@ -259,7 +259,17 @@ def self.fault msg, fault
   Fault.new(msg, fault)
 end
 
-# host, port, ssl, user, password, path, debug
+# Connect to a vSphere SDK endpoint
+#
+# Options:
+# * host
+# * port
+# * ssl
+# * insecure
+# * user
+# * password
+# * path
+# * debug
 def self.connect opts
   fail unless opts.is_a? Hash
   fail "host option required" unless opts[:host]

@@ -3,13 +3,13 @@ require 'cdb'
 require 'pp'
 require 'set'
 
-class Class
+class Class #:nodoc:all
   def wsdl_name
     self.class.name
   end
 end
 
-module RbVmomi
+module RbVmomi #:nodoc:all
 
 module VIM
 
