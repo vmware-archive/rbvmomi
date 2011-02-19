@@ -1,0 +1,88 @@
+class RbVmomi::VIM::OvfManager
+  CURLBIN = ENV['CURL'] || "curl"
+
+  # Parameters:
+  # uri
+  # vmName
+  # vmFolder
+  # host
+  # resourcePool
+  # datastore
+  # networkMappings = {}
+  # propertyMappings = {}
+  # diskProvisioning = :thin
+  def deployOVF opts={}
+    opts = { networkMappings: {},
+             propertyMappings: {},
+             diskProvisioning: :thin }.merge opts
+
+    %w(uri vmName vmFolder host resourcePool datastore).each do |k|
+      fail "parameter #{k} required" unless opts[k.to_sym]
+    end
+
+    ovfImportSpec = VIM::OvfCreateImportSpecParams(
+      hostSystem: opts[:host],
+      locale: "US",
+      entityName: opts[:vmName],
+      deploymentOption: "",
+      networkMapping: opts[:networkMappings].map{|from, to| VIM::OvfNetworkMapping(name: from, network: to)},
+      propertyMapping: opts[:propertyMappings].map{|key, value| VIM::KeyValue(key: key, value: value)},
+      diskProvisioning: opts[:diskProvisioning]
+    )
+
+    result = CreateImportSpec(
+      ovfDescriptor: open(opts[:uri]).read,
+      resourcePool: opts[:resourcePool],
+      datastore: opts[:datastore],
+      cisp: ovfImportSpec
+    )
+
+    raise result.error[0].localizedMessage if result.error && !result.error.empty?
+
+    if result.warning
+      result.warning.each{|x| puts "OVF Warning: #{x.localizedMessage.chomp}" }
+    end
+
+    nfcLease = opts[:resourcePool].ImportVApp(spec: result.importSpec,
+                                              folder: opts[:vmFolder],
+                                              host: opts[:host])
+
+    nfcLease.wait_until(:state) { nfcLease.state != "initializing" }
+    raise nfcLease.error if nfcLease.state == "error"
+
+    begin
+      nfcLease.HttpNfcLeaseProgress(percent: 5)
+      progress = 0.0
+      result.fileItem.each do |fileItem|
+        deviceUrl = nfcLease.info.deviceUrl.find{|x| x.importKey == fileItem.deviceId}
+        if !deviceUrl
+          raise "Couldn't find deviceURL for device '#{fileItem.deviceId}'"
+        end
+
+        # XXX handle file:// URIs
+        ovfFilename = opts[:uri].to_s
+        tmp = ovfFilename.split(/\//)
+        tmp.pop
+        tmp << fileItem.path
+        filename = tmp.join("/")
+
+        method = fileItem.create ? "PUT" : "POST"
+
+        href = deviceUrl.url.gsub("*", opts[:host].config.network.vnic[0].spec.ip.ipAddress)
+        downloadCmd = "#{CURLBIN} -L '#{filename}'"
+        uploadCmd = "#{CURLBIN} -X #{method} --insecure -T - -H 'Content-Type: application/x-vnd.vmware-streamVmdk' -H 'Content-Length: #{fileItem.size}' '#{href}'"
+        system("#{downloadCmd} | #{uploadCmd}")
+        progress += (95.0 / result.fileItem.length)
+        nfcLease.HttpNfcLeaseProgress(percent: progress.to_i)
+      end
+
+      nfcLease.HttpNfcLeaseProgress(percent: 100)
+      vm = nfcLease.info.entity
+      nfcLease.HttpNfcLeaseComplete
+      vm
+    end
+  rescue Exception
+    nfcLease.HttpNfcLeaseAbort
+    raise
+  end
+end

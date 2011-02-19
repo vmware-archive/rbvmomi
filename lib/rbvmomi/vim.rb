@@ -51,5 +51,3 @@ class VIM < Connection
 end
 
 end
-
-require 'rbvmomi/vim_extensions'

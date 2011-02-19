@@ -11,7 +11,10 @@ class TypeLoader
 		@vmodl = Hash.new { |h,k| if e = @db[k] then h[k] = Marshal.load(e) end }
 		@typenames = Set.new(Marshal.load(@db['_typenames']) + BasicTypes::BUILTIN)
     @target.constants.select { |x| has_type? x.to_s }.each { |x| load_type x.to_s }
-    BasicTypes::BUILTIN.each { |x| target.const_set x, BasicTypes.const_get(x) }
+    BasicTypes::BUILTIN.each do |x|
+      target.const_set x, BasicTypes.const_get(x)
+      load_extension x
+    end
 	end
 
 	def has_type? name
@@ -22,9 +25,16 @@ class TypeLoader
   def load_type name
     fail unless name.is_a? String
     @target.const_set name, make_type(name)
+    load_extension name
+    nil
   end
 
 	private
+
+  def load_extension name
+    extension_path = File.join(File.dirname(__FILE__), "vim", "#{name}.rb")
+    load extension_path if File.exists? extension_path
+  end
 
 	def make_type name
 		name = name.to_s

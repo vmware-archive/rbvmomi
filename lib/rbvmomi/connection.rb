@@ -231,6 +231,7 @@ protected
     name = sym.to_s
     if @loader and @loader.has_type? name
       @loader.load_type name
+      const_get sym
     else
       super
     end
