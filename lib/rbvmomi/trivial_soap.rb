@@ -17,7 +17,7 @@ module Net #:nodoc:all
   end
 end
 
-class TrivialSoap #:nodoc:all
+class RbVmomi::TrivialSoap #:nodoc:all
   attr_accessor :debug, :cookie
   attr_reader :http
 
