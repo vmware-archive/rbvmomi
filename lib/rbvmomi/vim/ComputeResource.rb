@@ -1,4 +1,12 @@
 class RbVmomi::VIM::ComputeResource
+  # Aggregate cluster information.
+  #
+  # @note Values are returned in a hash.
+  #
+  # @return [Mhz] totalCPU: Sum of the frequencies of each CPU in the cluster.
+  # @return [Mhz] usedCPU: CPU cycles used across the cluster.
+  # @return [MB] totalMem: Total RAM.
+  # @return [MB] usedMem: Used RAM.
   def stats
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
       objectSet: [{
