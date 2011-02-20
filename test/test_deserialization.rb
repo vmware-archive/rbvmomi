@@ -10,14 +10,17 @@ class DeserializationTest < Test::Unit::TestCase
   def check str, expected, type
     got = @soap.xml2obj Nokogiri(str).root, type
 
-    puts "expected:"
-    pp expected
-    puts
-    puts "got:"
-    pp got
-    puts
-
-    assert_equal expected, got
+    begin
+      assert_equal expected, got
+    rescue
+      puts "expected:"
+      pp expected
+      puts
+      puts "got:"
+      pp got
+      puts
+      raise
+    end
   end
 
   def test_moref

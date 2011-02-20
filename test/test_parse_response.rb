@@ -7,14 +7,17 @@ class ParseResponseTest < Test::Unit::TestCase
     soap = VIM.new(ns: 'urn:vim25', rev: '4.0')
     got = soap.parse_response Nokogiri(str).root, desc
 
-    puts "expected:"
-    pp expected
-    puts
-    puts "got:"
-    pp got
-    puts
-
-    assert_equal expected, got
+    begin
+      assert_equal expected, got
+    rescue
+      puts "expected:"
+      pp expected
+      puts
+      puts "got:"
+      pp got
+      puts
+      raise
+    end
   end
 
   def test_string_array

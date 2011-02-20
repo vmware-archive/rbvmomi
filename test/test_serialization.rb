@@ -8,14 +8,17 @@ class SerializationTest < Test::Unit::TestCase
     xml = Builder::XmlMarkup.new :indent => 2
     @soap.obj2xml(xml, 'root', type, array, obj)
 
-    puts "expected:"
-    puts str
-    puts
-    puts "got:"
-    puts xml.target!
-    puts
-
-    assert_equal str, xml.target!
+    begin
+      assert_equal str, xml.target!
+    rescue
+      puts "expected:"
+      puts str
+      puts
+      puts "got:"
+      puts xml.target!
+      puts
+      raise
+    end
   end
 
   def test_moref

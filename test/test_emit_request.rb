@@ -10,14 +10,17 @@ class EmitRequestTest < Test::Unit::TestCase
     xml = Builder::XmlMarkup.new :indent => 2
     soap.emit_request xml, 'root', desc, this, params
 
-    puts "expected:"
-    puts str
-    puts
-    puts "got:"
-    puts xml.target!
-    puts
-
-    assert_equal str, xml.target!
+    begin
+      assert_equal str, xml.target!
+    rescue
+      puts "expected:"
+      puts str
+      puts
+      puts "got:"
+      puts xml.target!
+      puts
+      raise
+    end
   end
 
   def test_string_array
