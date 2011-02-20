@@ -1,23 +1,12 @@
 require 'test/unit'
 require 'rbvmomi'
-VIM = RbVmomi::VIM
+VIM ||= RbVmomi::VIM
 
 class ParseResponseTest < Test::Unit::TestCase
   def check desc, str, expected
     soap = VIM.new(ns: 'urn:vim25', rev: '4.0')
     got = soap.parse_response Nokogiri(str).root, desc
-
-    begin
-      assert_equal expected, got
-    rescue
-      puts "expected:"
-      pp expected
-      puts
-      puts "got:"
-      pp got
-      puts
-      raise
-    end
+    assert_equal expected, got
   end
 
   def test_string_array

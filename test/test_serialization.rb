@@ -1,6 +1,6 @@
 require 'test/unit'
 require 'rbvmomi'
-VIM = RbVmomi::VIM
+VIM ||= RbVmomi::VIM
 
 class SerializationTest < Test::Unit::TestCase
   def check str, obj, type, array=false
@@ -10,7 +10,7 @@ class SerializationTest < Test::Unit::TestCase
 
     begin
       assert_equal str, xml.target!
-    rescue
+    rescue MiniTest::Assertion
       puts "expected:"
       puts str
       puts

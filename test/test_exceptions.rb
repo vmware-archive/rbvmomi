@@ -1,6 +1,6 @@
 require 'test/unit'
 require 'rbvmomi'
-include RbVmomi
+VIM ||= RbVmomi::VIM
 
 class ExceptionTest < Test::Unit::TestCase
   def test_fault

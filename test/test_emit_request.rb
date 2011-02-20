@@ -1,6 +1,6 @@
 require 'test/unit'
 require 'rbvmomi'
-VIM = RbVmomi::VIM
+VIM ||= RbVmomi::VIM
 
 class EmitRequestTest < Test::Unit::TestCase
   MO = VIM::VirtualMachine(nil, "foo")
@@ -12,7 +12,7 @@ class EmitRequestTest < Test::Unit::TestCase
 
     begin
       assert_equal str, xml.target!
-    rescue
+    rescue MiniTest::Assertion
       puts "expected:"
       puts str
       puts

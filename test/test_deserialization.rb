@@ -1,6 +1,6 @@
 require 'test/unit'
 require 'rbvmomi'
-VIM = RbVmomi::VIM
+VIM ||= RbVmomi::VIM
 
 class DeserializationTest < Test::Unit::TestCase
   def setup
@@ -9,18 +9,7 @@ class DeserializationTest < Test::Unit::TestCase
 
   def check str, expected, type
     got = @soap.xml2obj Nokogiri(str).root, type
-
-    begin
-      assert_equal expected, got
-    rescue
-      puts "expected:"
-      pp expected
-      puts
-      puts "got:"
-      pp got
-      puts
-      raise
-    end
+    assert_equal expected, got
   end
 
   def test_moref
