@@ -1,6 +1,5 @@
 = RbVmomi
 
-
 == Introduction
 
 RbVmomi is a Ruby interface to the vSphere API. Like the Perl and Java SDKs,
@@ -61,12 +60,9 @@ A few important points:
   command line apps. See the included examples for usage.
 * This is a side project of a VMware employee and is entirely unsupported by VMware.
 
-Built-in extensions are in lib/rbvmomi/extensions.rb. You are encouraged to
+Built-in extensions are under +lib/rbvmomi/vim/+. You are encouraged to
 reopen VIM classes in your applications and add extensions of your own. If you
-write something generally useful please send it to me and I'll add it in. One
-important point about extensions is that since VIM classes are lazily loaded,
-you need to trigger this loading before you can reopen the class. Putting the
-class name on a line by itself before reopening it is enough.
+write something generally useful please send it to me and I'll add it in.
 
 == Development
 
