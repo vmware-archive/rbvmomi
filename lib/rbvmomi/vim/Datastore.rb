@@ -1,20 +1,6 @@
 class RbVmomi::VIM::Datastore
   CURLBIN = ENV['CURL'] || "curl"
 
-  def datacenter
-    return @datacenter if @datacenter
-    x = parent
-    while not x.is_a? Datacenter
-      x = x.parent
-    end
-    fail unless x.is_a? Datacenter
-    @datacenter = x
-  end
-
-  def mkuripath path
-    "/folder/#{URI.escape path}?dcPath=#{URI.escape datacenter.name}&dsName=#{URI.escape name}"
-  end
-
   def exists? path
     req = Net::HTTP::Head.new mkuripath(path)
     req.initialize_http_header 'cookie' => @soap.cookie
@@ -49,5 +35,21 @@ class RbVmomi::VIM::Datastore
                 out: '/dev/null'
     Process.waitpid(pid, 0)
     fail "upload failed" unless $?.success?
+  end
+
+  private
+
+  def datacenter
+    return @datacenter if @datacenter
+    x = parent
+    while not x.is_a? Datacenter
+      x = x.parent
+    end
+    fail unless x.is_a? Datacenter
+    @datacenter = x
+  end
+
+  def mkuripath path
+    "/folder/#{URI.escape path}?dcPath=#{URI.escape datacenter.name}&dsName=#{URI.escape name}"
   end
 end

@@ -30,10 +30,6 @@ class RbVmomi::VIM::Folder
     childEntity
   end
 
-  def ls
-    Hash[children.map { |x| [x.name, x] }]
-  end
-
   def inventory propSpecs={}
     propSet = [{ type: 'Folder', pathSet: ['name', 'parent'] }]
     propSpecs.each do |k,v|

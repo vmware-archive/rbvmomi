@@ -60,7 +60,8 @@ class VIM < Connection
     serviceContent.searchIndex
   end
 
-  def self.extension_path name #:nodoc:
+  # @private
+  def self.extension_path name
     File.join(File.dirname(__FILE__), "vim", "#{name}.rb")
   end
 

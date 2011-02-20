@@ -1,3 +1,4 @@
 --title "RbVmomi - a Ruby interface to the vSphere API"
+--no-private
 lib/rbvmomi/vim.rb
 lib/rbvmomi/vim/*.rb

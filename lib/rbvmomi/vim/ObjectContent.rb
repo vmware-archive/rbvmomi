@@ -3,6 +3,12 @@ class RbVmomi::VIM::ObjectContent
     to_hash[k]
   end
 
+  def to_hash
+    @cached_hash ||= to_hash_uncached
+  end
+
+  private
+
   def to_hash_uncached
     h = {}
     propSet.each do |x|
@@ -10,9 +16,5 @@ class RbVmomi::VIM::ObjectContent
       h[x.name] = x.val
     end
     h
-  end
-
-  def to_hash
-    @cached_hash ||= to_hash_uncached
   end
 end

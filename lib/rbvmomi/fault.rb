@@ -1,5 +1,5 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
-module RbVmomi #:nodoc:all
+module RbVmomi
 
 class Fault < StandardError
   attr_reader :fault

@@ -5,7 +5,7 @@ require 'nokogiri'
 require 'net/http'
 require 'pp'
 
-module Net #:nodoc:all
+module Net
   class HTTPGenericRequest
     alias old_exec exec
 
@@ -16,7 +16,7 @@ module Net #:nodoc:all
   end
 end
 
-class RbVmomi::TrivialSoap #:nodoc:all
+class RbVmomi::TrivialSoap
   attr_accessor :debug, :cookie
   attr_reader :http
 
