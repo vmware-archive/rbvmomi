@@ -277,15 +277,15 @@ class ManagedObjectReference
 end
 
 class Boolean
-	def self.wsdl_name; 'xsd:boolean' end
+  def self.wsdl_name; 'xsd:boolean' end
 end
 
 class AnyType
-	def self.wsdl_name; 'xsd:anyType' end
+  def self.wsdl_name; 'xsd:anyType' end
 end
 
 class Binary
-	def self.wsdl_name; 'xsd:base64Binary' end
+  def self.wsdl_name; 'xsd:base64Binary' end
 end
 
 class ::Class

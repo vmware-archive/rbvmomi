@@ -12,13 +12,13 @@ class DeserializationFailed < Exception; end
 class Connection < TrivialSoap
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
-	attr_accessor :rev
+  attr_accessor :rev
 
   def initialize opts
     @vim_debug = opts[:vim_debug]
     super opts
     @ns = @opts[:ns] or fail "no namespace specified"
-		@rev = @opts[:rev] or fail "no revision specified"
+    @rev = @opts[:rev] or fail "no revision specified"
   end
 
   def emit_request xml, method, descs, this, params
@@ -201,29 +201,29 @@ class Connection < TrivialSoap
     xml
   end
 
-	def self.type name
-		fail unless name and (name.is_a? String or name.is_a? Symbol)
-		name = $' if name.to_s =~ /^xsd:/
-		case name.to_sym
-		when :anyType then BasicTypes::AnyType
-		when :boolean then BasicTypes::Boolean
-		when :string then String
-		when :int, :long, :short, :byte then Integer
-		when :float, :double then Float
-		when :dateTime then Time
-		when :base64Binary then BasicTypes::Binary
-		else
-			if @loader.has_type? name
-				const_get(name)
-			else
-				fail "no such type #{name.inspect}"
-			end
-		end
-	end
+  def self.type name
+    fail unless name and (name.is_a? String or name.is_a? Symbol)
+    name = $' if name.to_s =~ /^xsd:/
+    case name.to_sym
+    when :anyType then BasicTypes::AnyType
+    when :boolean then BasicTypes::Boolean
+    when :string then String
+    when :int, :long, :short, :byte then Integer
+    when :float, :double then Float
+    when :dateTime then Time
+    when :base64Binary then BasicTypes::Binary
+    else
+      if @loader.has_type? name
+        const_get(name)
+      else
+        fail "no such type #{name.inspect}"
+      end
+    end
+  end
 
-	def type name
-		self.class.type name
-	end
+  def type name
+    self.class.type name
+  end
 
 protected
 
@@ -245,9 +245,9 @@ protected
     end
   end
 
-	def self.load_vmodl fn
-	  @loader = RbVmomi::TypeLoader.new self, fn
-	end
+  def self.load_vmodl fn
+    @loader = RbVmomi::TypeLoader.new self, fn
+  end
 end
 
 end
