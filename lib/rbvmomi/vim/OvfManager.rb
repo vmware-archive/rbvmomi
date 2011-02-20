@@ -1,19 +1,22 @@
+# @note +deployOVF+ and requires +curl+. If +curl+ is not in your +PATH+
+#       then set the +CURL+ environment variable to point to it.
+# @todo Use an HTTP library instead of executing +curl+.
 class RbVmomi::VIM::OvfManager
-  CURLBIN = ENV['CURL'] || "curl"
+  CURLBIN = ENV['CURL'] || "curl" #@private
 
   # Deploy an OVF.
   #
   # @param [Hash] opts The options hash.
-  # @option opts [String]             :uri OVF URI.
+  # @option opts [String]             :uri Location of the OVF.
   # @option opts [String]             :vmName Name of the new VM.
-  # @option opts [RbVmomi::VIM::Folder]        :vmFolder Folder to place the VM in.
-  # @option opts [RbVmomi::VIM::HostSystem]    :host Host to use.
-  # @option opts [RbVmomi::VIM::ResourcePool]  :resourcePool Resource pool to use.
-  # @option opts [RbVmomi::VIM::Datastore]     :datastore Datastore to use.
+  # @option opts [VIM::Folder]        :vmFolder Folder to place the VM in.
+  # @option opts [VIM::HostSystem]    :host Host to use.
+  # @option opts [VIM::ResourcePool]  :resourcePool Resource pool to use.
+  # @option opts [VIM::Datastore]     :datastore Datastore to use.
   # @option opts [String]             :diskProvisioning (thin) Disk provisioning mode.
   # @option opts [Hash]               :networkMappings Network mappings.
   # @option opts [Hash]               :propertyMappings Property mappings.
-  def deployOVF opts={}
+  def deployOVF opts
     opts = { networkMappings: {},
              propertyMappings: {},
              diskProvisioning: :thin }.merge opts
