@@ -32,6 +32,7 @@ Other options:
 end
 
 Trollop.die("must specify host") unless opts[:host]
+vm_name = ARGV[0] or abort "must specify VM name"
 
 vim = VIM.connect opts
 dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
@@ -40,11 +41,11 @@ hosts = dc.hostFolder.children
 rp = hosts.first.resourcePool
 
 vm_cfg = {
-  name: 'vm',
-  guestId: 'otherGuest64',
+  name: vm_name,
+  guestId: 'otherGuest',
   files: { vmPathName: '[datastore1]' },
-  numCPUs: 2,
-  memoryMB: 3072,
+  numCPUs: 1,
+  memoryMB: 128,
   deviceChange: [
     {
       operation: :add,
@@ -90,6 +91,4 @@ vm_cfg = {
   ]
 }
 
-create_tasks = (0...N).map { vmFolder.CreateVM_Task(:config => vm_cfg, :pool => rp) }
-destroy_tasks = create_tasks.map { |x| x.wait_for_completion.Destroy_Task }
-destroy_tasks.each { |x| x.wait_for_completion }
+vmFolder.CreateVM_Task(:config => vm_cfg, :pool => rp).wait_for_completion
