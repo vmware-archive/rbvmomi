@@ -61,6 +61,10 @@ class VIM < Connection
     serviceContent.searchIndex
   end
 
+  def self.extension_path name #:nodoc:
+    File.join(File.dirname(__FILE__), "vim", "#{name}.rb")
+  end
+
   load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.cdb"))
 end
 

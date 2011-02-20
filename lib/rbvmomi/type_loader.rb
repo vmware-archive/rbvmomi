@@ -32,8 +32,8 @@ class TypeLoader
 	private
 
   def load_extension name
-    extension_path = File.join(File.dirname(__FILE__), "vim", "#{name}.rb")
-    load extension_path if File.exists? extension_path
+    path = @target.extension_path name
+    load path if File.exists? path
   end
 
 	def make_type name
