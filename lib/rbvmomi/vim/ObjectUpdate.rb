@@ -1,10 +1,13 @@
 class RbVmomi::VIM::ObjectUpdate
-  def [](k)
-    to_hash[k]
-  end
-
+  # Represent this ObjectUpdate as a hash.
+  # @return [Hash] A hash from property paths to values.
   def to_hash
     @cached_hash ||= to_hash_uncached
+  end
+
+  # Alias for +to_hash[k]+.
+  def [](k)
+    to_hash[k]
   end
 
   private
