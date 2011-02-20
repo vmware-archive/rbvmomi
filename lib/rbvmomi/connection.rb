@@ -1,6 +1,6 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
-require 'trivial_soap'
 require 'time'
+require 'rbvmomi/trivial_soap'
 require 'rbvmomi/basic_types'
 require 'rbvmomi/fault'
 require 'rbvmomi/type_loader'
