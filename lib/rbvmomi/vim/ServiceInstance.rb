@@ -1,4 +1,8 @@
 class RbVmomi::VIM::ServiceInstance
+  # Retrieve a Datacenter.
+  # If no path is given the first datacenter will be returned.
+  # @param path (see Folder#traverse)
+  # @return [Datacenter]
   def find_datacenter path=nil
     if path
       content.rootFolder.traverse path, RbVmomi::VIM::Datacenter
@@ -7,6 +11,13 @@ class RbVmomi::VIM::ServiceInstance
     end
   end
 
+  # Wait for several tasks to complete.
+  # @param interested [Array] Property paths to watch for updates.
+  # @param tasks [Array] Tasks to wait on.
+  # @yield [Hash] Called when a property is updated on a task.
+  #               The parameter is a hash from tasks to hashes from
+  #               property path to value.
+  # @return [void]
   def wait_for_multiple_tasks interested, tasks
     version = ''
     interested = (interested + ['info.state']).uniq
