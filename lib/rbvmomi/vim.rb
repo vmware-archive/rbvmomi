@@ -27,7 +27,6 @@ class VIM < Connection
     opts[:ns] ||= 'urn:vim25'
     opts[:rev] = '4.1'
     opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
-    opts[:vim_debug] = (!ENV['RBVMOMI_VIM_DEBUG'].empty? rescue false) unless opts.member? :vim_debug
 
     new(opts).tap do |vim|
       vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]

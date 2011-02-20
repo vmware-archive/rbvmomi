@@ -15,7 +15,6 @@ class Connection < TrivialSoap
   attr_accessor :rev
 
   def initialize opts
-    @vim_debug = opts[:vim_debug]
     super opts
     @ns = @opts[:ns] or fail "no namespace specified"
     @rev = @opts[:rev] or fail "no revision specified"
@@ -62,27 +61,11 @@ class Connection < TrivialSoap
     fail "parameters must be passed as a hash" unless params.is_a? Hash
     fail unless desc.is_a? Hash
 
-    if @vim_debug
-      $stderr.puts "Request #{method}:"
-      PP.pp({ _this: this }.merge(params), $stderr)
-      $stderr.puts
-      start_time = Time.now
-    end
-
     resp = request "#{@ns}/#{@rev}" do |xml|
       emit_request xml, method, desc['params'], this, params
     end
 
-    ret = parse_response resp, desc['result']
-
-    if @vim_debug
-      end_time = Time.now
-      $stderr.puts "Response (in #{'%.3f' % (end_time - start_time)} s)"
-      PP.pp ret, $stderr
-      $stderr.puts
-    end
-
-    ret
+    parse_response resp, desc['result']
   end
 
   def demangle_array_type x
