@@ -1,4 +1,11 @@
 class RbVmomi::VIM::ManagedObject
+  # Wait for updates on an object until a condition becomes true.
+  #
+  # @param pathSet [Array] Property paths to wait for updates to.
+  # @yield Called when an update to a subscribed property occurs.
+  # @yieldreturn [Boolean] Whether to stop waiting.
+  #
+  # @todo Pass the current property values to the block.
   def wait_until *pathSet, &b
     all = pathSet.empty?
     filter = @soap.propertyCollector.CreateFilter :spec => {
@@ -17,20 +24,28 @@ class RbVmomi::VIM::ManagedObject
     filter.DestroyPropertyFilter if filter
   end
 
-  def collect! *props
+  # Efficiently retrieve multiple properties from an object.
+  # @param pathSet [Array] Properties to return.
+  # @return [Hash] Hash from property paths to values.
+  def collect! *pathSet
     spec = {
       objectSet: [{ obj: self }],
       propSet: [{
-        pathSet: props,
+        pathSet: pathSet,
         type: self.class.wsdl_name
       }]
     }
     @soap.propertyCollector.RetrieveProperties(specSet: [spec])[0].to_hash
   end
 
-  def collect *props
-    h = collect! *props
-    a = props.map { |k| h[k.to_s] }
+  # Efficiently retrieve multiple properties from an object.
+  # @param pathSet (see #collect!)
+  # @yield [*values] Property values in same order as +pathSet+.
+  # @return [Array] Property values in same order as +pathSet+, or the return
+  #                 value from the block if it is given.
+  def collect *pathSet
+    h = collect! *pathSet
+    a = pathSet.map { |k| h[k.to_s] }
     if block_given?
       yield a
     else
