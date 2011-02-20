@@ -1,0 +1,3 @@
+--title "RbVmomi - a Ruby interface to the vSphere API"
+lib/rbvmomi/vim.rb
+lib/rbvmomi/vim/*.rb

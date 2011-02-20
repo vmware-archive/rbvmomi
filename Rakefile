@@ -28,7 +28,4 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
-YARD::Rake::YardocTask.new do |t|
-  t.files = ['lib/rbvmomi/vim.rb', 'lib/rbvmomi/vim/*.rb']
-  t.options = ['--title', "RbVmomi - a Ruby interface to the vSphere API"]
-end
+YARD::Rake::YardocTask.new
