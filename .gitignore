@@ -3,4 +3,4 @@ pkg/
 *.gemspec
 vmodl
 doc
-html
+.yardoc

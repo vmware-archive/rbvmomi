@@ -1,5 +1,6 @@
 require 'rake/testtask'
 require 'rake/rdoctask'
+require 'yard'
 
 begin
   require 'jeweler'
@@ -27,9 +28,7 @@ Rake::TestTask.new do |t|
   t.verbose = true
 end
 
-Rake::RDocTask.new do |rd|
-  rd.title = "RbVmomi - a Ruby interface to the vSphere API"
-  rd.main = "README.rdoc"
-  rd.rdoc_files.include("README.rdoc", "lib/rbvmomi/vim.rb", "lib/rbvmomi/vim/*.rb")
-  rd.rdoc_dir = "doc"
+YARD::Rake::YardocTask.new do |t|
+  t.files = ['lib/rbvmomi/vim.rb', 'lib/rbvmomi/vim/*.rb']
+  t.options = ['--title', "RbVmomi - a Ruby interface to the vSphere API"]
 end
