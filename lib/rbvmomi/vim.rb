@@ -5,15 +5,15 @@ module RbVmomi
 class VIM < Connection
   # Connect to a vSphere SDK endpoint
   #
-  # Options:
-  # * host
-  # * port
-  # * ssl
-  # * insecure
-  # * user
-  # * password
-  # * path
-  # * debug
+  # @param [Hash] opts The options hash.
+  # @option opts [String]  :host Host to connect to.
+  # @option opts [Numeric] :port (443) Port to connect to.
+  # @option opts [Boolean] :ssl (true) Whether to use SSL.
+  # @option opts [Boolean] :insecure (false) If true, ignore SSL certificate errors.
+  # @option opts [String]  :user (root) Username.
+  # @option opts [String]  :password Password.
+  # @option opts [String]  :path (/sdk) SDK endpoint path.
+  # @option opts [Boolean] :debug (false) If true, print SOAP traffic to stderr.
   def self.connect opts
     fail unless opts.is_a? Hash
     fail "host option required" unless opts[:host]
@@ -24,7 +24,7 @@ class VIM < Connection
     opts[:port] ||= (opts[:ssl] ? 443 : 80)
     opts[:path] ||= '/sdk'
     opts[:ns] ||= 'urn:vim25'
-    opts[:rev] ||= '4.0'
+    opts[:rev] = '4.1'
     opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
     opts[:vim_debug] = (!ENV['RBVMOMI_VIM_DEBUG'].empty? rescue false) unless opts.member? :vim_debug
 
@@ -33,19 +33,32 @@ class VIM < Connection
     end
   end
 
+  # Return the ServiceInstance
   def serviceInstance
     VIM::ServiceInstance self, 'ServiceInstance'
   end
 
+  # Alias to serviceInstance.RetrieveServiceContent
   def serviceContent
     @serviceContent ||= serviceInstance.RetrieveServiceContent
   end
 
-  %w(rootFolder propertyCollector searchIndex).map(&:to_sym).each do |s|
-    define_method(s) { serviceContent.send s }
+  # Alias to serviceContent.rootFolder
+  def rootFolder
+    serviceContent.rootFolder
   end
 
   alias root rootFolder
+
+  # Alias to serviceContent.propertyCollector
+  def propertyCollector
+    serviceContent.propertyCollector
+  end
+
+  # Alias to serviceContent.searchIndex
+  def searchIndex
+    serviceContent.searchIndex
+  end
 
   load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.cdb"))
 end

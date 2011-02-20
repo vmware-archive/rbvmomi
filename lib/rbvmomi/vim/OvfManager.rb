@@ -1,16 +1,18 @@
 class RbVmomi::VIM::OvfManager
   CURLBIN = ENV['CURL'] || "curl"
 
-  # Parameters:
-  # uri
-  # vmName
-  # vmFolder
-  # host
-  # resourcePool
-  # datastore
-  # networkMappings = {}
-  # propertyMappings = {}
-  # diskProvisioning = :thin
+  # Deploy an OVF.
+  #
+  # @param [Hash] opts The options hash.
+  # @option opts [String]             :uri OVF URI.
+  # @option opts [String]             :vmName Name of the new VM.
+  # @option opts [VIM::Folder]        :vmFolder Folder to place the VM in.
+  # @option opts [VIM::HostSystem]    :host Host to use.
+  # @option opts [VIM::ResourcePool]  :resourcePool Resource pool to use.
+  # @option opts [VIM::Datastore]     :datastore Datastore to use.
+  # @option opts [String]             :diskProvisioning (thin) Disk provisioning mode.
+  # @option opts [Hash]               :networkMappings Network mappings.
+  # @option opts [Hash]               :propertyMappings Property mappings.
   def deployOVF opts={}
     opts = { networkMappings: {},
              propertyMappings: {},
