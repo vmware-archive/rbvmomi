@@ -2,7 +2,7 @@
 require 'cdb'
 require 'set'
 
-module RbVmomi #:nodoc:all
+module RbVmomi
 
 class TypeLoader
 	def initialize target, fn

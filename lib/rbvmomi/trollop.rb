@@ -1,3 +1,4 @@
+# Copyright (c) 2011 VMware, Inc.  All Rights Reserved.
 require 'trollop'
 
 module Trollop #:nodoc:
