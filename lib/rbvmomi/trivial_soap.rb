@@ -4,7 +4,6 @@ require 'builder'
 require 'nokogiri'
 require 'net/http'
 require 'pp'
-require 'rbvmomi/profile'
 
 module Net #:nodoc:all
   class HTTPGenericRequest
@@ -79,7 +78,7 @@ class RbVmomi::TrivialSoap #:nodoc:all
     start_time = Time.now
     response = @lock.synchronize do
       begin
-        profile(:post) { @http.request_post(@opts[:path], body, headers) }
+        @http.request_post(@opts[:path], body, headers)
       rescue Exception
         restart_http
         raise
