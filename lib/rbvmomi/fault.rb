@@ -10,7 +10,7 @@ class Fault < StandardError
   end
 
   def method_missing *a
-    @fault.send *a
+    @fault.send(*a)
   end
 end
 

@@ -222,7 +222,7 @@ protected
 
   def self.method_missing sym, *a
     if @loader and @loader.has_type? sym.to_s
-      const_get(sym).new *a
+      const_get(sym).new(*a)
     else
       super
     end
