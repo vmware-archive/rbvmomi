@@ -1,16 +1,16 @@
 class RbVmomi::VIM::ManagedEntity
   def path
-    filterSpec = VIM.PropertyFilterSpec(
+    filterSpec = RbVmomi::VIM.PropertyFilterSpec(
       objectSet: [{
         obj: self,
         selectSet: [
-          VIM.TraversalSpec(
+          RbVmomi::VIM.TraversalSpec(
             name: 'tsME',
             type: 'ManagedEntity',
             path: 'parent',
             skip: false,
             selectSet: [
-              VIM.SelectionSpec(name: 'tsME')
+              RbVmomi::VIM.SelectionSpec(name: 'tsME')
             ]
           )
         ]

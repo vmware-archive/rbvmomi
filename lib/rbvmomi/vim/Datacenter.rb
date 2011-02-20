@@ -1,9 +1,9 @@
 class RbVmomi::VIM::Datacenter
   def find_compute_resource path=nil
     if path
-      hostFolder.traverse path, VIM::ComputeResource
+      hostFolder.traverse path, RbVmomi::VIM::ComputeResource
     else
-      hostFolder.childEntity.grep(VIM::ComputeResource).first
+      hostFolder.childEntity.grep(RbVmomi::VIM::ComputeResource).first
     end
   end
 
@@ -11,8 +11,8 @@ class RbVmomi::VIM::Datacenter
     datastore.find { |x| x.name == name }
   end
 
-  def find_vm folder_path, name
-    vmFolder.traverse "#{folder_path}/#{name}", VIM::VirtualMachine
+  def find_vm path
+    vmFolder.traverse path, RbVmomi::VIM::VirtualMachine
   end
 end
 

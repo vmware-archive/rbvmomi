@@ -1,9 +1,9 @@
 class RbVmomi::VIM::ServiceInstance
   def find_datacenter path=nil
     if path
-      content.rootFolder.traverse path, VIM::Datacenter
+      content.rootFolder.traverse path, RbVmomi::VIM::Datacenter
     else
-      content.rootFolder.childEntity.grep(VIM::Datacenter).first
+      content.rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).first
     end
   end
 

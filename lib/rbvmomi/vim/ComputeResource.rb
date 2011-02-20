@@ -1,10 +1,10 @@
 class RbVmomi::VIM::ComputeResource
   def stats
-    filterSpec = VIM.PropertyFilterSpec(
+    filterSpec = RbVmomi::VIM.PropertyFilterSpec(
       objectSet: [{
         obj: self,
         selectSet: [
-          VIM.TraversalSpec(
+          RbVmomi::VIM.TraversalSpec(
             name: 'tsHosts',
             type: 'ComputeResource',
             path: 'host',

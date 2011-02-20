@@ -6,10 +6,10 @@ class RbVmomi::VIM::OvfManager
   # @param [Hash] opts The options hash.
   # @option opts [String]             :uri OVF URI.
   # @option opts [String]             :vmName Name of the new VM.
-  # @option opts [VIM::Folder]        :vmFolder Folder to place the VM in.
-  # @option opts [VIM::HostSystem]    :host Host to use.
-  # @option opts [VIM::ResourcePool]  :resourcePool Resource pool to use.
-  # @option opts [VIM::Datastore]     :datastore Datastore to use.
+  # @option opts [RbVmomi::VIM::Folder]        :vmFolder Folder to place the VM in.
+  # @option opts [RbVmomi::VIM::HostSystem]    :host Host to use.
+  # @option opts [RbVmomi::VIM::ResourcePool]  :resourcePool Resource pool to use.
+  # @option opts [RbVmomi::VIM::Datastore]     :datastore Datastore to use.
   # @option opts [String]             :diskProvisioning (thin) Disk provisioning mode.
   # @option opts [Hash]               :networkMappings Network mappings.
   # @option opts [Hash]               :propertyMappings Property mappings.
@@ -22,13 +22,13 @@ class RbVmomi::VIM::OvfManager
       fail "parameter #{k} required" unless opts[k.to_sym]
     end
 
-    ovfImportSpec = VIM::OvfCreateImportSpecParams(
+    ovfImportSpec = RbVmomi::VIM::OvfCreateImportSpecParams(
       hostSystem: opts[:host],
       locale: "US",
       entityName: opts[:vmName],
       deploymentOption: "",
-      networkMapping: opts[:networkMappings].map{|from, to| VIM::OvfNetworkMapping(name: from, network: to)},
-      propertyMapping: opts[:propertyMappings].map{|key, value| VIM::KeyValue(key: key, value: value)},
+      networkMapping: opts[:networkMappings].map{|from, to| RbVmomi::VIM::OvfNetworkMapping(name: from, network: to)},
+      propertyMapping: opts[:propertyMappings].map{|key, value| RbVmomi::VIM::KeyValue(key: key, value: value)},
       diskProvisioning: opts[:diskProvisioning]
     )
 

@@ -38,7 +38,7 @@ class RbVmomi::VIM::Folder
     propSet = [{ type: 'Folder', pathSet: ['name', 'parent'] }]
     propSpecs.each do |k,v|
       case k
-      when VIM::ManagedEntity
+      when RbVmomi::VIM::ManagedEntity
         k = k.wsdl_name
       when Symbol, String
         k = k.to_s
@@ -57,17 +57,17 @@ class RbVmomi::VIM::Folder
       propSet << h
     end
 
-    filterSpec = VIM.PropertyFilterSpec(
+    filterSpec = RbVmomi::VIM.PropertyFilterSpec(
       objectSet: [
         obj: self,
         selectSet: [
-          VIM.TraversalSpec(
+          RbVmomi::VIM.TraversalSpec(
             name: 'tsFolder',
             type: 'Folder',
             path: 'childEntity',
             skip: false,
             selectSet: [
-              VIM.SelectionSpec(name: 'tsFolder')
+              RbVmomi::VIM.SelectionSpec(name: 'tsFolder')
             ]
           )
         ]
@@ -83,7 +83,7 @@ class RbVmomi::VIM::Folder
       next if obj == self
       h = Hash[x.propSet.map { |y| [y.name, y.val] }]
       tree[h['parent']][h['name']] = [obj, h]
-      tree[obj] = {} if obj.is_a? VIM::Folder
+      tree[obj] = {} if obj.is_a? RbVmomi::VIM::Folder
     end
     tree
   end
