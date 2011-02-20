@@ -5,7 +5,7 @@ require 'rbvmomi/basic_types'
 require 'rbvmomi/fault'
 require 'rbvmomi/type_loader'
 
-module RbVmomi #:nodoc:all
+module RbVmomi
 
 class DeserializationFailed < Exception; end
 
@@ -15,9 +15,9 @@ class Connection < TrivialSoap
   attr_accessor :rev
 
   def initialize opts
+    @ns = opts[:ns] or fail "no namespace specified"
+    @rev = opts[:rev] or fail "no revision specified"
     super opts
-    @ns = @opts[:ns] or fail "no namespace specified"
-    @rev = @opts[:rev] or fail "no revision specified"
   end
 
   def emit_request xml, method, descs, this, params
@@ -87,14 +87,12 @@ class Connection < TrivialSoap
 
     t = type typename
     if t <= BasicTypes::DataObject
-      #puts "deserializing data object #{t} from #{xml.name}"
       props_desc = t.full_props_desc
       h = {}
       props_desc.select { |d| d['is-array'] }.each { |d| h[d['name'].to_sym] = [] }
       xml.children.each do |c|
         next unless c.element?
         field = c.name.to_sym
-        #puts "field #{field.to_s}: #{t.find_prop_desc(field.to_s).inspect}"
         d = t.find_prop_desc(field.to_s) or next
         o = xml2obj c, d['wsdl_type']
         if h[field].is_a? Array
@@ -130,6 +128,7 @@ class Connection < TrivialSoap
     end
   end
 
+  # hic sunt dracones
   def obj2xml xml, name, type, is_array, o, attrs={}
     expected = type(type)
     fail "expected array, got #{o.class.wsdl_name}" if is_array and not o.is_a? Array
@@ -206,6 +205,10 @@ class Connection < TrivialSoap
 
   def type name
     self.class.type name
+  end
+
+  def self.extension_path
+    fail "must be implemented in subclass"
   end
 
 protected
