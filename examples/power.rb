@@ -3,7 +3,7 @@ require 'rbvmomi'
 require 'rbvmomi/trollop'
 
 VIM = RbVmomi::VIM
-CMDS = %w(on off reset suspend)
+CMDS = %w(on off reset suspend destroy)
 
 opts = Trollop.options do
   banner <<-EOS
@@ -52,6 +52,8 @@ when 'reset'
   vm.ResetVM_Task.wait_for_completion
 when 'suspend'
   vm.SuspendVM_Task.wait_for_completion
+when 'destroy'
+  vm.Destroy_Task.wait_for_completion
 else
   abort "invalid command"
 end
