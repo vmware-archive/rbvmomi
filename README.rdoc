@@ -56,9 +56,8 @@ in the first example uses the SearchIndex for fast lookups.
 
 A few important points:
 
-* Ruby 1.9 is required.
-* Properties are exposed as accessor methods.
 * All class, method, parameter, and property names match the official documentation[http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/index.html].
+* Properties are exposed as accessor methods.
 * Data object types can usually be inferred from context, so you may use a hash instead.
 * Enumeration values are simply strings.
 * Example code is included in the examples/ directory.
