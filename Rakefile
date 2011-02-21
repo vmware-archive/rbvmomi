@@ -6,7 +6,7 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "rbvmomi"
-    gem.summary = "Ruby interface to the VI API"
+    gem.summary = "Ruby interface to the VMware vSphere API"
     #gem.description = ""
     gem.email = "rlane@vmware.com"
     gem.homepage = "https://github.com/rlane/rbvmomi"
