@@ -8,6 +8,10 @@ supports the vSphere 4.1 API. RbVmomi specific documentation is
 online[http://rdoc.info/github/rlane/rbvmomi/master/frames] and is meant to
 be used alongside the official documentation[http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/index.html].
 
+== Installation
+
+    gem install rbvmomi
+
 == Usage
 
 A simple example of turning on a VM:
