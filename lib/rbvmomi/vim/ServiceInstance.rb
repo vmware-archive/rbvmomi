@@ -30,7 +30,7 @@ class RbVmomi::VIM::ServiceInstance
 
     begin
       until task_props.size == tasks.size and task_props.all? { |k,h| %w(success error).member? h['info.state'] }
-        result = @soap.propertyCollector.WaitForUpdates(version: version)
+        result = @soap.propertyCollector.WaitForUpdates(:version => version)
         version = result.version
         os = result.filterSet[0].objectSet
 

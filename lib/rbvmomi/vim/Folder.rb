@@ -4,7 +4,7 @@ class RbVmomi::VIM::Folder
   # @param type [Class] Return nil unless the found entity <tt>is_a? type</tt>.
   # @return [VIM::ManagedEntity]
   def find name, type=Object
-    x = @soap.searchIndex.FindChild(entity: self, name: name)
+    x = @soap.searchIndex.FindChild(:entity => self, :name => name)
     x if x.is_a? type
   end
 
@@ -26,13 +26,13 @@ class RbVmomi::VIM::Folder
     final = es.pop
 
     p = es.inject(self) do |f,e|
-      f.find(e, Folder) || (create && f.CreateFolder(name: e)) || return
+      f.find(e, Folder) || (create && f.CreateFolder(:name => e)) || return
     end
 
     if x = p.find(final, type)
       x
     elsif create and type == Folder
-      p.CreateFolder(name: final)
+      p.CreateFolder(:name => final)
     else
       nil
     end
@@ -57,7 +57,7 @@ class RbVmomi::VIM::Folder
   #
   # @todo Return ObjectContent instead of the leaf hash.
   def inventory propSpecs={}
-    propSet = [{ type: 'Folder', pathSet: ['name', 'parent'] }]
+    propSet = [{ :type => 'Folder', :pathSet => ['name', 'parent'] }]
     propSpecs.each do |k,v|
       case k
       when RbVmomi::VIM::ManagedEntity
@@ -68,7 +68,7 @@ class RbVmomi::VIM::Folder
         fail "key must be a ManagedEntity"
       end
 
-      h = { type: k }
+      h = { :type => k }
       if v == :all
         h[:all] = true
       elsif v.is_a? Array
@@ -80,24 +80,24 @@ class RbVmomi::VIM::Folder
     end
 
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
-      objectSet: [
-        obj: self,
-        selectSet: [
+      :objectSet => [
+        :obj => self,
+        :selectSet => [
           RbVmomi::VIM.TraversalSpec(
-            name: 'tsFolder',
-            type: 'Folder',
-            path: 'childEntity',
-            skip: false,
-            selectSet: [
-              RbVmomi::VIM.SelectionSpec(name: 'tsFolder')
+            :name => 'tsFolder',
+            :type => 'Folder',
+            :path => 'childEntity',
+            :skip => false,
+            :selectSet => [
+              RbVmomi::VIM.SelectionSpec(:name => 'tsFolder')
             ]
           )
         ]
       ],
-      propSet: propSet
+      :propSet => propSet
     )
 
-    result = @soap.propertyCollector.RetrieveProperties(specSet: [filterSpec])
+    result = @soap.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
 
     tree = { self => {} }
     result.each do |x|

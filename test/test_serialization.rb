@@ -1,10 +1,10 @@
 require 'test/unit'
 require 'rbvmomi'
-VIM ||= RbVmomi::VIM
+VIM = RbVmomi::VIM unless Object.const_defined? :VIM
 
 class SerializationTest < Test::Unit::TestCase
   def check str, obj, type, array=false
-    @soap = VIM.new(ns: 'urn:vim25', rev: '4.0')
+    @soap = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
     xml = Builder::XmlMarkup.new :indent => 2
     @soap.obj2xml(xml, 'root', type, array, obj)
 
@@ -29,52 +29,52 @@ class SerializationTest < Test::Unit::TestCase
 
   def test_config
     cfg = VIM.VirtualMachineConfigSpec(
-      name: 'vm',
-      files: { vmPathName: '[datastore1]' },
-      guestId: 'otherGuest64',
-      numCPUs: 2,
-      memoryMB: 3072,
-      deviceChange: [
+      :name => 'vm',
+      :files => { :vmPathName => '[datastore1]' },
+      :guestId => 'otherGuest64',
+      :numCPUs => 2,
+      :memoryMB => 3072,
+      :deviceChange => [
         {
-          operation: :add,
-          device: VIM.VirtualLsiLogicController(
-            key: 1000,
-            busNumber: 0,
-            sharedBus: :noSharing,
+          :operation => :add,
+          :device => VIM.VirtualLsiLogicController(
+            :key => 1000,
+            :busNumber => 0,
+            :sharedBus => :noSharing
           )
         }, VIM.VirtualDeviceConfigSpec(
-          operation: VIM.VirtualDeviceConfigSpecOperation(:add),
-          fileOperation: VIM.VirtualDeviceConfigSpecFileOperation(:create),
-          device: VIM.VirtualDisk(
-            key: 0,
-            backing: VIM.VirtualDiskFlatVer2BackingInfo(
-              fileName: '[datastore1]',
-              diskMode: :persistent,
-              thinProvisioned: true,
+          :operation => VIM.VirtualDeviceConfigSpecOperation(:add),
+          :fileOperation => VIM.VirtualDeviceConfigSpecFileOperation(:create),
+          :device => VIM.VirtualDisk(
+            :key => 0,
+            :backing => VIM.VirtualDiskFlatVer2BackingInfo(
+              :fileName => '[datastore1]',
+              :diskMode => :persistent,
+              :thinProvisioned => true
             ),
-            controllerKey: 1000,
-            unitNumber: 0,
-            capacityInKB: 4000000,
+            :controllerKey => 1000,
+            :unitNumber => 0,
+            :capacityInKB => 4000000
           )
         ), {
-          operation: :add,
-          device: VIM.VirtualE1000(
-            key: 0,
-            deviceInfo: {
-              label: 'Network Adapter 1',
-              summary: 'VM Network',
+          :operation => :add,
+          :device => VIM.VirtualE1000(
+            :key => 0,
+            :deviceInfo => {
+              :label => 'Network Adapter 1',
+              :summary => 'VM Network'
             },
-            backing: VIM.VirtualEthernetCardNetworkBackingInfo(
-              deviceName: 'VM Network',
+            :backing => VIM.VirtualEthernetCardNetworkBackingInfo(
+              :deviceName => 'VM Network'
             ),
-            addressType: 'generated'
+            :addressType => 'generated'
           )
         }
       ],
-      extraConfig: [
+      :extraConfig => [
         {
-          key: 'bios.bootOrder',
-          value: 'ethernet0'
+          :key => 'bios.bootOrder',
+          :value => 'ethernet0'
         }
       ]
     )
@@ -133,7 +133,7 @@ class SerializationTest < Test::Unit::TestCase
   end
 
   def test_nil_field
-    obj = VIM.OptionValue(key: 'foo', value: nil)
+    obj = VIM.OptionValue(:key => 'foo', :value => nil)
     check <<-EOS, obj, "OptionValue"
 <root xsi:type="OptionValue">
   <key>foo</key>

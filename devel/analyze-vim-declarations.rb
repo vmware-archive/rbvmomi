@@ -2,7 +2,7 @@
 require 'nokogiri'
 require 'cdb'
 
-# usage: analyze-vim-declarations.rb vim-declarations.xml foo-declarations.xml vmodl.db
+# :usage => analyze-vim-declarations.rb vim-declarations.xml foo-declarations.xml vmodl.db
 
 XML_FNS = ARGV[0...-1]
 abort "must specify path to vim-declarations.xml" if XML_FNS.empty?

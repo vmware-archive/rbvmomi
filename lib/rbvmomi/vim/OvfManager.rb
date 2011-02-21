@@ -17,29 +17,29 @@ class RbVmomi::VIM::OvfManager
   # @option opts [Hash]               :networkMappings Network mappings.
   # @option opts [Hash]               :propertyMappings Property mappings.
   def deployOVF opts
-    opts = { networkMappings: {},
-             propertyMappings: {},
-             diskProvisioning: :thin }.merge opts
+    opts = { :networkMappings => {},
+             :propertyMappings => {},
+             :diskProvisioning => :thin }.merge opts
 
     %w(uri vmName vmFolder host resourcePool datastore).each do |k|
       fail "parameter #{k} required" unless opts[k.to_sym]
     end
 
     ovfImportSpec = RbVmomi::VIM::OvfCreateImportSpecParams(
-      hostSystem: opts[:host],
-      locale: "US",
-      entityName: opts[:vmName],
-      deploymentOption: "",
-      networkMapping: opts[:networkMappings].map{|from, to| RbVmomi::VIM::OvfNetworkMapping(name: from, network: to)},
-      propertyMapping: opts[:propertyMappings].map{|key, value| RbVmomi::VIM::KeyValue(key: key, value: value)},
-      diskProvisioning: opts[:diskProvisioning]
+      :hostSystem => opts[:host],
+      :locale => "US",
+      :entityName => opts[:vmName],
+      :deploymentOption => "",
+      :networkMapping => opts[:networkMappings].map{|from, to| RbVmomi::VIM::OvfNetworkMapping(:name => from, :network => to)},
+      :propertyMapping => opts[:propertyMappings].map{|key, value| RbVmomi::VIM::KeyValue(:key => key, :value => value)},
+      :diskProvisioning => opts[:diskProvisioning]
     )
 
     result = CreateImportSpec(
-      ovfDescriptor: open(opts[:uri]).read,
-      resourcePool: opts[:resourcePool],
-      datastore: opts[:datastore],
-      cisp: ovfImportSpec
+      :ovfDescriptor => open(opts[:uri]).read,
+      :resourcePool => opts[:resourcePool],
+      :datastore => opts[:datastore],
+      :cisp => ovfImportSpec
     )
 
     raise result.error[0].localizedMessage if result.error && !result.error.empty?
@@ -48,15 +48,15 @@ class RbVmomi::VIM::OvfManager
       result.warning.each{|x| puts "OVF Warning: #{x.localizedMessage.chomp}" }
     end
 
-    nfcLease = opts[:resourcePool].ImportVApp(spec: result.importSpec,
-                                              folder: opts[:vmFolder],
-                                              host: opts[:host])
+    nfcLease = opts[:resourcePool].ImportVApp(:spec => result.importSpec,
+                                              :folder => opts[:vmFolder],
+                                              :host => opts[:host])
 
     nfcLease.wait_until(:state) { nfcLease.state != "initializing" }
     raise nfcLease.error if nfcLease.state == "error"
 
     begin
-      nfcLease.HttpNfcLeaseProgress(percent: 5)
+      nfcLease.HttpNfcLeaseProgress(:percent => 5)
       progress = 0.0
       result.fileItem.each do |fileItem|
         deviceUrl = nfcLease.info.deviceUrl.find{|x| x.importKey == fileItem.deviceId}
@@ -78,10 +78,10 @@ class RbVmomi::VIM::OvfManager
         uploadCmd = "#{CURLBIN} -X #{method} --insecure -T - -H 'Content-Type: application/x-vnd.vmware-streamVmdk' -H 'Content-Length: #{fileItem.size}' '#{href}'"
         system("#{downloadCmd} | #{uploadCmd}")
         progress += (95.0 / result.fileItem.length)
-        nfcLease.HttpNfcLeaseProgress(percent: progress.to_i)
+        nfcLease.HttpNfcLeaseProgress(:percent => progress.to_i)
       end
 
-      nfcLease.HttpNfcLeaseProgress(percent: 100)
+      nfcLease.HttpNfcLeaseProgress(:percent => 100)
       vm = nfcLease.info.entity
       nfcLease.HttpNfcLeaseComplete
       vm

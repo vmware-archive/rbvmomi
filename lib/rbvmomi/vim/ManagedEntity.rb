@@ -3,27 +3,27 @@ class RbVmomi::VIM::ManagedEntity
   # @return [Array] Ancestors of this entity, starting with the root.
   def path
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
-      objectSet: [{
-        obj: self,
-        selectSet: [
+      :objectSet => [{
+        :obj => self,
+        :selectSet => [
           RbVmomi::VIM.TraversalSpec(
-            name: 'tsME',
-            type: 'ManagedEntity',
-            path: 'parent',
-            skip: false,
-            selectSet: [
-              RbVmomi::VIM.SelectionSpec(name: 'tsME')
+            :name => 'tsME',
+            :type => 'ManagedEntity',
+            :path => 'parent',
+            :skip => false,
+            :selectSet => [
+              RbVmomi::VIM.SelectionSpec(:name => 'tsME')
             ]
           )
         ]
       }],
-      propSet: [{
-        pathSet: %w(name parent),
-        type: 'ManagedEntity'
+      :propSet => [{
+        :pathSet => %w(name parent),
+        :type => 'ManagedEntity'
       }]
     )
 
-    result = @soap.propertyCollector.RetrieveProperties(specSet: [filterSpec])
+    result = @soap.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
 
     tree = {}
     result.each { |x| tree[x.obj] = [x['parent'], x['name']] }

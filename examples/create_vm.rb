@@ -4,11 +4,10 @@ require 'rbvmomi'
 require 'rbvmomi/trollop'
 
 VIM = RbVmomi::VIM
-N = 2
 
 opts = Trollop.options do
   banner <<-EOS
-Create and destroy a couple of VMs.
+Create a VM.
 
 Usage:
     create_vm.rb [options]
@@ -41,52 +40,52 @@ hosts = dc.hostFolder.children
 rp = hosts.first.resourcePool
 
 vm_cfg = {
-  name: vm_name,
-  guestId: 'otherGuest',
-  files: { vmPathName: '[datastore1]' },
-  numCPUs: 1,
-  memoryMB: 128,
-  deviceChange: [
+  :name => vm_name,
+  :guestId => 'otherGuest',
+  :files => { :vmPathName => '[datastore1]' },
+  :numCPUs => 1,
+  :memoryMB => 128,
+  :deviceChange => [
     {
-      operation: :add,
-      device: VIM.VirtualLsiLogicController(
-        key: 1000,
-        busNumber: 0,
-        sharedBus: :noSharing,
+      :operation => :add,
+      :device => VIM.VirtualLsiLogicController(
+        :key => 1000,
+        :busNumber => 0,
+        :sharedBus => :noSharing
       )
     }, {
-      operation: :add,
-      fileOperation: :create,
-      device: VIM.VirtualDisk(
-        key: 0,
-        backing: VIM.VirtualDiskFlatVer2BackingInfo(
-          fileName: '[datastore1]',
-          diskMode: :persistent,
-          thinProvisioned: true,
+      :operation => :add,
+      :fileOperation => :create,
+      :device => VIM.VirtualDisk(
+        :key => 0,
+        :backing => VIM.VirtualDiskFlatVer2BackingInfo(
+          :fileName => '[datastore1]',
+          :diskMode => :persistent,
+          :thinProvisioned => true
         ),
-        controllerKey: 1000,
-        unitNumber: 0,
-        capacityInKB: 4000000,
+        :controllerKey => 1000,
+        :unitNumber => 0,
+        :capacityInKB => 4000000
       )
     }, {
-      operation: :add,
-      device: VIM.VirtualE1000(
-        key: 0,
-        deviceInfo: {
-          label: 'Network Adapter 1',
-          summary: 'VM Network',
+      :operation => :add,
+      :device => VIM.VirtualE1000(
+        :key => 0,
+        :deviceInfo => {
+          :label => 'Network Adapter 1',
+          :summary => 'VM Network'
         },
-        backing: VIM.VirtualEthernetCardNetworkBackingInfo(
-          deviceName: 'VM Network',
+        :backing => VIM.VirtualEthernetCardNetworkBackingInfo(
+          :deviceName => 'VM Network'
         ),
-        addressType: 'generated'
+        :addressType => 'generated'
       )
     }
   ],
-  extraConfig: [
+  :extraConfig => [
     {
-      key: 'bios.bootOrder',
-      value: 'ethernet0'
+      :key => 'bios.bootOrder',
+      :value => 'ethernet0'
     }
   ]
 }

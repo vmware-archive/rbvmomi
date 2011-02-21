@@ -14,7 +14,7 @@ class RbVmomi::VIM::ManagedObject
     }, :partialUpdates => false
     ver = ''
     loop do
-      result = @soap.propertyCollector.WaitForUpdates(version: ver)
+      result = @soap.propertyCollector.WaitForUpdates(:version => ver)
       ver = result.version
       if x = b.call
         return x
@@ -29,13 +29,13 @@ class RbVmomi::VIM::ManagedObject
   # @return [Hash] Hash from property paths to values.
   def collect! *pathSet
     spec = {
-      objectSet: [{ obj: self }],
-      propSet: [{
-        pathSet: pathSet,
-        type: self.class.wsdl_name
+      :objectSet => [{ :obj => self }],
+      :propSet => [{
+        :pathSet => pathSet,
+        :type => self.class.wsdl_name
       }]
     }
-    @soap.propertyCollector.RetrieveProperties(specSet: [spec])[0].to_hash
+    @soap.propertyCollector.RetrieveProperties(:specSet => [spec])[0].to_hash
   end
 
   # Efficiently retrieve multiple properties from an object.

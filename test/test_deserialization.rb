@@ -1,10 +1,10 @@
 require 'test/unit'
 require 'rbvmomi'
-VIM ||= RbVmomi::VIM
+VIM = RbVmomi::VIM unless Object.const_defined? :VIM
 
 class DeserializationTest < Test::Unit::TestCase
   def setup
-    @soap = VIM.new(ns: 'urn:vim25', rev: '4.0')
+    @soap = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
   end
 
   def check str, expected, type
@@ -24,15 +24,15 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_dataobject
     obj = VIM.DatastoreSummary(
-      capacity: 1000,
-      accessible: true,
-      datastore: VIM.Datastore(nil, "foo"),
-      freeSpace: 31,
-      multipleHostAccess: false,
-      name: "baz",
-      type: "VMFS",
-      url: "http://foo/",
-      dynamicProperty: []
+      :capacity => 1000,
+      :accessible => true,
+      :datastore => VIM.Datastore(nil, "foo"),
+      :freeSpace => 31,
+      :multipleHostAccess => false,
+      :name => "baz",
+      :type => "VMFS",
+      :url => "http://foo/",
+      :dynamicProperty => []
     )
 
     check <<-EOS, obj, 'DatastoreSummary'
@@ -57,13 +57,13 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_array
     obj = VIM.ObjectContent(
-      obj: VIM.Folder(nil, 'ha-folder-root'),
-      dynamicProperty: [],
-      missingSet: [],
-      propSet: [
+      :obj => VIM.Folder(nil, 'ha-folder-root'),
+      :dynamicProperty => [],
+      :missingSet => [],
+      :propSet => [
         VIM.DynamicProperty(
-          name: 'childEntity',
-          val: [
+          :name => 'childEntity',
+          :val => [
             VIM.Datacenter(nil, 'ha-datacenter')
           ]
         )
@@ -85,12 +85,12 @@ class DeserializationTest < Test::Unit::TestCase
 
 def test_array2
   obj = VIM.DVPortStatus(
-    dynamicProperty: [],
-    linkUp: true,
-    blocked: false,
-    vlanIds: [
-      VIM::NumericRange(dynamicProperty: [], start: 5, end: 7),
-      VIM::NumericRange(dynamicProperty: [], start: 10, end: 20),
+    :dynamicProperty => [],
+    :linkUp => true,
+    :blocked => false,
+    :vlanIds => [
+      VIM::NumericRange(:dynamicProperty => [], :start => 5, :end => 7),
+      VIM::NumericRange(:dynamicProperty => [], :start => 10, :end => 20),
     ]
   )
 
@@ -112,10 +112,10 @@ end
 
 def test_empty_array
   obj = VIM.DVPortStatus(
-    dynamicProperty: [],
-    linkUp: true,
-    blocked: false,
-    vlanIds: []
+    :dynamicProperty => [],
+    :linkUp => true,
+    :blocked => false,
+    :vlanIds => []
   )
 
   check <<-EOS, obj, 'DVPortStatus'
@@ -128,11 +128,11 @@ end
 
   def test_fault
     obj = VIM.LocalizedMethodFault(
-      localizedMessage: "The attempted operation cannot be performed in the current state (Powered off).",
-      fault: VIM.InvalidPowerState(
-        requestedState: 'poweredOn',
-        existingState: 'poweredOff',
-        faultMessage: []
+      :localizedMessage => "The attempted operation cannot be performed in the current state (Powered off).",
+      :fault => VIM.InvalidPowerState(
+        :requestedState => 'poweredOn',
+        :existingState => 'poweredOff',
+        :faultMessage => []
       )
     )
 
@@ -149,25 +149,25 @@ end
 
   def test_wait_for_updates
     obj = VIM.UpdateSet(
-      version: '7',
-      dynamicProperty: [],
-      filterSet: [
+      :version => '7',
+      :dynamicProperty => [],
+      :filterSet => [
         VIM.PropertyFilterUpdate(
-          dynamicProperty: [],
-          filter: VIM.PropertyFilter(nil, "session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF"),
-          missingSet: [],
-          objectSet: [
+          :dynamicProperty => [],
+          :filter => VIM.PropertyFilter(nil, "session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF"),
+          :missingSet => [],
+          :objectSet => [
             VIM.ObjectUpdate(
-              dynamicProperty: [],
-              kind: 'enter',
-              obj: VIM.VirtualMachine(nil, 'vm-1106'),
-              missingSet: [],
-              changeSet: [
+              :dynamicProperty => [],
+              :kind => 'enter',
+              :obj => VIM.VirtualMachine(nil, 'vm-1106'),
+              :missingSet => [],
+              :changeSet => [
                 VIM.PropertyChange(
-                  dynamicProperty: [],
-                  name: 'runtime.powerState',
-                  op: 'assign',
-                  val: 'poweredOn'
+                  :dynamicProperty => [],
+                  :name => 'runtime.powerState',
+                  :op => 'assign',
+                  :val => 'poweredOn'
                 )
               ]
             )
@@ -204,14 +204,14 @@ end
 
   def test_hba
     obj = VIM::HostBlockHba(
-      dynamicProperty: [],
-      key: 'key-vim.host.BlockHba-vmhba0',
-      device: 'vmhba0',
-      bus: 0,
-      status: 'unknown',
-      model: 'Virtual Machine Chipset',
-      driver: 'ata_piix',
-      pci: '00:07.1')
+      :dynamicProperty => [],
+      :key => 'key-vim.host.BlockHba-vmhba0',
+      :device => 'vmhba0',
+      :bus => 0,
+      :status => 'unknown',
+      :model => 'Virtual Machine Chipset',
+      :driver => 'ata_piix',
+      :pci => '00:07.1')
 
     check <<-EOS, obj, "HostBlockHba"
 <hostBusAdapter xsi:type="HostBlockHba">
@@ -229,10 +229,10 @@ end
 =begin
   def test_runtime_state
     obj = VIM::VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState(
-      dynamicProperty: [],
-      vmDirectPathGen2Active: false,
-      vmDirectPathGen2InactiveReasonOther: ["vmNptIncompatibleHost"],
-      vmDirectPathGen2InactiveReasonVm: []
+      :dynamicProperty => [],
+      vmDirectPathGen2:Active => false,
+      vmDirectPathGen2:InactiveReasonOther => ["vmNptIncompatibleHost"],
+      vmDirectPathGen2:InactiveReasonVm => []
     )
     check <<-EOS, obj, 'VirtualMachineDeviceRuntimeInfoDeviceRuntimeState'
 <runtimeState xsi:type="VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState" xmlns:xsi="#{VIM::NS_XSI}">
@@ -245,19 +245,19 @@ end
 
   def test_runtime_info
     obj = VIM::VirtualMachineRuntimeInfo(
-      bootTime: Time.parse('2010-08-20 05:44:35 UTC'),
-      connectionState: "connected",
-      dynamicProperty: [],
-      faultToleranceState: "notConfigured",
-      host: VIM::HostSystem(nil, "host-32"),
-      maxCpuUsage: 5612,
-      maxMemoryUsage: 3072,
-      memoryOverhead: 128671744,
-      numMksConnections: 1,
-      powerState: "poweredOn",
-      recordReplayState: "inactive",
-      suspendInterval: 0,
-      toolsInstallerMounted: false
+      :bootTime => Time.parse('2010-08-20 05:44:35 UTC'),
+      :connectionState => "connected",
+      :dynamicProperty => [],
+      :faultToleranceState => "notConfigured",
+      :host => VIM::HostSystem(nil, "host-32"),
+      :maxCpuUsage => 5612,
+      :maxMemoryUsage => 3072,
+      :memoryOverhead => 128671744,
+      :numMksConnections => 1,
+      :powerState => "poweredOn",
+      :recordReplayState => "inactive",
+      :suspendInterval => 0,
+      :toolsInstallerMounted => false
     )
 
     check <<-EOS, obj, 'VirtualMachineRuntimeInfo'

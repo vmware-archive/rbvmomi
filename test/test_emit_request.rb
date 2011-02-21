@@ -1,12 +1,12 @@
 require 'test/unit'
 require 'rbvmomi'
-VIM ||= RbVmomi::VIM
+VIM = RbVmomi::VIM unless Object.const_defined? :VIM
 
 class EmitRequestTest < Test::Unit::TestCase
   MO = VIM::VirtualMachine(nil, "foo")
 
   def check desc, str, this, params
-    soap = VIM.new(ns: 'urn:vim25', rev: '4.0')
+    soap = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
     xml = Builder::XmlMarkup.new :indent => 2
     soap.emit_request xml, 'root', desc, this, params
 
@@ -33,7 +33,7 @@ class EmitRequestTest < Test::Unit::TestCase
       }
     ]
 
-    check desc, <<-EOS, MO, blah: ['a', 'b', 'c']
+    check desc, <<-EOS, MO, :blah => ['a', 'b', 'c']
 <root xmlns="urn:vim25">
   <_this type="VirtualMachine">foo</_this>
   <blah>a</blah>
@@ -53,7 +53,7 @@ class EmitRequestTest < Test::Unit::TestCase
       }
     ]
 
-    check desc, <<-EOS, MO, blah: 'a'
+    check desc, <<-EOS, MO, :blah => 'a'
 <root xmlns="urn:vim25">
   <_this type="VirtualMachine">foo</_this>
   <blah>a</blah>

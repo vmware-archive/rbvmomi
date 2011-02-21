@@ -3,7 +3,7 @@ class RbVmomi::VIM::ResourcePool
   # @param name [String] Name of the child.
   # @return [VIM::ResourcePool]
   def find name
-    @soap.searchIndex.FindChild(entity: self, name: name)
+    @soap.searchIndex.FindChild(:entity => self, :name => name)
   end
 
   # Retrieve a descendant of this ResourcePool.

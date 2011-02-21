@@ -4,38 +4,38 @@ class RbVmomi::VIM::ComputeResource
   # @note Values are returned in a hash.
   #
   # @return [Mhz] totalCPU: Sum of the frequencies of each CPU in the cluster.
-  # @return [Mhz] usedCPU: CPU cycles used across the cluster.
-  # @return [MB] totalMem: Total RAM.
-  # @return [MB] usedMem: Used RAM.
+  # @return [Mhz] usedCPU:  CPU cycles used across the cluster.
+  # @return [MB]  totalMem: Total RAM.
+  # @return [MB]  usedMem:  Used RAM.
   def stats
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
-      objectSet: [{
-        obj: self,
-        selectSet: [
+      :objectSet => [{
+        :obj => self,
+        :selectSet => [
           RbVmomi::VIM.TraversalSpec(
-            name: 'tsHosts',
-            type: 'ComputeResource',
-            path: 'host',
-            skip: false,
+            :name => 'tsHosts',
+            :type => 'ComputeResource',
+            :path => 'host',
+            :skip => false
           )
         ]
       }],
-      propSet: [{
-        pathSet: %w(name overallStatus summary.hardware.cpuMhz
+      :propSet => [{
+        :pathSet => %w(name overallStatus summary.hardware.cpuMhz
                     summary.hardware.numCpuCores summary.hardware.memorySize
                     summary.quickStats.overallCpuUsage
                     summary.quickStats.overallMemoryUsage),
-        type: 'HostSystem'
+        :type => 'HostSystem'
       }]
     )
 
-    result = @soap.propertyCollector.RetrieveProperties(specSet: [filterSpec])
+    result = @soap.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
 
     stats = {
-      totalCPU: 0,
-      totalMem: 0,
-      usedCPU: 0,
-      usedMem: 0,
+      :totalCPU => 0,
+      :totalMem => 0,
+      :usedCPU => 0,
+      :usedMem => 0,
     }
 
     result.each do |x|
