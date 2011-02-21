@@ -3,6 +3,8 @@ require 'rbvmomi'
 
 module RbVmomi
 
+# A connection to one vSphere SDK endpoint.
+# @see #serviceInstance
 class VIM < Connection
   # Connect to a vSphere SDK endpoint
   #
@@ -34,6 +36,9 @@ class VIM < Connection
   end
 
   # Return the ServiceInstance
+  #
+  # The ServiceInstance is the root of the vSphere inventory.
+  # @see http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/vim.ServiceInstance.html
   def serviceInstance
     VIM::ServiceInstance self, 'ServiceInstance'
   end
