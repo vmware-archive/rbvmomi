@@ -3,3 +3,4 @@
 --readme README.rdoc
 lib/rbvmomi/vim.rb
 lib/rbvmomi/vim/*.rb
+lib/rbvmomi/trollop.rb

@@ -1,6 +1,7 @@
 # Copyright (c) 2011 VMware, Inc.  All Rights Reserved.
 require 'trollop'
 
+# @todo Document
 module Trollop
 class Parser
   def rbvmomi_connection_opts
