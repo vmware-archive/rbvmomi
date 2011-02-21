@@ -63,6 +63,9 @@ A few important points:
 * Example code is included in the examples/ directory.
 * A set of helper methods for Trollop is included to speed up development of
   command line apps. See the included examples for usage.
+* If you don't have trusted SSL certificates installed on the host you're
+  connecting to, you'll get an +OpenSSL::SSL::SSLError+ "certificate verify failed".
+  You can work around this by using the +:insecure+ option to +RbVmomi::VIM.connect+.
 * This is a side project of a VMware employee and is entirely unsupported by VMware.
 
 Built-in extensions are under +lib/rbvmomi/vim/+. You are encouraged to
