@@ -35,5 +35,7 @@ echo "Listing extraConfig"
 $RUBY $EXAMPLES/extraConfig.rb foo list | grep guestinfo.bar
 echo Powering off VM
 $RUBY $EXAMPLES/power.rb off foo
+echo Querying datastore utilization
+$RUBY $EXAMPLES/vdf.rb
 echo Destroying VM
 $RUBY $EXAMPLES/power.rb destroy foo
