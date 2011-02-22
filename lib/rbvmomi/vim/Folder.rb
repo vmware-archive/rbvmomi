@@ -26,12 +26,12 @@ class RbVmomi::VIM::Folder
     final = es.pop
 
     p = es.inject(self) do |f,e|
-      f.find(e, Folder) || (create && f.CreateFolder(:name => e)) || return
+      f.find(e, RbVmomi::VIM::Folder) || (create && f.CreateFolder(:name => e)) || return
     end
 
     if x = p.find(final, type)
       x
-    elsif create and type == Folder
+    elsif create and type == RbVmomi::VIM::Folder
       p.CreateFolder(:name => final)
     else
       nil
