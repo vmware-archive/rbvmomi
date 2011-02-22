@@ -50,8 +50,10 @@ class ParseResponseTest < Test::Unit::TestCase
   </detail>
 </soapenv:Fault>
         EOS
-      rescue RbVmomi::Fault
+      rescue VIM::InvalidArgument
         raise
+      rescue
+        raise "wrong fault"
       end
     end
   end
