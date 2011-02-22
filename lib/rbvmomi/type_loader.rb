@@ -7,13 +7,20 @@ module RbVmomi
 class TypeLoader
   def initialize target, fn
     @target = target
-    @db = CDB.new fn
+    @fn = fn
+  end
+
+  def init
+    @db = CDB.new @fn
     @vmodl = Hash.new { |h,k| if e = @db[k] then h[k] = Marshal.load(e) end }
     @typenames = Set.new(Marshal.load(@db['_typenames']) + BasicTypes::BUILTIN)
     @target.constants.select { |x| has_type? x.to_s }.each { |x| load_type x.to_s }
     BasicTypes::BUILTIN.each do |x|
-      target.const_set x, BasicTypes.const_get(x)
+      @target.const_set x, BasicTypes.const_get(x)
       load_extension x
+    end
+    Object.constants.map(&:to_s).select { |x| has_type? x }.each do |x|
+      load_type x
     end
   end
 

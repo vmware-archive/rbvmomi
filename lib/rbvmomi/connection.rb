@@ -233,6 +233,7 @@ protected
 
   def self.load_vmodl fn
     @loader = RbVmomi::TypeLoader.new self, fn
+    @loader.init
   end
 end
 
