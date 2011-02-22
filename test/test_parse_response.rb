@@ -55,5 +55,15 @@ class ParseResponseTest < Test::Unit::TestCase
       end
     end
   end
+
+  def test_task_array_result
+    desc = { 'wsdl_type' => 'xsd:string', 'is-array' => true, 'is-task' => true }
+
+    check desc, <<-EOS, VIM.Task(nil, 'haTask-ha-host-vim.DiagnosticManager.generateLogBundles-865')
+<root xmlns="urn:vim25">
+  <returnval type="Task">haTask-ha-host-vim.DiagnosticManager.generateLogBundles-865</returnval>
+</root>
+    EOS
+  end
 end
 

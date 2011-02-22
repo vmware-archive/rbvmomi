@@ -49,7 +49,7 @@ class Connection < TrivialSoap
       if desc
         type = desc['is-task'] ? 'Task' : desc['wsdl_type']
         returnvals = resp.children.select(&:element?).map { |c| xml2obj c, type }
-        desc['is-array'] ? returnvals : returnvals.first
+        (desc['is-array'] && !desc['is-task']) ? returnvals : returnvals.first
       else
         nil
       end
