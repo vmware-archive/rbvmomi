@@ -51,8 +51,8 @@ def b n
   unit(n,'B',3)
 end
 
-puts "Filesystem#{' '*43}Size    Used    Avail   Use%    Mounted on"
-fmt = "%-52s %-7s %-7s %-7s %-7s %s"
+puts "Filesystem#{' '*53}Size     Used     Avail    Use%     Mounted on"
+fmt = "%-62s %-8s %-8s %-8s %-8s %s"
 
 if false
   # simple version
