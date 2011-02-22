@@ -43,7 +43,7 @@ rescue Errno::EHOSTUNREACH
   abort $!.message
 end
 
-typenames = VIM.instance_variable_get(:@typenames)
+typenames = VIM.instance_variable_get(:@loader).instance_variable_get(:@typenames)
 Readline.completion_append_character = " "
 Readline.completion_proc = lambda do |word|
   return unless word
