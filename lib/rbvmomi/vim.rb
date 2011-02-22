@@ -33,7 +33,7 @@ class VIM < Connection
     new(opts).tap do |vim|
       vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
       rev = vim.serviceContent.about.apiVersion
-      vim.rev = rev if %w(4.0 4.1).member? rev
+      vim.rev = [rev, '4.1'].min
     end
   end
 
