@@ -211,6 +211,8 @@ class Connection < TrivialSoap
     fail "must be implemented in subclass"
   end
 
+  def self.loader; @loader; end
+
 protected
 
   def self.const_missing sym

@@ -5,6 +5,8 @@ require 'set'
 module RbVmomi
 
 class TypeLoader
+  attr_reader :typenames
+
   def initialize target, fn
     @target = target
     @fn = fn
