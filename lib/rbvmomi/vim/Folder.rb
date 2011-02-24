@@ -15,13 +15,19 @@ class RbVmomi::VIM::Folder
   end
 
   # Retrieve a descendant of this Folder.
-  # @param path [String] Path delimited by '/'.
+  # @param path [String] Path delimited by '/', or an array of path elements.
   # @param type (see Folder#find)
   # @param create [Boolean] If set, create folders that don't exist.
   # @return (see Folder#find)
   # @todo Move +create+ functionality into another method.
   def traverse path, type=Object, create=false
-    es = path.split('/').reject(&:empty?)
+    if path.is_a? String
+      es = path.split('/').reject(&:empty?)
+    elsif path.is_a? Enumerable
+      es = path
+    else
+      fail "unexpected path class"
+    end
     return self if es.empty?
     final = es.pop
 
