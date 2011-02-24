@@ -91,7 +91,9 @@ def test_array2
     :vlanIds => [
       VIM::NumericRange(:dynamicProperty => [], :start => 5, :end => 7),
       VIM::NumericRange(:dynamicProperty => [], :start => 10, :end => 20),
-    ]
+    ],
+    :vmDirectPathGen2InactiveReasonNetwork => [],
+    :vmDirectPathGen2InactiveReasonOther => []
   )
 
   check <<-EOS, obj, 'DVPortStatus'
@@ -115,7 +117,9 @@ def test_empty_array
     :dynamicProperty => [],
     :linkUp => true,
     :blocked => false,
-    :vlanIds => []
+    :vlanIds => [],
+    vmDirectPathGen2InactiveReasonNetwork: [],
+    vmDirectPathGen2InactiveReasonOther: []
   )
 
   check <<-EOS, obj, 'DVPortStatus'
@@ -257,7 +261,8 @@ end
       :powerState => "poweredOn",
       :recordReplayState => "inactive",
       :suspendInterval => 0,
-      :toolsInstallerMounted => false
+      :toolsInstallerMounted => false,
+      :device => []
     )
 
     check <<-EOS, obj, 'VirtualMachineRuntimeInfo'
