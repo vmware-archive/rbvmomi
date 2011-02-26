@@ -5,17 +5,6 @@ require 'nokogiri'
 require 'net/http'
 require 'pp'
 
-module Net
-  class HTTPGenericRequest
-    alias old_exec exec
-
-    def exec sock, ver, path
-      old_exec sock, ver, path
-      sock.io.flush
-    end
-  end
-end
-
 class RbVmomi::TrivialSoap
   attr_accessor :debug, :cookie
   attr_reader :http
@@ -48,6 +37,9 @@ class RbVmomi::TrivialSoap
     @http.set_debug_output(STDERR) if $DEBUG
     @http.read_timeout = 1000000000
     @http.open_timeout = 5
+    def @http.on_connect
+      @socket.io.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
+    end
     @http.start
   end
 
