@@ -22,7 +22,7 @@ class VIM < Connection
     fail "host option required" unless opts[:host]
     opts[:user] ||= 'root'
     opts[:password] ||= ''
-    opts[:ssl] = true unless opts.member? :ssl
+    opts[:ssl] = true unless opts.member? :ssl or opts[:"no-ssl"]
     opts[:insecure] ||= false
     opts[:port] ||= (opts[:ssl] ? 443 : 80)
     opts[:path] ||= '/sdk'
