@@ -60,7 +60,7 @@ class RbVmomi::TrivialSoap
     headers = { 'content-type' => 'text/xml; charset=utf-8', 'SOAPAction' => action }
     headers['cookie'] = @cookie if @cookie
     body = soap_envelope(&b).target!
-    
+
     if @debug
       $stderr.puts "Request:"
       $stderr.puts body

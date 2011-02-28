@@ -36,7 +36,7 @@ def print_tree tree, indent=0
     puts "#{'  '*indent}#{k}#{numsym}: #{attrs.sort.map { |a| "[#{a * ' '}]"} * ', '} {#{min},#{max}}"
     print_tree v, (indent+1)
   end
-end  
+end
 
 tree = {}
 ARGV.each do |fn|
