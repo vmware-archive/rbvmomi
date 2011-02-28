@@ -41,8 +41,10 @@ class TypeLoader
   private
 
   def load_extension name
-    path = @target.extension_path name
-    load path if File.exists? path
+    dirs = @target.extension_dirs
+    dirs.map { |x| File.join(x, "#{name}.rb") }.
+         select { |x| File.exists? x }.
+         each { |x| load x }
   end
 
   def make_type name

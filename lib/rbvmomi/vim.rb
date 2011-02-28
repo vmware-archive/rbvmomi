@@ -67,9 +67,11 @@ class VIM < Connection
     serviceContent.searchIndex
   end
 
-  # @private
-  def self.extension_path name
-    File.join(File.dirname(__FILE__), "vim", "#{name}.rb")
+  @extension_dirs = [File.join(File.dirname(__FILE__), "vim")]
+
+  # Directories to search for extensions
+  def self.extension_dirs
+    @extension_dirs
   end
 
   load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.cdb"))
