@@ -8,6 +8,51 @@ class RbVmomi::VIM::Folder
     x if x.is_a? type
   end
 
+  # Retrieve a virtual machine or host by DNS name
+  # @param name [String] The fully qualified domain name to find.
+  # @param type [Class] Return nil unless the found entity <tt>is_a? type</tt>.
+  # @param dc [RbVmomi::VIM::Datacenter] Restricts the query to entities in the given Datacenter.
+  # @return [VIM::ManagedEntity]
+  def findByDnsName name, type=RbVmomi::VIM::VirtualMachine, dc=nil
+    propSpecs = {
+      :entity => self, :dnsName => name,
+      :vmSearch => type == RbVmomi::VIM::VirtualMachine
+    }
+    propSpecs[:datacenter] = dc if dc
+    x = @soap.searchIndex.FindByDnsName(propSpecs)
+    x if x.is_a? type
+  end
+
+  # Retrieve a virtual machine or host by IP address
+  # @param ip [String] The IP address is in dot-decimal notation.
+  # @param type [Class] Return nil unless the found entity <tt>is_a? type</tt>.
+  # @param dc [RbVmomi::VIM::Datacenter] Restricts the query to entities in the given Datacenter.
+  # @return [VIM::ManagedEntity]
+  def findByIp ip, type=RbVmomi::VIM::VirtualMachine, dc=nil
+    propSpecs = {
+      :entity => self, :ip => ip,
+      :vmSearch => type == RbVmomi::VIM::VirtualMachine
+    }
+    propSpecs[:datacenter] = dc if dc
+    x = @soap.searchIndex.FindByIp(propSpecs)
+    x if x.is_a? type
+  end
+
+  # Retrieve a virtual machine or host by BIOS UUID.
+  # @param uuid [String] The UUID to find.
+  # @param type [Class] Return nil unless the found entity <tt>is_a? type</tt>.
+  # @param dc [RbVmomi::VIM::Datacenter] Restricts the query to entities in the given Datacenter.
+  # @return [VIM::ManagedEntity]
+  def findByUuid uuid, type=RbVmomi::VIM::VirtualMachine, dc=nil
+    propSpecs = {
+      :entity => self, :uuid => uuid, :instanceUuid => false,
+      :vmSearch => type == RbVmomi::VIM::VirtualMachine
+    }
+    propSpecs[:datacenter] = dc if dc
+    x = @soap.searchIndex.FindByUuid(propSpecs)
+    x if x.is_a? type
+  end
+
   # Alias to <tt>traverse path, type, true</tt>
   # @see #traverse
   def traverse! path, type=Object
