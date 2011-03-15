@@ -56,7 +56,7 @@ class Parser
   #  !!!plain
   #  computer: -R --computer RBVMOMI_COMPUTER
   def rbvmomi_computer_opt
-    opt :computer, "Compute resource", :type => :string, :short => "R", :default => ENV['RBVMOMI_COMPUTER']
+    opt :computer, "Compute resource", :type => :string, :short => "R", :default => (ENV['RBVMOMI_COMPUTER']||'ha-compute-res')
   end
 
   # Select a datastore
