@@ -4,7 +4,6 @@ require 'rbvmomi'
 require 'rbvmomi/trollop'
 
 VIM = RbVmomi::VIM
-N = 2
 
 opts = Trollop.options do
   banner <<-EOS
