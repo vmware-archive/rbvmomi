@@ -7,10 +7,10 @@ VIM = RbVmomi::VIM
 
 opts = Trollop.options do
   banner <<-EOS
-Create and destroy a couple of VMs.
+Create a VM.
 
 Usage:
-    create_vm.rb [options]
+    create_vm-1.9.rb [options]
 
 VIM connection options:
     EOS
