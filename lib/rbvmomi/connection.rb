@@ -78,7 +78,14 @@ class Connection < TrivialSoap
   end
 
   def xml2obj xml, typename
-    typename = (xml.attribute_with_ns('type', NS_XSI) || typename).to_s
+    if false # broken on jruby
+      type_attr = xml.attribute_with_ns('type', NS_XSI)
+    else
+      type_attr = xml.attribute_nodes.find { |a| a.name == 'type' &&
+                                                 a.namespace &&
+                                                 a.namespace.prefix == 'xsi' }
+    end
+    typename = (type_attr || typename).to_s
 
     if typename =~ /^ArrayOf/
       typename = demangle_array_type $'
