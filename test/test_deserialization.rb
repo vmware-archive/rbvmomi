@@ -118,8 +118,8 @@ def test_empty_array
     :linkUp => true,
     :blocked => false,
     :vlanIds => [],
-    vmDirectPathGen2InactiveReasonNetwork: [],
-    vmDirectPathGen2InactiveReasonOther: []
+    :vmDirectPathGen2InactiveReasonNetwork => [],
+    :vmDirectPathGen2InactiveReasonOther => []
   )
 
   check <<-EOS, obj, 'DVPortStatus'
