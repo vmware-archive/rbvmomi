@@ -71,7 +71,7 @@ class RbVmomi::VIM::Folder
     elsif path.is_a? Enumerable
       es = path
     else
-      fail "unexpected path class"
+      fail "unexpected path class #{path.class}"
     end
     return self if es.empty?
     final = es.pop
