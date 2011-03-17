@@ -14,9 +14,8 @@ begin
     gem.add_dependency 'nokogiri', '>= 1.4.1'
     gem.add_dependency 'builder'
     gem.add_dependency 'trollop'
-    gem.add_dependency 'cdb-full'
     gem.required_ruby_version = '>= 1.8.7'
-    gem.files.include 'vmodl.cdb'
+    gem.files.include 'vmodl.db'
     gem.files.include '.yardopts'
   end
 rescue LoadError

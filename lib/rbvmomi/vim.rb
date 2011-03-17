@@ -74,7 +74,7 @@ class VIM < Connection
     @extension_dirs
   end
 
-  load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.cdb"))
+  load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.db"))
 end
 
 end

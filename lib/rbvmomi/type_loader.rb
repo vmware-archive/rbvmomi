@@ -1,21 +1,30 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
-require 'cdb'
 require 'set'
 
 module RbVmomi
+
+class TypeStore
+  def initialize fn
+    File.open(fn, 'r') do |io|
+      @db = Marshal.load io
+    end
+  end
+
+  def [](k)
+    @db[k]
+  end
+end
 
 class TypeLoader
   attr_reader :typenames
 
   def initialize target, fn
     @target = target
-    @fn = fn
+    @db = TypeStore.new fn
   end
 
   def init
-    @db = CDB.new @fn
-    @vmodl = Hash.new { |h,k| if e = @db[k] then h[k] = Marshal.load(e) end }
-    @typenames = Set.new(Marshal.load(@db['_typenames']) + BasicTypes::BUILTIN)
+    @typenames = Set.new(@db['_typenames'] + BasicTypes::BUILTIN)
     @target.constants.select { |x| has_type? x.to_s }.each { |x| load_type x.to_s }
     BasicTypes::BUILTIN.each do |x|
       @target.const_set x, BasicTypes.const_get(x)
@@ -50,7 +59,7 @@ class TypeLoader
   def make_type name
     name = name.to_s
     fail if BasicTypes::BUILTIN.member? name
-    desc = @vmodl[name] or fail "unknown VMODL type #{name}"
+    desc = @db[name] or fail "unknown VMODL type #{name}"
     case desc['kind']
     when 'data' then make_data_type name, desc
     when 'managed' then make_managed_type name, desc
