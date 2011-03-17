@@ -7,6 +7,8 @@ require 'rbvmomi/type_loader'
 
 module RbVmomi
 
+IS_JRUBY = RUBY_PLATFORM == 'java'
+
 class DeserializationFailed < Exception; end
 
 class Connection < TrivialSoap
@@ -78,12 +80,12 @@ class Connection < TrivialSoap
   end
 
   def xml2obj xml, typename
-    if false # broken on jruby
-      type_attr = xml.attribute_with_ns('type', NS_XSI)
-    else
+    if IS_JRUBY
       type_attr = xml.attribute_nodes.find { |a| a.name == 'type' &&
                                                  a.namespace &&
                                                  a.namespace.prefix == 'xsi' }
+    else
+      type_attr = xml.attribute_with_ns('type', NS_XSI)
     end
     typename = (type_attr || typename).to_s
 
