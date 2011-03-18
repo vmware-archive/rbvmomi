@@ -138,10 +138,15 @@ class DataObject < ObjectWithProperties
 end
 
 class ManagedObject < ObjectWithMethods
-  def initialize soap, ref
+  def initialize connection, ref
     super()
-    @soap = soap
+    @connection = connection
+    @soap = @connection # XXX deprecated
     @ref = ref
+  end
+
+  def _connection
+    @connection
   end
 
   def _ref
@@ -149,7 +154,7 @@ class ManagedObject < ObjectWithMethods
   end
 
   def _get_property sym
-    ret = @soap.propertyCollector.RetrieveProperties(:specSet => [{
+    ret = @connection.propertyCollector.RetrieveProperties(:specSet => [{
       :propSet => [{ :type => self.class.wsdl_name, :pathSet => [sym.to_s] }],
       :objectSet => [{ :obj => self }],
     }])[0]
@@ -169,7 +174,7 @@ class ManagedObject < ObjectWithMethods
   def _call method, o={}
     fail "parameters must be passed as a hash" unless o.is_a? Hash
     desc = self.class.full_methods_desc[method.to_s] or fail "unknown method"
-    @soap.call method, desc, self, o
+    @connection.call method, desc, self, o
   end
 
   def to_s
