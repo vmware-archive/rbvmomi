@@ -86,6 +86,23 @@ class EmitRequestTest < Test::Unit::TestCase
     EOS
   end
 
+  def test_nil_optional_param
+    desc = [
+      {
+        'name' => 'blah',
+        'is-array' => false,
+        'is-optional' => true,
+        'wsdl_type' => 'xsd:string',
+      }
+    ]
+
+    check desc, <<-EOS, MO, :blah => nil
+<root xmlns="urn:vim25">
+  <_this type="VirtualMachine">foo</_this>
+</root>
+    EOS
+  end
+
   def test_string_key
     desc = [
       {
