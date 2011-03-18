@@ -26,9 +26,10 @@ class Connection < TrivialSoap
     xml.tag! method, :xmlns => @ns do
       obj2xml xml, '_this', 'ManagedObject', false, this
       descs.each do |d|
-        k = d['name'].to_sym
-        if params.member? k or params.member? k.to_s
-          v = params.member?(k) ? params[k] : params[k.to_s]
+        k = d['name']
+        k = k.to_sym if !params.member?(k) && params.member?(k.to_sym)
+        v = params[k]
+        if not v == nil
           obj2xml xml, d['name'], d['wsdl_type'], d['is-array'], v
         else
           fail "missing required parameter #{d['name']}" unless d['is-optional']
