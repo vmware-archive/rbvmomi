@@ -67,6 +67,11 @@ class VIM < Connection
     serviceContent.searchIndex
   end
 
+  # @private
+  def pretty_print pp
+    pp.text "VIM(#{@opts[:host]})"
+  end
+
   @extension_dirs = [File.join(File.dirname(__FILE__), "vim")]
 
   # Directories to search for extensions
