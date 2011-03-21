@@ -13,7 +13,7 @@ Configure VM DRS behavior.
 
 Usage:
     vm_drs_behavior.rb [options] VM get
-    vm_drs_behavior.rb [options] VM set [BEHAVIOR.join('|')]
+    vm_drs_behavior.rb [options] VM set #{BEHAVIOR.join('|')}
 
 Commands: #{CMDS * ' '}
 
