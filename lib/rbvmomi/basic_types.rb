@@ -94,6 +94,11 @@ class DataObject < ObjectWithProperties
     end
   end
 
+  def initialize_copy(source)  
+    super  
+    @props = @props.dup  
+  end 
+
   def _get_property sym
     @props[sym]
   end
