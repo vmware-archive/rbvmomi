@@ -1,6 +1,5 @@
 #!/usr/bin/env ruby
 require 'nokogiri'
-require 'cdb'
 
 # :usage => analyze-vim-declarations.rb vim-declarations.xml foo-declarations.xml vmodl.db
 
@@ -175,16 +174,16 @@ TYPES.each do |k,t|
   end
 end
 
-db = CDBMake.new(OUT_FN)
+db = {}
 
 TYPES.each do |k,t|
-  db[k] = Marshal.dump t
+  db[k] = t
 end
 
-db['_typenames'] = Marshal.dump TYPES.keys
-db['_versions'] = Marshal.dump VERSIONS
+db['_typenames'] = TYPES.keys
+db['_versions'] = VERSIONS
 
-db.finish
+File.open(OUT_FN, 'w') { |io| Marshal.dump db, io }
 
 if filename = ENV['VERSION_GRAPH']
   File.open(filename, 'w') do |io|
