@@ -49,6 +49,7 @@ case cmd
 when 'list'
   vm.config.extraConfig.each { |x| puts "#{x.key}: #{x.value}" }
 when 'set'
-  extraConfig = ARGV.map { |x| x.split("=", 2) }.map { |k,v| { :key => k, :value => v } }
+  extraConfig = ARGV[2..-1].map { |x| x.split("=", 2) }.map { |k,v| { :key => k, :value => v } }
+  puts extraConfig
   vm.ReconfigVM_Task(:spec => VIM.VirtualMachineConfigSpec(:extraConfig => extraConfig)).wait_for_completion
 end
