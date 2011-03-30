@@ -27,13 +27,16 @@ class VIM < Connection
     opts[:port] ||= (opts[:ssl] ? 443 : 80)
     opts[:path] ||= '/sdk'
     opts[:ns] ||= 'urn:vim25'
-    opts[:rev] = '4.0'
+    rev_given = opts[:rev] != nil
+    opts[:rev] = '4.0' unless rev_given
     opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
 
     new(opts).tap do |vim|
       vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
-      rev = vim.serviceContent.about.apiVersion
-      vim.rev = [rev, '4.1'].min
+      unless rev_given
+        rev = vim.serviceContent.about.apiVersion
+        vim.rev = [rev, '4.1'].min
+      end
     end
   end
 
