@@ -174,7 +174,7 @@ class Connection < TrivialSoap
     when Symbol, String
       if expected == BasicTypes::Binary
         attrs['xsi:type'] = 'xsd:base64Binary' if expected == BasicTypes::AnyType
-        xml.tag! name, [o].pack('m').chomp, attrs
+        xml.tag! name, [o].pack('m').chomp.gsub("\n", ""), attrs
       else
         attrs['xsi:type'] = 'xsd:string' if expected == BasicTypes::AnyType
         xml.tag! name, o.to_s, attrs
