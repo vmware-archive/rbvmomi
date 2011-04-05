@@ -10,7 +10,7 @@ opts = Trollop.options do
 Clone a VM.
 
 Usage:
-    clone_vm.rb [options]
+    clone_vm.rb [options] source_vm dest_vm
 
 VIM connection options:
     EOS
@@ -28,6 +28,8 @@ VM location options:
 
 Other options:
   EOS
+
+  opt :linkedClone, "Use a linked clone instead of a full clone"
 end
 
 Trollop.die("must specify host") unless opts[:host]
@@ -39,7 +41,42 @@ vim = VIM.connect opts
 dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
 vm = dc.find_vm(vm_source) or abort "VM not found"
 
-spec = VIM.VirtualMachineCloneSpec(:location => VIM.VirtualMachineRelocateSpec,
+if opts[:linkedClone]
+  # The API for linked clones is quite strange. We can't create a linked  
+  # straight from any VM. The disks of the VM for which we can create a
+  # linked clone need to be read-only and thus VC demands that the VM we 
+  # are cloning from uses delta-disks. Only then it will allow us to 
+  # share the base disk.
+  #
+  # Thus, this code first create a delta disk on top of the base disk for
+  # the to-be-cloned VM, if delta disks aren't used already.
+  disks = vm.config.hardware.device.select{|x| x.is_a? RbVmomi::VIM::VirtualDisk}
+  disks.select{|x| x.backing.parent == nil}.each do |disk|
+    spec = {
+      :deviceChange => [
+        {
+          :operation => :remove, 
+          :device => disk
+        }, 
+        {
+          :operation => :add, 
+          :fileOperation => :create, 
+          :device => disk.dup.tap{|x| 
+            x.backing = x.backing.dup; 
+            x.backing.fileName = "[#{disk.backing.datastore.name}]"; 
+            x.backing.parent = disk.backing
+          },
+        }
+      ]
+    }
+    vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+  end
+  
+  relocateSpec = VIM.VirtualMachineRelocateSpec(:diskMoveType => :moveChildMostDiskBacking)
+else
+  relocateSpec = VIM.VirtualMachineRelocateSpec
+end
+spec = VIM.VirtualMachineCloneSpec(:location => relocateSpec,
                                    :powerOn => false,
                                    :template => false)
 
