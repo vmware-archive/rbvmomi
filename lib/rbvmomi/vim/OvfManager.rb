@@ -73,10 +73,21 @@ class RbVmomi::VIM::OvfManager
 
         method = fileItem.create ? "PUT" : "POST"
 
+        keepAliveThread = Thread.new do
+          while true
+            sleep 2 * 60
+            nfcLease.HttpNfcLeaseProgress(:percent => progress.to_i)
+          end
+        end
+
         href = deviceUrl.url.gsub("*", opts[:host].config.network.vnic[0].spec.ip.ipAddress)
         downloadCmd = "#{CURLBIN} -L '#{URI::escape(filename)}'"
         uploadCmd = "#{CURLBIN} -X #{method} --insecure -T - -H 'Content-Type: application/x-vnd.vmware-streamVmdk' -H 'Content-Length: #{fileItem.size}' '#{URI::escape(href)}'"
-        system("#{downloadCmd} | #{uploadCmd}")
+        system("#{downloadCmd} | #{uploadCmd}", STDOUT => "/dev/null")
+        
+        keepAliveThread.kill
+        keepAliveThread.join
+        
         progress += (95.0 / result.fileItem.length)
         nfcLease.HttpNfcLeaseProgress(:percent => progress.to_i)
       end
