@@ -54,10 +54,9 @@ class RbVmomi::VIM::OvfManager
 
     nfcLease.wait_until(:state) { nfcLease.state != "initializing" }
     raise nfcLease.error if nfcLease.state == "error"
-
     begin
       nfcLease.HttpNfcLeaseProgress(:percent => 5)
-      progress = 0.0
+      progress = 5.0
       result.fileItem.each do |fileItem|
         deviceUrl = nfcLease.info.deviceUrl.find{|x| x.importKey == fileItem.deviceId}
         if !deviceUrl
@@ -88,7 +87,7 @@ class RbVmomi::VIM::OvfManager
         keepAliveThread.kill
         keepAliveThread.join
         
-        progress += (95.0 / result.fileItem.length)
+        progress += (90.0 / result.fileItem.length)
         nfcLease.HttpNfcLeaseProgress(:percent => progress.to_i)
       end
 
