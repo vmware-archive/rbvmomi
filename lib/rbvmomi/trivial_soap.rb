@@ -21,7 +21,12 @@ class RbVmomi::TrivialSoap
   end
 
   def restart_http
-    @http.finish if @http
+    begin 
+      @http.finish if @http
+    rescue Exception => ex
+      puts "WARNING: Ignoring exception: #{ex.message}"
+      puts ex.backtrace.join("\n")
+    end
     @http = Net::HTTP.new(@opts[:host], @opts[:port], @opts[:proxyHost], @opts[:proxyPort])
     if @opts[:ssl]
       require 'net/https'
