@@ -39,6 +39,11 @@ class VIM < Connection
       end
     end
   end
+  
+  def rev= x
+    @rev = x
+    @serviceContent = nil
+  end
 
   # Return the ServiceInstance
   #
