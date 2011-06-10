@@ -80,7 +80,7 @@ class VIM < Connection
     pp.text "VIM(#{@opts[:host]})"
   end
 
-  @extension_dirs = [File.join(File.dirname(__FILE__), "vim")]
+  @extension_dirs = [File.join(File.dirname(__FILE__), "vim")] + (ENV['RBVMOMI_VIM_EXTENSION_PATH']||'').split(':')
 
   # Directories to search for extensions
   def self.extension_dirs
