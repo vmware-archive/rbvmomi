@@ -45,6 +45,11 @@ class VIM < Connection
     @serviceContent = nil
   end
 
+  def rev= x
+    super
+    @serviceContent = nil
+  end
+
   # Return the ServiceInstance
   #
   # The ServiceInstance is the root of the vSphere inventory.
