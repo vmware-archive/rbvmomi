@@ -41,11 +41,6 @@ class VIM < Connection
   end
   
   def rev= x
-    @rev = x
-    @serviceContent = nil
-  end
-
-  def rev= x
     super
     @serviceContent = nil
   end
