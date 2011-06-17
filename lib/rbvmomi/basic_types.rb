@@ -165,7 +165,7 @@ class ManagedObject < ObjectWithMethods
     }])[0]
 
     if ret.propSet.empty?
-      fail if ret.missingSet.empty?
+      return nil if ret.missingSet.empty?
       raise ret.missingSet[0].fault
     else
       ret.propSet[0].val
