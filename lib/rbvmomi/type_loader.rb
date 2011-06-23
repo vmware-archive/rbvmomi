@@ -1,5 +1,6 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
 require 'set'
+require 'monitor'
 
 module RbVmomi
 
@@ -21,6 +22,7 @@ class TypeLoader
   def initialize target, fn
     @target = target
     @db = TypeStore.new fn
+    @lock = Monitor.new
   end
 
   def init
@@ -42,8 +44,11 @@ class TypeLoader
 
   def load_type name
     fail unless name.is_a? String
-    @target.const_set name, make_type(name)
-    load_extension name
+    @lock.synchronize do
+      return if @target.const_defined? name
+      @target.const_set name, make_type(name)
+      load_extension name
+    end
     nil
   end
 
