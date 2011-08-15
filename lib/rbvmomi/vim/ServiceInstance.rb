@@ -43,11 +43,13 @@ class RbVmomi::VIM::ServiceInstance
           end
         end
 
-        yield task_props
+        yield task_props if block_given?
       end
     ensure
       @soap.propertyCollector.CancelWaitForUpdates
       filter.DestroyPropertyFilter
     end
+
+    task_props
   end
 end
