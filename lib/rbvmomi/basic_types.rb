@@ -111,6 +111,10 @@ class DataObject < ObjectWithProperties
     @props[sym] = val
   end
 
+  def []= sym, val
+    _set_property sym, val
+  end
+
   def == o
     return false unless o.class == self.class
     keys = (props.keys + o.props.keys).uniq
