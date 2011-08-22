@@ -82,6 +82,10 @@ class RbVmomi::TrivialSoap
       end
     end
     end_time = Time.now
+    
+    if response.is_a? Net::HTTPServiceUnavailable
+      raise "Got HTTP 503: Service unavailable"
+    end
 
     @cookie = response['set-cookie'] if response.key? 'set-cookie'
 
