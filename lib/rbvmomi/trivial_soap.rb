@@ -20,6 +20,10 @@ class RbVmomi::TrivialSoap
     restart_http
   end
 
+  def close
+    @http.finish rescue IOError
+  end
+
   def restart_http
     begin 
       @http.finish if @http
@@ -83,7 +87,7 @@ class RbVmomi::TrivialSoap
     end
     end_time = Time.now
 
-    @cookie = response['set-cookie'] if response.key? 'set-cookie'
+    self.cookie = response['set-cookie'] if response.key? 'set-cookie'
 
     nk = Nokogiri(response.body)
 

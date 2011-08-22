@@ -39,6 +39,27 @@ class VIM < Connection
       end
     end
   end
+
+  def close
+    VIM::SessionManager(self, 'SessionManager').Logout
+    super
+  end
+
+  def cookie= cookie
+    super
+    ObjectSpace.undefine_finalizer self
+    ObjectSpace.define_finalizer(self, self.class.finalizer(cookie,@opts))
+  end
+
+  def self.finalizer cookie, opts
+    proc do |object_id|
+      new(opts).tap do |vim|
+        vim.instance_variable_set :@cookie, cookie
+        vim.close
+      end
+      nil
+    end
+  end
   
   def rev= x
     super
