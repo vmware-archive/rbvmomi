@@ -84,6 +84,8 @@ class RbVmomi::VIM::Folder
       x
     elsif create and type == RbVmomi::VIM::Folder
       p.CreateFolder(:name => final)
+    elsif create and type == RbVmomi::VIM::Datacenter
+      p.CreateDatacenter(:name => final)
     else
       nil
     end
