@@ -81,7 +81,7 @@ class RbVmomi::VIM::OvfManager
 
         href = deviceUrl.url.gsub("*", opts[:host].config.network.vnic[0].spec.ip.ipAddress)
         downloadCmd = "#{CURLBIN} -L '#{URI::escape(filename)}'"
-        uploadCmd = "#{CURLBIN} -X #{method} --insecure -T - -H 'Content-Type: application/x-vnd.vmware-streamVmdk' '#{URI::escape(href)}'"
+        uploadCmd = "#{CURLBIN} -Ss -X #{method} --insecure -T - -H 'Content-Type: application/x-vnd.vmware-streamVmdk' '#{URI::escape(href)}'"
         # Previously we used to append "-H 'Content-Length: #{fileItem.size}'"
         # to the uploadCmd. It is not clear to me why, but that leads to 
         # trucation of the uploaded disk. Without this option curl can't tell
