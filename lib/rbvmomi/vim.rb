@@ -35,7 +35,7 @@ class VIM < Connection
       vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
       unless rev_given
         rev = vim.serviceContent.about.apiVersion
-        vim.rev = [rev, '4.1'].min
+        vim.rev = [rev, '5.0'].min
       end
     end
   end
