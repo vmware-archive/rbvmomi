@@ -136,6 +136,10 @@ class Connection < TrivialSoap
       fail "attempted to deserialize an AnyType"
     else fail "unexpected type #{t.inspect}"
     end
+  rescue
+    $stderr.puts "#{$!.class} while deserializing #{xml.name} (#{typename}):"
+    $stderr.puts xml.to_s
+    raise
   end
 
   # hic sunt dracones
@@ -191,6 +195,10 @@ class Connection < TrivialSoap
     else fail "unexpected object class #{o.class}"
     end
     xml
+  rescue
+    $stderr.puts "#{$!.class} while serializing #{name} (#{type}):"
+    PP.pp o, $stderr
+    raise
   end
 
   def self.type name
