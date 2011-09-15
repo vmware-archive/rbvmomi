@@ -121,6 +121,8 @@ class DataObject < ObjectWithProperties
     keys.all? { |k| props[k] == o.props[k] }
   end
 
+  alias eql? ==
+
   def hash
     props.hash
   end
