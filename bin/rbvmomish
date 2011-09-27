@@ -17,6 +17,7 @@ Usage:
        rbvmomish [options]
 
 Predefined methods:
+conn: Returns the VIM connection
 si: Returns the ServiceInstance
 help: Displays this text.
 
@@ -90,6 +91,10 @@ end
 
 def cookie str
   $vim.cookie = str
+end
+
+def conn
+  $vim
 end
 
 def si
