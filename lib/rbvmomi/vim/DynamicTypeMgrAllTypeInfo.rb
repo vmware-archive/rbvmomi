@@ -23,20 +23,20 @@ class RbVmomi::VIM::DynamicTypeMgrAllTypeInfo
       'vmodl.Any' => 'xsd:anyType',
       'void' => nil,
     })
-    
+
     %w(DataObject ManagedObject MethodFault MethodName DynamicData
        PropertyPath RuntimeFault TypeName).each do |x|
       id2name['vmodl.' + x] = x
     end
-    
+
     types = {}
     self.managedTypeInfo.each{|x| types.merge!(x.toRbvmomiTypeHash) }
     self.dataTypeInfo.each{|x| types.merge!(x.toRbvmomiTypeHash) }
-    
+
     types.each do |k,t|
       id2name[t['type-id']] = k
     end
-    
+
     types = Hash[types.map do |k,t|
       case t['kind']
       when 'data'
@@ -68,7 +68,7 @@ class RbVmomi::VIM::DynamicTypeMgrAllTypeInfo
       end
       [k, t]
     end]
-    
+
     types
   end
 end

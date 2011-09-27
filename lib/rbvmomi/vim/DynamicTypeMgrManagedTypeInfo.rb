@@ -17,7 +17,7 @@ class RbVmomi::VIM::DynamicTypeMgrManagedTypeInfo
         'methods' => Hash[
           self.method.map do |method|
             result = method.returnTypeInfo
-            
+
             [method.wsdlName,
              {
                'params' => method.paramTypeInfo.map do |param|
