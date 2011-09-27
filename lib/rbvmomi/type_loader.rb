@@ -4,29 +4,19 @@ require 'monitor'
 
 module RbVmomi
 
-class TypeStore
-  def initialize fn
-    File.open(fn, 'r') do |io|
-      @db = Marshal.load io
-    end
-  end
-
-  def [](k)
-    @db[k]
-  end
-end
-
 class TypeLoader
-  attr_reader :typenames
-
   def initialize target, fn
     @target = target
-    @db = TypeStore.new fn
     @lock = Monitor.new
+    @db = {}
+    @id2wsdl = {}
+    add_types Hash[BasicTypes::BUILTIN.map { |k| [k,nil] }]
+    vmodl_database = File.open(fn, 'r') { |io| Marshal.load io }
+    vmodl_database.reject! { |k,v| k =~ /^_/ }
+    add_types vmodl_database
   end
 
   def init
-    @typenames = Set.new(@db['_typenames'] + BasicTypes::BUILTIN)
     @target.constants.select { |x| has_type? x.to_s }.each { |x| load_type x.to_s }
     BasicTypes::BUILTIN.each do |x|
       @target.const_set x, BasicTypes.const_get(x)
@@ -39,7 +29,7 @@ class TypeLoader
 
   def has_type? name
     fail unless name.is_a? String
-    @typenames.member? name
+    @db.member? name
   end
 
   def load_type name
@@ -49,6 +39,16 @@ class TypeLoader
       load_extension name
     end
     nil
+  end
+
+  def add_types types
+    @lock.synchronize do
+      @db.merge! types
+    end
+  end
+
+  def typenames
+    @db.keys
   end
 
   private
