@@ -208,4 +208,22 @@ class SerializationTest < Test::Unit::TestCase
     EOS
 
   end
+
+  def test_keyvalue
+    obj = RbVmomi::BasicTypes::KeyValue.new('a', 'b')
+    check <<-EOS, obj, 'KeyValue', false
+<root>
+  <key>a</key>
+  <value>b</value>
+</root>
+    EOS
+
+    obj = ['a', 'b']
+    check <<-EOS, obj, 'KeyValue', false
+<root>
+  <key>a</key>
+  <value>b</value>
+</root>
+    EOS
+  end
 end

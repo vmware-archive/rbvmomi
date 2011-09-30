@@ -282,4 +282,14 @@ end
 </val>
     EOS
   end
+
+  def test_keyvalue
+    obj = ['a', 'b']
+    check <<-EOS, obj, 'KeyValue'
+<root>
+  <key>a</key>
+  <value>b</value>
+</root>
+    EOS
+  end
 end

@@ -4,7 +4,7 @@ require 'pp'
 module RbVmomi
 module BasicTypes
 
-BUILTIN = %w(ManagedObject DataObject TypeName PropertyPath ManagedObjectReference MethodName MethodFault LocalizedMethodFault)
+BUILTIN = %w(ManagedObject DataObject TypeName PropertyPath ManagedObjectReference MethodName MethodFault LocalizedMethodFault KeyValue)
 
 class Base
   class << self
@@ -319,6 +319,24 @@ end
 class ::Float
   def self.wsdl_name; 'xsd:float' end
 end
+
+class KeyValue
+  def self.wsdl_name; 'xsd:float' end
+  attr_accessor :key, :value
+
+  def initialize k, v
+    @key = k
+    @value = v
+  end
+
+  def [] i
+    if i == 0 then @key
+    elsif i == 1 then @value
+    else fail "invalid index #{i.inspect}"
+    end
+  end
+end
+
 
 end
 end

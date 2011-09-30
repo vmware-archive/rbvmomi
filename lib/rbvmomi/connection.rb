@@ -118,6 +118,13 @@ class Connection < TrivialSoap
       type(xml['type'] || t.wsdl_name).new self, xml.text
     elsif t <= BasicTypes::Enum
       xml.text
+    elsif t <= BasicTypes::KeyValue
+      h = {}
+      xml.children.each do |c|
+        next unless c.element?
+        h[c.name] = c.text
+      end
+      [h['key'], h['value']]
     elsif t <= String
       xml.text
     elsif t <= Symbol
@@ -147,10 +154,19 @@ class Connection < TrivialSoap
     expected = type(type)
     fail "expected array, got #{o.class.wsdl_name}" if is_array and not o.is_a? Array
     case o
-    when Array
-      fail "expected #{expected.wsdl_name}, got array" unless is_array
-      o.each do |e|
-        obj2xml xml, name, expected.wsdl_name, false, e, attrs
+    when Array, BasicTypes::KeyValue
+      if o.is_a? BasicTypes::KeyValue and expected != BasicTypes::KeyValue
+        fail "expected #{expected.wsdl_name}, got KeyValue"
+      elsif expected == BasicTypes::KeyValue
+        xml.tag! name, attrs do
+          xml.tag! 'key', o[0]
+          xml.tag! 'value', o[1]
+        end
+      else
+        fail "expected #{expected.wsdl_name}, got array" unless is_array
+        o.each do |e|
+          obj2xml xml, name, expected.wsdl_name, false, e, attrs
+        end
       end
     when BasicTypes::ManagedObject
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class
@@ -212,6 +228,7 @@ class Connection < TrivialSoap
     when :float, :double then Float
     when :dateTime then Time
     when :base64Binary then BasicTypes::Binary
+    when :KeyValue then BasicTypes::KeyValue
     else
       if @loader.has_type? name
         const_get(name)

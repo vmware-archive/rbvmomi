@@ -21,6 +21,7 @@ class RbVmomi::VIM::DynamicTypeMgrAllTypeInfo
       'vmodl.DateTime' => 'xsd:dateTime',
       'vmodl.Binary' => 'xsd:base64Binary',
       'vmodl.Any' => 'xsd:anyType',
+      'vim.KeyValue' => 'KeyValue',
       'void' => nil,
     })
 
