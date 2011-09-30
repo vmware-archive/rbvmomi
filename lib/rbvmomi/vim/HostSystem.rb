@@ -10,7 +10,7 @@ class VIM::HostSystem
 end
 
 class VIM::EsxcliNamespace
-  attr_reader :children, :methods
+  attr_reader :namespaces, :commands
 
   def self.root conn
     conn = conn
@@ -30,13 +30,13 @@ class VIM::EsxcliNamespace
   end
 
   def initialize conn, inst, type
-    @children = {}
-    @methods = {}
+    @namespaces = {}
+    @commands = {}
     @type = type
     if inst
       @obj = conn.type(type.wsdlName).new(conn, inst.id)
       type.method.each do |m|
-        methods[m.name] = m
+        @commands[m.name] = m
       end
     else
       @obj = nil
@@ -46,29 +46,25 @@ class VIM::EsxcliNamespace
   def add path, conn, inst, type
     child = path.shift
     if path.empty?
-      fail if @children.member? child
-      @children[child] = VIM::EsxcliNamespace.new conn, inst, type
+      fail if @namespaces.member? child
+      @namespaces[child] = VIM::EsxcliNamespace.new conn, inst, type
     else
-      @children[child] ||= VIM::EsxcliNamespace.new nil, nil, nil
-      @children[child].add path, conn, inst, type
+      @namespaces[child] ||= VIM::EsxcliNamespace.new nil, nil, nil
+      @namespaces[child].add path, conn, inst, type
     end
   end
 
   def call name, args={}
-    m = @methods[name]
+    m = @commands[name]
     raise NoMethodError.new(name) unless m
-    @obj.send m.wsdlName, args
-  end
-
-  def child name
-    @children[name]
+    @obj._call m.wsdlName, args
   end
 
   def method_missing name, *args
     name = name.to_s
-    if @children.member? name and args.empty?
-      child name
-    elsif @methods.member? name
+    if @namespaces.member? name and args.empty?
+      @namespaces[name]
+    elsif @commands.member? name
       call name, *args
     else
       raise NoMethodError
@@ -76,11 +72,11 @@ class VIM::EsxcliNamespace
   end
 
   def pretty_print q
-    q.text "Children: "
-    @children.keys.pretty_print q
+    q.text "Namespaces: "
+    @namespaces.keys.pretty_print q
     q.breakable
-    q.text "Methods: "
-    @methods.keys.pretty_print q
+    q.text "Commands: "
+    @commands.keys.pretty_print q
   end
 end
 
