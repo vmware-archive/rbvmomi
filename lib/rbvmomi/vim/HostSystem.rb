@@ -14,7 +14,7 @@ class VIM::EsxcliNamespace
 
   def self.root conn
     conn = conn
-    root = VIM::EsxcliNamespace.new nil, nil, nil
+    ns = VIM::EsxcliNamespace.new nil, nil, nil
     dtm = VIM::InternalDynamicTypeManager(conn, 'ha-dynamic-type-manager')
     dti = dtm.DynamicTypeMgrQueryTypeInfo
     instances = dtm.DynamicTypeMgrQueryMoInstances
@@ -24,9 +24,9 @@ class VIM::EsxcliNamespace
     instances.sort_by(&:moType).each do |inst|
       path = inst.moType.split('.')
       next unless path[0..1] == ['vim', 'EsxCLI']
-      root.add path[2..-1], conn, inst, vmodl2info[inst.moType]
+      ns.add path[2..-1], conn, inst, vmodl2info[inst.moType]
     end
-    root
+    ns
   end
 
   def initialize conn, inst, type
@@ -46,11 +46,11 @@ class VIM::EsxcliNamespace
   def add path, conn, inst, type
     child = path.shift
     if path.empty?
-      fail if children.member? child
-      children[child] = VIM::EsxcliNamespace.new conn, inst, type
+      fail if @children.member? child
+      @children[child] = VIM::EsxcliNamespace.new conn, inst, type
     else
-      children[child] ||= VIM::EsxcliNamespace.new nil, nil, nil
-      children[child].add path, conn, inst, type
+      @children[child] ||= VIM::EsxcliNamespace.new nil, nil, nil
+      @children[child].add path, conn, inst, type
     end
   end
 
