@@ -10,10 +10,9 @@ class VIM::HostSystem
 end
 
 class VIM::EsxcliNamespace
-  attr_reader :namespaces, :commands
+  attr_reader :conn, :namespaces, :commands
 
   def self.root conn
-    conn = conn
     ns = VIM::EsxcliNamespace.new nil, nil, nil
     dtm = VIM::InternalDynamicTypeManager(conn, 'ha-dynamic-type-manager')
     dti = dtm.DynamicTypeMgrQueryTypeInfo
@@ -30,6 +29,7 @@ class VIM::EsxcliNamespace
   end
 
   def initialize conn, inst, type
+    @conn = conn
     @namespaces = {}
     @commands = {}
     @type = type
