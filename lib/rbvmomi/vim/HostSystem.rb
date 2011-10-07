@@ -5,21 +5,29 @@ class VIM::HostSystem
     if _connection.serviceContent.about.apiType != 'HostAgent'
       fail "esxcli is only supported when connecting directly to a host"
     end
-    @esxcli ||= VIM::EsxcliNamespace.root(_connection)
+    @esxcli ||= VIM::EsxcliNamespace.root(self)
+  end
+
+  def dtm
+    @dtm ||= VIM::InternalDynamicTypeManager(_connection, 'ha-dynamic-type-manager')
+  end
+
+  def dti
+    @dti ||= dtm.DynamicTypeMgrQueryTypeInfo
   end
 end
 
 class VIM::EsxcliNamespace
-  attr_reader :conn, :namespaces, :commands
+  attr_reader :conn, :namespaces, :commands, :inst
 
-  def self.root conn
+  def self.root host
+    conn = host._connection
     ns = VIM::EsxcliNamespace.new nil, nil, nil
-    dtm = VIM::InternalDynamicTypeManager(conn, 'ha-dynamic-type-manager')
-    dti = dtm.DynamicTypeMgrQueryTypeInfo
-    instances = dtm.DynamicTypeMgrQueryMoInstances
+    instances = host.dtm.DynamicTypeMgrQueryMoInstances
     path2obj = {}
-    conn.class.loader.add_types dti.toRbvmomiTypeHash
-    vmodl2info = Hash[dti.managedTypeInfo.map { |x| [x.name,x] }]
+    type_hash = host.dti.toRbvmomiTypeHash
+    conn.class.loader.add_types type_hash
+    vmodl2info = Hash[host.dti.managedTypeInfo.map { |x| [x.name,x] }]
     instances.sort_by(&:moType).each do |inst|
       path = inst.moType.split('.')
       next unless path[0..1] == ['vim', 'EsxCLI']
@@ -33,7 +41,10 @@ class VIM::EsxcliNamespace
     @namespaces = {}
     @commands = {}
     @type = type
+    @inst = inst
     if inst
+      @cli_info_fetcher = VIM::VimCLIInfo.new(conn, 'ha-dynamic-type-manager-local-cli-cliinfo')
+      @cli_info = nil
       @obj = conn.type(type.wsdlName).new(conn, inst.id)
       type.method.each do |m|
         @commands[m.name] = m
@@ -41,6 +52,11 @@ class VIM::EsxcliNamespace
     else
       @obj = nil
     end
+  end
+
+  def cli_info
+    return nil unless @inst
+    @cli_info ||= @cli_info_fetcher.VimCLIInfoFetchCLIInfo(:typeName => @inst.moType)
   end
 
   def add path, conn, inst, type
