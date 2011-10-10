@@ -36,9 +36,8 @@ class ObjectWithProperties < Base
       end
     end
 
-    # XXX cache
     def full_props_desc
-      (self == ObjectWithProperties ? [] : superclass.full_props_desc) + props_desc
+      @full_props_desc ||= (self == ObjectWithProperties ? [] : superclass.full_props_desc) + props_desc
     end
 
     def find_prop_desc name
