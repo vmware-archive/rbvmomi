@@ -188,7 +188,7 @@ class Connection < TrivialSoap
       fail "expected #{expected.wsdl_name}, got a hash" unless expected <= BasicTypes::DataObject
       obj2xml xml, name, type, false, expected.new(o), attrs
     when true, false
-      fail "expected #{expected.wsdl_name}, got a boolean" unless expected == BasicTypes::Boolean
+      fail "expected #{expected.wsdl_name}, got a boolean" unless [BasicTypes::Boolean, BasicTypes::AnyType].member? expected
       attrs['xsi:type'] = 'xsd:boolean' if expected == BasicTypes::AnyType
       xml.tag! name, (o ? '1' : '0'), attrs
     when Symbol, String
