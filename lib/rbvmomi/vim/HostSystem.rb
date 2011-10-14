@@ -5,75 +5,80 @@ class VIM::HostSystem
     if _connection.serviceContent.about.apiType != 'HostAgent'
       fail "esxcli is only supported when connecting directly to a host"
     end
-    @esxcli ||= VIM::EsxcliNamespace.root(self)
+    @cached_esxcli ||= VIM::EsxcliNamespace.root(self)
   end
 
   def dtm
-    @dtm ||= VIM::InternalDynamicTypeManager(_connection, 'ha-dynamic-type-manager')
+    @cached_dtm ||= VIM::InternalDynamicTypeManager(_connection, 'ha-dynamic-type-manager')
   end
 
   def dti
-    @dti ||= dtm.DynamicTypeMgrQueryTypeInfo
+    @cached_dti ||= dtm.DynamicTypeMgrQueryTypeInfo
+  end
+
+  def cli_info_fetcher
+    @cached_cli_info_fetcher ||= VIM::VimCLIInfo.new(_connection, 'ha-dynamic-type-manager-local-cli-cliinfo')
   end
 end
 
 class VIM::EsxcliNamespace
-  attr_reader :conn, :namespaces, :commands, :inst
+  ESXCLI_PREFIX = 'vim.EsxCLI.'
+
+  attr_reader :name, :parent, :host, :type, :instance, :type_info, :namespaces, :commands
 
   def self.root host
-    conn = host._connection
-    ns = VIM::EsxcliNamespace.new nil, nil, nil
-    instances = host.dtm.DynamicTypeMgrQueryMoInstances
-    path2obj = {}
     type_hash = host.dti.toRbvmomiTypeHash
-    conn.class.loader.add_types type_hash
-    vmodl2info = Hash[host.dti.managedTypeInfo.map { |x| [x.name,x] }]
-    instances.sort_by(&:moType).each do |inst|
-      path = inst.moType.split('.')
-      next unless path[0..1] == ['vim', 'EsxCLI']
-      ns.add path[2..-1], conn, inst, vmodl2info[inst.moType]
+    VIM.loader.add_types type_hash
+    all_instances = host.dtm.DynamicTypeMgrQueryMoInstances
+    instances = Hash[all_instances.select { |x| x.moType.start_with? ESXCLI_PREFIX }.
+                                   map { |x| [x.moType,x.id] }]
+    type_infos = Hash[host.dti.managedTypeInfo.map { |x| [x.name,x] }]
+    new('root', nil, host).tap do |root|
+      instances.each do |type,instance|
+        path = type.split('.')[2..-1]
+        ns = path.inject(root) { |b,v| b.namespaces[v] }
+        ns.realize type, instance, type_infos[type]
+      end
     end
-    ns
   end
 
-  def initialize conn, inst, type
-    @conn = conn
-    @namespaces = {}
+  def initialize name, parent, host
+    @name = name
+    @parent = parent
+    @host = host
+    @type = nil
+    @instance = nil
+    @type_info = nil
+    @namespaces = Hash.new { |h,k| h[k] = self.class.new k, self, host }
     @commands = {}
+    @cached_cli_info = nil
+  end
+
+  def realize type, instance, type_info
+    fail if @type or @instance
     @type = type
-    @inst = inst
-    if inst
-      @cli_info_fetcher = VIM::VimCLIInfo.new(conn, 'ha-dynamic-type-manager-local-cli-cliinfo')
-      @cli_info = nil
-      @obj = conn.type(type.wsdlName).new(conn, inst.id)
-      type.method.each do |m|
-        @commands[m.name] = m
-      end
-    else
-      @obj = nil
+    @instance = instance
+    @type_info = type_info
+    @type_info.method.each do |method_type_info|
+      name = method_type_info.name
+      @commands[name] = VIM::EsxcliCommand.new self, method_type_info
+    end
+  end
+
+  def type_name
+    if @type then @type
+    elsif @parent then "#{@parent.type_name}.#{@name}"
+    else 'vim.EsxCLI'
     end
   end
 
   def cli_info
-    return nil unless @inst
-    @cli_info ||= @cli_info_fetcher.VimCLIInfoFetchCLIInfo(:typeName => @inst.moType)
+    @cached_cli_info ||= @host.cli_info_fetcher.VimCLIInfoFetchCLIInfo(typeName: type_name)
   end
 
-  def add path, conn, inst, type
-    child = path.shift
-    if path.empty?
-      fail if @namespaces.member? child
-      @namespaces[child] = VIM::EsxcliNamespace.new conn, inst, type
-    else
-      @namespaces[child] ||= VIM::EsxcliNamespace.new nil, nil, nil
-      @namespaces[child].add path, conn, inst, type
-    end
-  end
-
-  def call name, args={}
-    m = @commands[name]
-    raise NoMethodError.new(name) unless m
-    @obj._call m.wsdlName, args
+  def obj
+    conn = @host._connection
+    conn.type(@type_info.wsdlName).new(conn, @instance)
   end
 
   def method_missing name, *args
@@ -88,11 +93,40 @@ class VIM::EsxcliNamespace
   end
 
   def pretty_print q
-    q.text "Namespaces: "
-    @namespaces.keys.pretty_print q
+    q.text @name
+    q.text ' '
+    q.group 2 do
+      q.text '{'
+      q.breakable
+      items = (@namespaces.values+@commands.values).sort_by(&:name)
+      q.seplist items, nil, :each do |v|
+        if v.is_a? VIM::EsxcliNamespace
+          q.pp v
+        else
+          q.text v.name
+        end
+      end
+    end
     q.breakable
-    q.text "Commands: "
-    @commands.keys.pretty_print q
+    q.text '}'
+  end
+end
+
+class VIM::EsxcliCommand
+  attr_reader :ns, :type_info, :cli_info
+
+  def initialize ns, type_info
+    @ns = ns
+    @type_info = type_info
+    @cached_cli_info = nil
+  end
+
+  def cli_info
+    @cached_cli_info ||= @ns.cli_info.method.find { |x| x.name == @type_info.name }
+  end
+
+  def call args={}
+    @ns.obj._call @type_info.wsdlName, args
   end
 end
 
