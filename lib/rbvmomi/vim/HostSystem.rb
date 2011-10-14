@@ -9,7 +9,7 @@ class VIM::HostSystem
   end
 
   def dtm
-    @cached_dtm ||= VIM::InternalDynamicTypeManager(_connection, 'ha-dynamic-type-manager')
+    @cached_dtm ||= RetrieveDynamicTypeManager()
   end
 
   def dti
@@ -17,7 +17,13 @@ class VIM::HostSystem
   end
 
   def cli_info_fetcher
-    @cached_cli_info_fetcher ||= VIM::VimCLIInfo.new(_connection, 'ha-dynamic-type-manager-local-cli-cliinfo')
+    # XXX there can be more than one
+    @cached_cli_info_fetcher ||=
+      dtm.DynamicTypeMgrQueryMoInstances.find { |x| x.moType == 'vim.CLIInfo' }
+  end
+
+  def mme
+    @cached_mme ||= RetrieveManagedMethodExecuter()
   end
 end
 
