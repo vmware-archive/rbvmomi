@@ -13,10 +13,7 @@ class VIM::ReflectManagedMethodExecuter
       VIM::ReflectManagedMethodExecuterSoapArgument.new.tap do |soap_arg|
         soap_arg.name = k
         xml = Builder::XmlMarkup.new :indent => 0
-        puts "before obj2xml"
         _connection.obj2xml xml, k, :anyType, false, v
-        puts "after obj2ml"
-        pp xml
         soap_arg.val = xml.target!
       end
     end
