@@ -2,9 +2,6 @@ module RbVmomi
 
 class VIM::HostSystem
   def esxcli
-    if _connection.serviceContent.about.apiType != 'HostAgent'
-      fail "esxcli is only supported when connecting directly to a host"
-    end
     @cached_esxcli ||= VIM::EsxcliNamespace.root(self)
   end
 
@@ -24,6 +21,10 @@ class VIM::HostSystem
 
   def mme
     @cached_mme ||= RetrieveManagedMethodExecuter()
+  end
+
+  def direct?
+    @ref == 'ha-host'
   end
 end
 
@@ -92,7 +93,7 @@ class VIM::EsxcliNamespace
     if @namespaces.member? name and args.empty?
       @namespaces[name]
     elsif @commands.member? name
-      call name, *args
+      @commands[name].call *args
     else
       raise NoMethodError
     end
@@ -132,7 +133,11 @@ class VIM::EsxcliCommand
   end
 
   def call args={}
-    @ns.obj._call @type_info.wsdlName, args
+    if @ns.host.direct?
+      @ns.obj._call @type_info.wsdlName, args
+    else
+      @ns.host.mme.execute(@ns.obj._ref, "#{@ns.type_name}.#{@type_info.name}", args)
+    end
   end
 end
 
