@@ -9,7 +9,6 @@ class VIM::ReflectManagedMethodExecuter
 
   def execute moid, method, args
     soap_args = args.map do |k,v|
-      puts "serializing #{k}"
       VIM::ReflectManagedMethodExecuterSoapArgument.new.tap do |soap_arg|
         soap_arg.name = k
         xml = Builder::XmlMarkup.new :indent => 0
