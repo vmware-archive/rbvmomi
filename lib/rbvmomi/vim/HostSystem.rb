@@ -13,10 +13,16 @@ class VIM::HostSystem
     @cached_dti ||= dtm.DynamicTypeMgrQueryTypeInfo
   end
 
+  def create_dynamic_managed_object inst
+    wsdlName = dti.managedTypeInfo.find { |x| x.name == inst.moType }.wsdlName
+    _connection.type(wsdlName).new(_connection, inst.id)
+  end
+
   def cli_info_fetcher
     # XXX there can be more than one
-    @cached_cli_info_fetcher ||=
-      dtm.DynamicTypeMgrQueryMoInstances.find { |x| x.moType == 'vim.CLIInfo' }
+    return @cached_cli_info_fetcher if @cached_cli_info_fetcher
+    inst = dtm.DynamicTypeMgrQueryMoInstances.find { |x| x.moType == 'vim.CLIInfo' }
+    @cached_cli_info_fetcher = create_dynamic_managed_object inst
   end
 
   def mme
@@ -80,7 +86,13 @@ class VIM::EsxcliNamespace
   end
 
   def cli_info
-    @cached_cli_info ||= @host.cli_info_fetcher.VimCLIInfoFetchCLIInfo(typeName: type_name)
+    @cached_cli_info ||=
+      if @host.direct?
+        @host.cli_info_fetcher.VimCLIInfoFetchCLIInfo(typeName: type_name)
+      else
+        @host.mme.execute(@host.cli_info_fetcher._ref,
+                          "vim.CLIInfo.FetchCLIInfo", typeName: type_name)
+      end
   end
 
   def obj
@@ -128,6 +140,10 @@ class VIM::EsxcliCommand
     @cached_cli_info = nil
   end
 
+  def name
+    @type_info.name
+  end
+
   def cli_info
     @cached_cli_info ||= @ns.cli_info.method.find { |x| x.name == @type_info.name }
   end
@@ -136,6 +152,8 @@ class VIM::EsxcliCommand
     if @ns.host.direct?
       @ns.obj._call @type_info.wsdlName, args
     else
+      real_args = Set.new(type_info.paramTypeInfo.map(&:name))
+      args = args.reject { |k,v| !real_args.member?(k.to_s) }
       @ns.host.mme.execute(@ns.obj._ref, "#{@ns.type_name}.#{@type_info.name}", args)
     end
   end

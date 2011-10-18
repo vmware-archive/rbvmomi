@@ -18,6 +18,7 @@ class VIM::ReflectManagedMethodExecuter
     end
     result = ExecuteSoap(:moid => moid, :version => 'urn:vim25/5.0',
                          :method => method, :argument => soap_args)
+    _connection.xml2obj Nokogiri(result.response).root, nil
   end
 end
 
