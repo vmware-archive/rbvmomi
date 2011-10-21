@@ -1,5 +1,7 @@
 class RbVmomi::VIM::PropertyCollector
   def collectMultiple objs, *pathSet
+    return {} if objs.empty?
+
     klasses = objs.map{|x| x.class}.uniq 
     klass = if klasses.length > 1
       # common superclass
@@ -7,7 +9,7 @@ class RbVmomi::VIM::PropertyCollector
     else
       klasses.first
     end
-    
+
     spec = {
       :objectSet => objs.map{|x| { :obj => x }},
       :propSet => [{
