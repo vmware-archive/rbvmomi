@@ -6,7 +6,19 @@ class VIM::HostSystem
   end
 
   def dtm
-    @cached_dtm ||= RetrieveDynamicTypeManager()
+    @cached_dtm ||= begin
+        RetrieveDynamicTypeManager()
+      rescue VIM::MethodNotFound
+        if summary.config.product.version >= '4.1.0'
+          if summary.config.product.version < '5.0.0' and direct?
+            VIM::InternalDynamicTypeManager(_connection, 'ha-dynamic-type-manager')
+          else
+            raise "esxcli not supported through VC before 5.0.0"
+          end
+        else
+          raise "esxcli not supported before 4.1.0"
+        end
+      end
   end
 
   def dti
