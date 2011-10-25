@@ -35,7 +35,7 @@ class TypeLoader
   def load_type name
     fail unless name.is_a? String
     @lock.synchronize do
-      return nil if @target.const_defined? name
+      return nil if @target.const_defined? name and not Object.const_defined? name
       @target.const_set name, make_type(name)
       load_extension name
     end
