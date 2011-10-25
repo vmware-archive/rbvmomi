@@ -20,6 +20,10 @@ class RbVmomi::TrivialSoap
     restart_http
   end
 
+  def host
+    @opts[:host]
+  end
+
   def close
     @http.finish rescue IOError
   end
