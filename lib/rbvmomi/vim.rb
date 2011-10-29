@@ -41,7 +41,7 @@ class VIM < Connection
   end
 
   def close
-    VIM::SessionManager(self, 'SessionManager').Logout
+    VIM::SessionManager(self, 'SessionManager').Logout rescue RbVmomi::Fault
     super
   end
 
