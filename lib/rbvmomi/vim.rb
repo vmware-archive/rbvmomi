@@ -41,9 +41,7 @@ class VIM < Connection
   end
 
   def close
-    if VIM::SessionManager(self, 'SessionManager').currentSession
-      VIM::SessionManager(self, 'SessionManager').Logout
-    end
+    VIM::SessionManager(self, 'SessionManager').Logout
     super
   end
 
