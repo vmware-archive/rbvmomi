@@ -266,7 +266,7 @@ Benchmark.bmbm do|b|
   GC.start
 
   b.report("new deserialization") do
-    deserializer = RbVmomi::Deserializer.new(VIM.loader)
+    deserializer = RbVmomi::Deserializer.new($conn)
     N.times do
       deserializer.deserialize Nokogiri::XML(serialized_dvport).root
     end

@@ -6,9 +6,9 @@ module RbVmomi
 class Deserializer
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
-  def initialize loader
-    @loader = loader
-    @property_cache = {}
+  def initialize conn
+    @conn = conn
+    @loader = conn.class.loader
   end
 
   def deserialize node, type=nil
@@ -32,6 +32,11 @@ class Deserializer
   def traverse_data node, klass
     obj = klass.new nil
     props = obj.props
+
+    # XXX cleanup
+    props_desc = klass.full_props_desc
+    props_desc.select { |d| d['is-array'] }.each { |d| props[d['name'].to_sym] = [] }
+
     node.children.each do |child|
       next unless child.element?
       child_name = child.name
@@ -44,7 +49,9 @@ class Deserializer
   end
 
   def traverse_managed node, klass
-    klass.new(nil, node.text)
+    type_attr = node.attribute 'type'
+    klass = @loader.get(type_attr.value) if type_attr
+    klass.new(@conn, node.text)
   end
 
   def leaf_string node
