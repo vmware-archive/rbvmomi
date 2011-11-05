@@ -85,10 +85,16 @@ class DataObject < ObjectWithProperties
   attr_reader :props
 
   def initialize props={}
-    @props = Hash[props.map { |k,v| [k.to_sym, v] }]
-    self.class.full_props_desc.each do |desc|
-      #fail "missing required property #{desc['name'].inspect} of #{self.class.wsdl_name}" if @props[desc['name'].to_sym].nil? and not desc['is-optional']
+    # Deserialization fast path
+    if props == nil
+      @props = {}
+      return
     end
+
+    @props = Hash[props.map { |k,v| [k.to_sym, v] }]
+    #self.class.full_props_desc.each do |desc|
+      #fail "missing required property #{desc['name'].inspect} of #{self.class.wsdl_name}" if @props[desc['name'].to_sym].nil? and not desc['is-optional']
+    #end
     @props.each do |k,v|
       fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
     end

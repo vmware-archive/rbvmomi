@@ -32,7 +32,9 @@ class Deserializer
   end
 
   def traverse_data node, type, desc
-    props = {}
+    klass = @loader.get(type)
+    obj = klass.new nil
+    props = obj.props
     node.children.each do |child|
       next unless child.element?
       child_name = child.name
@@ -41,8 +43,7 @@ class Deserializer
       child_type = child_desc['wsdl_type']
       props[child_name] = deserialize child, child_type
     end
-    klass = @loader.get(type)
-    klass.new(props) # TODO expensive
+    obj
   end
 
   def traverse_managed node, type
