@@ -12,9 +12,8 @@ class Deserializer
   end
 
   def deserialize node, type=nil
-    xsi_type_attr = node.attribute_with_ns('type', NS_XSI)
-    fail "no type given or in attribute" unless type or xsi_type_attr
-    type = xsi_type_attr.value if xsi_type_attr
+    type_attr = node['type']
+    type = type_attr if type_attr
     case type
     when 'xsd:string' then leaf_string node
     when 'xsd:boolean' then leaf_boolean node
@@ -49,21 +48,21 @@ class Deserializer
   end
 
   def traverse_managed node, klass
-    type_attr = node.attribute 'type'
-    klass = @loader.get(type_attr.value) if type_attr
-    klass.new(@conn, node.text)
+    type_attr = node['type']
+    klass = @loader.get(type_attr) if type_attr
+    klass.new(@conn, node.content)
   end
 
   def leaf_string node
-    node.text
+    node.content
   end
 
   def leaf_boolean node
-    node.text == '1'
+    node.content == '1'
   end
 
   def leaf_int node
-    node.text.to_i
+    node.content.to_i
   end
 
   def leaf_date node
