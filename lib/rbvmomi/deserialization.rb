@@ -42,7 +42,13 @@ class Deserializer
       child_desc = klass.find_prop_desc child_name
       fail "no such property #{child_name} in #{type}" unless child_desc
       child_type = child_desc['wsdl_type']
-      props[child_name] = deserialize child, child_type
+      o = deserialize child, child_type
+      k = child_name.to_sym
+      if props[k].is_a? Array
+        props[k] << o
+      else
+        props[k] = o
+      end
     end
     obj
   end
