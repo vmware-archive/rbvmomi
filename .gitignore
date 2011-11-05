@@ -1,6 +1,8 @@
 *.swp
+*.swo
 pkg/
 *.gemspec
 vmodl
 doc
 .yardoc
+*.rbc
