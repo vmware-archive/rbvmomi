@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'rbvmomi'
+require 'rbvmomi/deserialization'
 require 'benchmark'
 require 'libxml'
 
@@ -224,6 +225,7 @@ end
 N = 1000
 
 Benchmark.bmbm do|b|
+=begin
   b.report("serialization") do
     N.times { do_serialize[] }
   end
@@ -255,8 +257,18 @@ Benchmark.bmbm do|b|
   end
   
   GC.start
+=end
 
   b.report("deserialization") do
     N.times { do_deserialize[] }
+  end
+
+  GC.start
+
+  b.report("new deserialization") do
+    deserializer = RbVmomi::Deserializer.new(VIM.loader.instance_variable_get(:@db))
+    N.times do
+      deserializer.deserialize Nokogiri::XML(serialized_dvport).root
+    end
   end
 end
