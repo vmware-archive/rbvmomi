@@ -8,7 +8,6 @@ class Deserializer
 
   def initialize loader
     @loader = loader
-    @vmodl = loader.instance_variable_get :@db
     @property_cache = {}
   end
 
@@ -22,23 +21,21 @@ class Deserializer
     when 'xsd:int', 'xsd:long' then leaf_int node
     when 'xsd:dateTime' then leaf_date node
     else
-      desc = @vmodl[type] or fail "no such type #{type}"
-      case desc['kind']
-      when 'data' then traverse_data node, type, desc
-      when 'managed' then traverse_managed node, type
-      else fail "unexpected kind #{desc['kind']}"
+      klass = @loader.get(type) or fail "no such type #{type}"
+      if klass < VIM::DataObject then traverse_data node, klass
+      elsif klass < VIM::ManagedObject then traverse_managed node, klass
+      else fail "unexpected class #{klass}"
       end
     end
   end
 
-  def traverse_data node, type, desc
-    klass = @loader.get(type)
+  def traverse_data node, klass
     obj = klass.new nil
     props = obj.props
     node.children.each do |child|
       next unless child.element?
       child_name = child.name
-      child_desc = find_property(type, child_name)
+      child_desc = klass.find_prop_desc child_name
       fail "no such property #{child_name} in #{type}" unless child_desc
       child_type = child_desc['wsdl_type']
       props[child_name] = deserialize child, child_type
@@ -46,23 +43,8 @@ class Deserializer
     obj
   end
 
-  def traverse_managed node, type
-    klass = @loader.get(type)
+  def traverse_managed node, klass
     klass.new(nil, node.text)
-  end
-
-  def find_property type, name
-    @property_cache[[type, name]] ||= find_property_uncached(type, name)
-  end
-
-  def find_property_uncached type, name
-    while type != 'DataObject'
-      desc = @vmodl[type] or fail "no such type #{type}"
-      prop_desc = desc['props'].find { |x| x['name'] == name }
-      return prop_desc if prop_desc
-      type = desc['wsdl_base']
-    end
-    nil
   end
 
   def leaf_string node
