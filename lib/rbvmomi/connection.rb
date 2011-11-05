@@ -141,7 +141,7 @@ class Connection < TrivialSoap
       xml.text.unpack('m')[0]
     elsif t == BasicTypes::AnyType
       fail "attempted to deserialize an AnyType"
-    else fail "unexpected type #{t.inspect}"
+    else fail "unexpected type #{t.inspect} (#{t.ancestors * '/'})"
     end
   rescue
     $stderr.puts "#{$!.class} while deserializing #{xml.name} (#{typename}):"
@@ -230,7 +230,7 @@ class Connection < TrivialSoap
     when :base64Binary then BasicTypes::Binary
     when :KeyValue then BasicTypes::KeyValue
     else
-      if @loader.has_type? name
+      if @loader.has? name
         const_get(name)
       else
         fail "no such type #{name.inspect}"
@@ -252,25 +252,25 @@ protected
 
   def self.const_missing sym
     name = sym.to_s
-    if @loader and @loader.has_type? name
-      @loader.load_type name
-      const_get sym
+    if @loader and @loader.has? name
+      @loader.get(name)
     else
       super
     end
   end
 
   def self.method_missing sym, *a
-    if @loader and @loader.has_type? sym.to_s
-      const_get(sym).new(*a)
+    name = sym.to_s
+    if @loader and @loader.has? name
+      @loader.get(name).new(*a)
     else
       super
     end
   end
 
   def self.load_vmodl fn
-    @loader = RbVmomi::TypeLoader.new self, fn
-    @loader.init
+    @loader = RbVmomi::TypeLoader.new fn, extension_dirs, self
+    nil
   end
 end
 

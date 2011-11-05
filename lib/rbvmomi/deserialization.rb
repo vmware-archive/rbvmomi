@@ -6,8 +6,9 @@ module RbVmomi
 class Deserializer
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
-  def initialize vmodl
-    @vmodl = vmodl
+  def initialize loader
+    @loader = loader
+    @vmodl = loader.instance_variable_get :@db
     @property_cache = {}
   end
 
@@ -24,27 +25,29 @@ class Deserializer
       desc = @vmodl[type] or fail "no such type #{type}"
       case desc['kind']
       when 'data' then traverse_data node, type, desc
-      when 'managed' then traverse_managed node, type, desc
+      when 'managed' then traverse_managed node, type
       else fail "unexpected kind #{desc['kind']}"
       end
     end
   end
 
   def traverse_data node, type, desc
-    ret = {}
+    props = {}
     node.children.each do |child|
       next unless child.element?
       child_name = child.name
       child_desc = find_property(type, child_name)
       fail "no such property #{child_name} in #{type}" unless child_desc
       child_type = child_desc['wsdl_type']
-      ret[child_name] = deserialize child, child_type
+      props[child_name] = deserialize child, child_type
     end
-    ret
+    klass = @loader.get(type)
+    klass.new(props) # TODO expensive
   end
 
-  def traverse_managed node, type, desc
-    { :type => type, :moid => 'foo' }
+  def traverse_managed node, type
+    klass = @loader.get(type)
+    klass.new(nil, node.text)
   end
 
   def find_property type, name

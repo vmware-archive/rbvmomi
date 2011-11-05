@@ -5,41 +5,41 @@ require 'monitor'
 module RbVmomi
 
 class TypeLoader
-  def initialize target, fn
-    @target = target
+  def initialize fn, extension_dirs, namespace
+    @extension_dirs = extension_dirs
+    @namespace = namespace
     @lock = Monitor.new
     @db = {}
     @id2wsdl = {}
+    @loaded = {}
     add_types Hash[BasicTypes::BUILTIN.map { |k| [k,nil] }]
     vmodl_database = File.open(fn, 'r') { |io| Marshal.load io }
     vmodl_database.reject! { |k,v| k =~ /^_/ }
     add_types vmodl_database
+    preload
   end
 
-  def init
-    @target.constants.select { |x| has_type? x.to_s }.each { |x| load_type x.to_s }
-    BasicTypes::BUILTIN.each do |x|
-      @target.const_set x, BasicTypes.const_get(x)
-      load_extension x
-    end
-    Object.constants.map(&:to_s).select { |x| has_type? x }.each do |x|
-      load_type x
-    end
+  def preload
+    names = (@namespace.constants + Object.constants).map(&:to_s).uniq.
+                                                      select { |x| has? x }
+    names.each { |x| get(x) }
   end
 
-  def has_type? name
+  def has? name
     fail unless name.is_a? String
-    @db.member? name
+    @db.member?(name) or BasicTypes::BUILTIN.member?(name)
   end
 
-  def load_type name
+  def get name
     fail unless name.is_a? String
+    return @loaded[name] if @loaded.member? name
     @lock.synchronize do
-      return nil if @target.const_defined? name and not Object.const_defined? name
-      @target.const_set name, make_type(name)
+      return @loaded[name] if @loaded.member? name
+      klass = make_type(name)
+      @namespace.const_set name, klass
       load_extension name
+      @loaded[name] = klass
     end
-    nil
   end
 
   def add_types types
@@ -55,15 +55,14 @@ class TypeLoader
   private
 
   def load_extension name
-    dirs = @target.extension_dirs
-    dirs.map { |x| File.join(x, "#{name}.rb") }.
-         select { |x| File.exists? x }.
-         each { |x| load x }
+    @extension_dirs.map { |x| File.join(x, "#{name}.rb") }.
+                    select { |x| File.exists? x }.
+                    each { |x| load x }
   end
 
   def make_type name
     name = name.to_s
-    fail if BasicTypes::BUILTIN.member? name
+    return BasicTypes.const_get(name) if BasicTypes::BUILTIN.member? name
     desc = @db[name] or fail "unknown VMODL type #{name}"
     case desc['kind']
     when 'data' then make_data_type name, desc
@@ -74,14 +73,14 @@ class TypeLoader
   end
 
   def make_data_type name, desc
-    superclass = @target.const_get desc['wsdl_base']
+    superclass = get desc['wsdl_base']
     Class.new(superclass).tap do |klass|
       klass.init name, desc['props']
     end
   end
 
   def make_managed_type name, desc
-    superclass = @target.const_get desc['wsdl_base']
+    superclass = get desc['wsdl_base']
     Class.new(superclass).tap do |klass|
       klass.init name, desc['props'], desc['methods']
     end

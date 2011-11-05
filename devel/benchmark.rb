@@ -229,6 +229,7 @@ Benchmark.bmbm do|b|
   b.report("serialization") do
     N.times { do_serialize[] }
   end
+=end
 
   GC.start
   
@@ -257,7 +258,6 @@ Benchmark.bmbm do|b|
   end
   
   GC.start
-=end
 
   b.report("deserialization") do
     N.times { do_deserialize[] }
@@ -266,7 +266,7 @@ Benchmark.bmbm do|b|
   GC.start
 
   b.report("new deserialization") do
-    deserializer = RbVmomi::Deserializer.new(VIM.loader.instance_variable_get(:@db))
+    deserializer = RbVmomi::Deserializer.new(VIM.loader)
     N.times do
       deserializer.deserialize Nokogiri::XML(serialized_dvport).root
     end

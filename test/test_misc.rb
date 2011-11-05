@@ -16,5 +16,11 @@ class MiscTest < Test::Unit::TestCase
     assert(VIM::ClusterAttemptedVmInfo < RbVmomi::BasicTypes::Base)
     assert_equal 'ClusterAttemptedVmInfo', VIM::ClusterAttemptedVmInfo.wsdl_name
   end
+
+  def test_loader
+    klass = VIM.loader.get('HostSystem')
+    klass2 = VIM::HostSystem
+    assert_equal klass, klass2
+  end
 end
 

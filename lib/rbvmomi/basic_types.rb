@@ -1,10 +1,11 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
 require 'pp'
+require 'set'
 
 module RbVmomi
 module BasicTypes
 
-BUILTIN = %w(ManagedObject DataObject TypeName PropertyPath ManagedObjectReference MethodName MethodFault LocalizedMethodFault KeyValue)
+BUILTIN = Set.new %w(ManagedObject DataObject TypeName PropertyPath ManagedObjectReference MethodName MethodFault LocalizedMethodFault KeyValue)
 
 class Base
   class << self
