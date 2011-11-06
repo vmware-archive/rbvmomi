@@ -15,7 +15,7 @@ class NewDeserializer
     type_attr = node['type']
     type = type_attr if type_attr
     case type
-    when 'xsd:string' then leaf_string node
+    when 'xsd:string', 'PropertyPath' then leaf_string node
     when 'xsd:boolean' then leaf_boolean node
     when 'xsd:int', 'xsd:long' then leaf_int node
     when 'xsd:float' then leaf_float node
