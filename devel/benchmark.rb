@@ -15,16 +15,6 @@ def serialize obj, type, array=false
   $conn.obj2xml(xml, 'root', type, array, obj, attrs).target!
 end
 
-class OldDeserializer
-  def initialize conn
-    @conn = conn
-  end
-
-  def deserialize node
-    @conn.xml2obj node, nil
-  end
-end
-
 def diff a, b
   a_io = Tempfile.new 'rbvmomi-diff-a'
   b_io = Tempfile.new 'rbvmomi-diff-b'
@@ -237,7 +227,7 @@ if true
   nokogiri_xml = Nokogiri::XML(serialized_dvport).root
   libxml_xml = LibXML::XML::Parser.string(serialized_dvport).parse.root
 
-  old_nokogiri_result = OldDeserializer.new($conn).deserialize nokogiri_xml
+  old_nokogiri_result = RbVmomi::OldDeserializer.new($conn).deserialize nokogiri_xml
   new_nokogiri_result = RbVmomi::Deserializer.new($conn).deserialize nokogiri_xml
   new_libxml_result = RbVmomi::Deserializer.new($conn).deserialize libxml_xml
 
@@ -307,7 +297,7 @@ Benchmark.bmbm do|b|
   
   GC.start
   b.report("old deserialization (nokogiri)") do
-    deserializer = OldDeserializer.new($conn)
+    deserializer = RbVmomi::OldDeserializer.new($conn)
     N.times do
       deserializer.deserialize Nokogiri::XML(serialized_dvport).root
     end

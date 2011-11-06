@@ -4,6 +4,7 @@ require 'rbvmomi/trivial_soap'
 require 'rbvmomi/basic_types'
 require 'rbvmomi/fault'
 require 'rbvmomi/type_loader'
+require 'rbvmomi/deserialization'
 
 module RbVmomi
 
@@ -19,6 +20,7 @@ class Connection < TrivialSoap
   def initialize opts
     @ns = opts[:ns] or fail "no namespace specified"
     @rev = opts[:rev] or fail "no revision specified"
+    @deserializer = OldDeserializer.new self
     super opts
   end
 
@@ -41,7 +43,7 @@ class Connection < TrivialSoap
   def parse_response resp, desc
     if resp.at('faultcode')
       detail = resp.at('detail')
-      fault = detail && xml2obj(detail.children.first, 'MethodFault')
+      fault = detail && @deserializer.deserialize(detail.children.first, 'MethodFault')
       msg = resp.at('faultstring').text
       if fault
         raise RbVmomi::Fault.new(msg, fault)
@@ -51,7 +53,7 @@ class Connection < TrivialSoap
     else
       if desc
         type = desc['is-task'] ? 'Task' : desc['wsdl_type']
-        returnvals = resp.children.select(&:element?).map { |c| xml2obj c, type }
+        returnvals = resp.children.select(&:element?).map { |c| @deserializer.deserialize c, type }
         (desc['is-array'] && !desc['is-task']) ? returnvals : returnvals.first
       else
         nil
@@ -69,84 +71,6 @@ class Connection < TrivialSoap
     end
 
     parse_response resp, desc['result']
-  end
-
-  def demangle_array_type x
-    case x
-    when 'AnyType' then 'anyType'
-    when 'DateTime' then 'dateTime'
-    when 'Boolean', 'String', 'Byte', 'Short', 'Int', 'Long', 'Float', 'Double' then x.downcase
-    else x
-    end
-  end
-
-  def xml2obj xml, typename
-    if IS_JRUBY
-      type_attr = xml.attribute_nodes.find { |a| a.name == 'type' &&
-                                                 a.namespace &&
-                                                 a.namespace.prefix == 'xsi' }
-    else
-      type_attr = xml.attribute_with_ns('type', NS_XSI)
-    end
-    typename = (type_attr || typename).to_s
-
-    if typename =~ /^ArrayOf/
-      typename = demangle_array_type $'
-      return xml.children.select(&:element?).map { |c| xml2obj c, typename }
-    end
-
-    t = type typename
-    if t <= BasicTypes::DataObject
-      props_desc = t.full_props_desc
-      h = {}
-      props_desc.select { |d| d['is-array'] }.each { |d| h[d['name'].to_sym] = [] }
-      xml.children.each do |c|
-        next unless c.element?
-        field = c.name.to_sym
-        d = t.find_prop_desc(field.to_s) or next
-        o = xml2obj c, d['wsdl_type']
-        if h[field].is_a? Array
-          h[field] << o
-        else
-          h[field] = o
-        end
-      end
-      t.new h
-    elsif t == BasicTypes::ManagedObjectReference
-      type(xml['type']).new self, xml.text
-    elsif t <= BasicTypes::ManagedObject
-      type(xml['type'] || t.wsdl_name).new self, xml.text
-    elsif t <= BasicTypes::Enum
-      xml.text
-    elsif t <= BasicTypes::KeyValue
-      h = {}
-      xml.children.each do |c|
-        next unless c.element?
-        h[c.name] = c.text
-      end
-      [h['key'], h['value']]
-    elsif t <= String
-      xml.text
-    elsif t <= Symbol
-      xml.text.to_sym
-    elsif t <= Integer
-      xml.text.to_i
-    elsif t <= Float
-      xml.text.to_f
-    elsif t <= Time
-      Time.parse xml.text
-    elsif t == BasicTypes::Boolean
-      xml.text == 'true' || xml.text == '1'
-    elsif t == BasicTypes::Binary
-      xml.text.unpack('m')[0]
-    elsif t == BasicTypes::AnyType
-      fail "attempted to deserialize an AnyType"
-    else fail "unexpected type #{t.inspect} (#{t.ancestors * '/'})"
-    end
-  rescue
-    $stderr.puts "#{$!.class} while deserializing #{xml.name} (#{typename}):"
-    $stderr.puts xml.to_s
-    raise
   end
 
   # hic sunt dracones

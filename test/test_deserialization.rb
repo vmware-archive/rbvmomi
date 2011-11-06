@@ -5,10 +5,11 @@ VIM = RbVmomi::VIM unless Object.const_defined? :VIM
 class DeserializationTest < Test::Unit::TestCase
   def setup
     @soap = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
+    @deserializer = RbVmomi::OldDeserializer.new @soap
   end
 
   def check str, expected, type
-    got = @soap.xml2obj Nokogiri(str).root, type
+    got = @deserializer.deserialize Nokogiri(str).root, type
     assert_equal expected, got
   end
 
