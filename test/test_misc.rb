@@ -1,6 +1,4 @@
-require 'test/unit'
-require 'rbvmomi'
-VIM = RbVmomi::VIM unless Object.const_defined? :VIM
+require 'test_helper'
 
 class MiscTest < Test::Unit::TestCase
   def test_overridden_const

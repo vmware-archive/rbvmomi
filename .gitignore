@@ -6,3 +6,4 @@ vmodl
 doc
 .yardoc
 *.rbc
+coverage

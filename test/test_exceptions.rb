@@ -1,6 +1,4 @@
-require 'test/unit'
-require 'rbvmomi'
-VIM = RbVmomi::VIM unless Object.const_defined? :VIM
+require 'test_helper'
 
 class ExceptionTest < Test::Unit::TestCase
   def test_fault

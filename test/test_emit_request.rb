@@ -1,6 +1,4 @@
-require 'test/unit'
-require 'rbvmomi'
-VIM = RbVmomi::VIM unless Object.const_defined? :VIM
+require 'test_helper'
 
 class EmitRequestTest < Test::Unit::TestCase
   MO = VIM::VirtualMachine(nil, "foo")

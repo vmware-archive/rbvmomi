@@ -1,6 +1,4 @@
-require 'test/unit'
-require 'rbvmomi'
-VIM = RbVmomi::VIM unless Object.const_defined? :VIM
+require 'test_helper'
 
 class ParseResponseTest < Test::Unit::TestCase
   def check desc, str, expected

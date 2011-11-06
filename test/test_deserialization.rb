@@ -1,17 +1,9 @@
-begin
-  require 'cover_me'
-rescue LoadError
-  puts "Install the cover_me gem for code coverage"
-end
-
-require 'test/unit'
-require 'rbvmomi'
-VIM = RbVmomi::VIM unless Object.const_defined? :VIM
+require 'test_helper'
 
 class DeserializationTest < Test::Unit::TestCase
   def setup
     @soap = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
-    @deserializer = RbVmomi::OldDeserializer.new @soap
+    @deserializer = RbVmomi::Deserializer.new @soap
   end
 
   def check str, expected, type
