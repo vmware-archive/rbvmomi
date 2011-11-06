@@ -68,25 +68,27 @@ class NewDeserializer
   def traverse_data node, klass
     obj = klass.new nil
     props = obj.props
+    children = node.children.select(&:element?)
+    n = children.size
+    i = 0
 
-    # XXX cleanup
-    props_desc = klass.full_props_desc
-    props_desc.select { |d| d['is-array'] }.each { |d| props[d['name'].to_sym] = [] }
-
-    node.children.each do |child|
-      next unless child.element?
-      child_name = child.name
-      child_desc = klass.find_prop_desc child_name
-      fail "no such property #{child_name} in #{type}" unless child_desc
-      child_type = child_desc['wsdl_type']
-      o = deserialize child, child_type
-      k = child_name.to_sym
-      if props[k].is_a? Array
-        props[k] << o
-      else
-        props[k] = o
+    klass.full_props_desc.each do |desc|
+      name = desc['name']
+      child_type = desc['wsdl_type']
+      if desc['is-array']
+        a = []
+        while ((child = children[i]) && (child.name == name))
+          child = children[i]
+          a << deserialize(child, child_type)
+          i += 1
+        end
+        props[name.to_sym] = a
+      elsif ((child = children[i]) && (child.name == name))
+        props[name.to_sym] = deserialize(child, child_type)
+        i += 1
       end
     end
+
     obj
   end
 

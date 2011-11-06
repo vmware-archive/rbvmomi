@@ -36,14 +36,14 @@ class DeserializationTest < Test::Unit::TestCase
 
     check <<-EOS, obj, 'DatastoreSummary'
 <root>
-  <capacity>1000</capacity>
-  <accessible>1</accessible>
   <datastore type="Datastore">foo</datastore>
-  <freeSpace>31</freeSpace>
-  <multipleHostAccess>false</multipleHostAccess>
   <name>baz</name>
-  <type>VMFS</type>
   <url>http://foo/</url>
+  <capacity>1000</capacity>
+  <freeSpace>31</freeSpace>
+  <accessible>1</accessible>
+  <multipleHostAccess>false</multipleHostAccess>
+  <type>VMFS</type>
 </root>
     EOS
   end
