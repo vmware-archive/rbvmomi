@@ -21,6 +21,7 @@ class NewDeserializer
     when 'xsd:float' then leaf_float node
     when 'xsd:dateTime' then leaf_date node
     when 'xsd:base64Binary' then leaf_binary node
+    when 'KeyValue' then leaf_keyvalue node
     else
       klass = @loader.get(type) or fail "no such type #{type}"
       if klass < VIM::DataObject then traverse_data node, klass
@@ -89,6 +90,16 @@ class NewDeserializer
   def leaf_binary node
     node.content.unpack('m')[0]
   end
+
+  # XXX does the value need to be deserialized?
+  def leaf_keyvalue node
+    h = {}
+    node.children.each do |child|
+      next unless child.element?
+      h[child.name] = child.content
+    end
+    [h['key'], h['value']]
+  end 
 end
 
 class OldDeserializer
