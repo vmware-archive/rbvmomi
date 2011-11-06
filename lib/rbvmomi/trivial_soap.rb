@@ -69,10 +69,9 @@ class RbVmomi::TrivialSoap
     xml
   end
 
-  def request action, &b
+  def request action, body
     headers = { 'content-type' => 'text/xml; charset=utf-8', 'SOAPAction' => action }
     headers['cookie'] = @cookie if @cookie
-    body = soap_envelope(&b).target!
 
     if @debug
       $stderr.puts "Request:"
@@ -105,6 +104,6 @@ class RbVmomi::TrivialSoap
       $stderr.puts
     end
 
-    nk.xpath('//soapenv:Body/*').select(&:element?).first
+    [nk.xpath('//soapenv:Body/*').select(&:element?).first, response.body.size]
   end
 end
