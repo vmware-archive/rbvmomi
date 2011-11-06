@@ -228,8 +228,8 @@ if true
   libxml_xml = LibXML::XML::Parser.string(serialized_dvport).parse.root
 
   old_nokogiri_result = RbVmomi::OldDeserializer.new($conn).deserialize nokogiri_xml
-  new_nokogiri_result = RbVmomi::Deserializer.new($conn).deserialize nokogiri_xml
-  new_libxml_result = RbVmomi::Deserializer.new($conn).deserialize libxml_xml
+  new_nokogiri_result = RbVmomi::NewDeserializer.new($conn).deserialize nokogiri_xml
+  new_libxml_result = RbVmomi::NewDeserializer.new($conn).deserialize libxml_xml
 
   if new_nokogiri_result != old_nokogiri_result
     puts "new_nokogiri_result doesnt match old_nokogiri_result"
@@ -305,7 +305,7 @@ Benchmark.bmbm do|b|
 
   GC.start
   b.report("new deserialization (nokogiri)") do
-    deserializer = RbVmomi::Deserializer.new($conn)
+    deserializer = RbVmomi::NewDeserializer.new($conn)
     N.times do
       deserializer.deserialize Nokogiri::XML(serialized_dvport).root
     end
@@ -314,7 +314,7 @@ Benchmark.bmbm do|b|
   GC.start
 
   b.report("new deserialization (libxml)") do
-    deserializer = RbVmomi::Deserializer.new($conn)
+    deserializer = RbVmomi::NewDeserializer.new($conn)
     N.times do
       deserializer.deserialize LibXML::XML::Parser.string(serialized_dvport).parse.root
     end
