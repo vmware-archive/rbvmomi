@@ -24,6 +24,7 @@ class NewDeserializer
       klass = @loader.get(type) or fail "no such type #{type}"
       if klass < VIM::DataObject then traverse_data node, klass
       elsif klass < VIM::ManagedObject then traverse_managed node, klass
+      elsif klass < RbVmomi::BasicTypes::Enum then leaf_enum node
       else fail "unexpected class #{klass}"
       end
     end
@@ -78,6 +79,10 @@ class NewDeserializer
 
   def leaf_date node
     Time.parse node.content
+  end
+
+  def leaf_enum node
+    node.content
   end
 end
 
