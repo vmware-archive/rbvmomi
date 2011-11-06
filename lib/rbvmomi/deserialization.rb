@@ -30,13 +30,20 @@ class NewDeserializer
 
     if BUILTIN.member? type
       case type
-      when 'xsd:string', 'PropertyPath' then node.content
-      when 'xsd:boolean' then node.content == '1'
-      when 'xsd:int', 'xsd:long' then node.content.to_i
-      when 'xsd:float' then node.content.to_f
-      when 'xsd:dateTime' then leaf_date node
-      when 'xsd:base64Binary' then leaf_binary node
-      when 'KeyValue' then leaf_keyvalue node
+      when 'xsd:string', 'PropertyPath'
+        node.content
+      when 'xsd:boolean'
+        node.content == '1'
+      when 'xsd:int', 'xsd:long'
+        node.content.to_i
+      when 'xsd:float'
+        node.content.to_f
+      when 'xsd:dateTime'
+        leaf_date node
+      when 'xsd:base64Binary'
+        leaf_binary node
+      when 'KeyValue'
+        leaf_keyvalue node
       else fail
       end
     else
@@ -46,10 +53,13 @@ class NewDeserializer
       end
 
       klass = @loader.get(type) or fail "no such type #{type}"
-      if klass < VIM::DataObject then traverse_data node, klass
-      elsif klass < RbVmomi::BasicTypes::Enum then node.content
-      elsif klass < VIM::ManagedObject then traverse_managed node, klass
-      else fail "unexpected class #{klass}"
+      if klass < VIM::DataObject then
+        traverse_data node, klass
+      elsif klass < RbVmomi::BasicTypes::Enum
+        node.content
+      elsif klass < VIM::ManagedObject
+        traverse_managed node, klass
+      else fail
       end
     end
   end

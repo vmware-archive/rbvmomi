@@ -1,4 +1,10 @@
 #!/usr/bin/env ruby
+
+if ENV['RBVMOMI_COVERAGE'] == '1'
+  require 'simplecov'
+  SimpleCov.start
+end
+
 require 'rbvmomi'
 require 'rbvmomi/deserialization'
 require 'benchmark'
