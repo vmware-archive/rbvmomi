@@ -20,7 +20,11 @@ class Connection < TrivialSoap
   def initialize opts
     @ns = opts[:ns] or fail "no namespace specified"
     @rev = opts[:rev] or fail "no revision specified"
-    @deserializer = OldDeserializer.new self
+    if ENV['RBVMOMI_NEW_DESERIALIZER'] == '1'
+      @deserializer = Deserializer.new self
+    else
+      @deserializer = OldDeserializer.new self
+    end
     super opts
   end
 
