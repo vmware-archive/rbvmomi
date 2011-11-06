@@ -8,12 +8,7 @@ NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
 VIM = RbVmomi::VIM
 $conn = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
-
-def serialize obj, type, array=false
-  xml = Builder::XmlMarkup.new indent: 2
-  attrs = { 'xmlns:xsi' => NS_XSI }
-  $conn.obj2xml(xml, 'root', type, array, obj, attrs).target!
-end
+raw = File.read(ARGV[0])
 
 def diff a, b
   a_io = Tempfile.new 'rbvmomi-diff-a'
@@ -27,205 +22,25 @@ def diff a, b
   b_io.unlink
 end
 
-dvport = VIM::DistributedVirtualPort(
-  config: VIM::DVPortConfigInfo(
-    configVersion: "0",
-    dynamicProperty: [],
-    scope: [],
-    setting: VIM::VMwareDVSPortSetting(
-      blocked: VIM::BoolPolicy( dynamicProperty: [], inherited: false, value: false
-      ),
-      dynamicProperty: [],
-      inShapingPolicy: VIM::DVSTrafficShapingPolicy(
-        averageBandwidth: VIM::LongPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: 100000000
-        ),
-        burstSize: VIM::LongPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: 104857600
-        ),
-        dynamicProperty: [],
-        enabled: VIM::BoolPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: false
-        ),
-        inherited: false,
-        peakBandwidth: VIM::LongPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: 100000000
-        )
-      ),
-      ipfixEnabled: VIM::BoolPolicy(
-        dynamicProperty: [],
-        inherited: false,
-        value: false
-      ),
-      networkResourcePoolKey: VIM::StringPolicy(
-        dynamicProperty: [],
-        inherited: false,
-        value: "-1"
-      ),
-      outShapingPolicy: VIM::DVSTrafficShapingPolicy(
-        averageBandwidth: VIM::LongPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: 100000000
-        ),
-        burstSize: VIM::LongPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: 104857600
-        ),
-        dynamicProperty: [],
-        enabled: VIM::BoolPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: false
-        ),
-        inherited: false,
-        peakBandwidth: VIM::LongPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: 100000000
-        )
-      ),
-      qosTag: VIM::IntPolicy( dynamicProperty: [], inherited: false, value: -1 ),
-      securityPolicy: VIM::DVSSecurityPolicy(
-        allowPromiscuous: VIM::BoolPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: false
-        ),
-        dynamicProperty: [],
-        forgedTransmits: VIM::BoolPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: true
-        ),
-        inherited: false,
-        macChanges: VIM::BoolPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: true
-        )
-      ),
-      txUplink: VIM::BoolPolicy(
-        dynamicProperty: [],
-        inherited: false,
-        value: false
-      ),
-      uplinkTeamingPolicy: VIM::VmwareUplinkPortTeamingPolicy(
-        dynamicProperty: [],
-        failureCriteria: VIM::DVSFailureCriteria(
-          checkBeacon: VIM::BoolPolicy(
-            dynamicProperty: [],
-            inherited: false,
-            value: false
-          ),
-          checkDuplex: VIM::BoolPolicy(
-            dynamicProperty: [],
-            inherited: false,
-            value: false
-          ),
-          checkErrorPercent: VIM::BoolPolicy(
-            dynamicProperty: [],
-            inherited: false,
-            value: false
-          ),
-          checkSpeed: VIM::StringPolicy(
-            dynamicProperty: [],
-            inherited: false,
-            value: "minimum"
-          ),
-          dynamicProperty: [],
-          fullDuplex: VIM::BoolPolicy(
-            dynamicProperty: [],
-            inherited: false,
-            value: false
-          ),
-          inherited: false,
-          percentage: VIM::IntPolicy(
-            dynamicProperty: [],
-            inherited: false,
-            value: 0
-          ),
-          speed: VIM::IntPolicy( dynamicProperty: [], inherited: false, value: 10 )
-        ),
-        inherited: false,
-        notifySwitches: VIM::BoolPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: true
-        ),
-        policy: VIM::StringPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: "loadbalance_srcid"
-        ),
-        reversePolicy: VIM::BoolPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: true
-        ),
-        rollingOrder: VIM::BoolPolicy(
-          dynamicProperty: [],
-          inherited: false,
-          value: false
-        ),
-        uplinkPortOrder: VIM::VMwareUplinkPortOrderPolicy(
-          activeUplinkPort: ["dvUplink1", "dvUplink2"],
-          dynamicProperty: [],
-          inherited: false,
-          standbyUplinkPort: []
-        )
-      ),
-      vendorSpecificConfig: VIM::DVSVendorSpecificConfig(
-        dynamicProperty: [],
-        inherited: false,
-        keyValue: []
-      ),
-      vlan: VIM::VmwareDistributedVirtualSwitchVlanIdSpec(
-        dynamicProperty: [],
-        inherited: false,
-        vlanId: 962
-      ),
-      vmDirectPathGen2Allowed: VIM::BoolPolicy(
-        dynamicProperty: [],
-        inherited: false,
-        value: false
-      )
-    )
-  ),
-  conflict: true,
-  conflictPortKey: "5488",
-  connectee: VIM::DistributedVirtualSwitchPortConnectee(
-    connectedEntity: VIM::VirtualMachine($conn, "vm-75104"),
-    dynamicProperty: [],
-    nicKey: "4001",
-    type: "vmVnic"
-  ),
-  connectionCookie: 98679995,
-  dvsUuid: "00 f8 31 50 a0 c3 38 f5-57 0b 78 0b ff 0f 3f 25",
-  dynamicProperty: [],
-  key: "c-10437",
-  #lastStatusChange: DateTime.new,
-  proxyHost: VIM::HostSystem($conn, "host-77")
-)
+begin
+  deserializer = RbVmomi::OldDeserializer.new($conn)
+  end_time = Time.now + 1
+  n = 0
+  while n == 0 or end_time > Time.now
+    deserializer.deserialize Nokogiri::XML(raw).root
+    n += 1
+  end
+  N = n*10
+end
 
-do_serialize = lambda { serialize dvport, 'DistributedVirtualPort' }
-serialized_dvport = do_serialize[]
-parsed_dvport_nokogiri = Nokogiri(serialized_dvport)
-parsed_dvport_libxml = LibXML::XML::Parser.string(serialized_dvport).parse
+puts "iterations: #{N}"
 
+parsed_nokogiri = Nokogiri::XML(raw)
+parsed_libxml = LibXML::XML::Parser.string(raw).parse
 
 if true
-  nokogiri_xml = Nokogiri::XML(serialized_dvport).root
-  libxml_xml = LibXML::XML::Parser.string(serialized_dvport).parse.root
+  nokogiri_xml = parsed_nokogiri.root
+  libxml_xml = parsed_libxml.root
 
   old_nokogiri_result = RbVmomi::OldDeserializer.new($conn).deserialize nokogiri_xml
   new_nokogiri_result = RbVmomi::NewDeserializer.new($conn).deserialize nokogiri_xml
@@ -256,50 +71,24 @@ if true
   puts "all results match"
 end
 
-
-N = 1000
-
-def traverse node
-  node.children.each do |child|
-    traverse child
-  end
-end
-
 Benchmark.bmbm do|b|
-=begin
-  GC.start
-  b.report("serialization") do
-    N.times { do_serialize[] }
-  end
-
   GC.start
   b.report("nokogiri parsing") do
-    N.times { Nokogiri(serialized_dvport) }
-  end
-  
-  GC.start
-  b.report("recursive traversal of nokogiri") do
-    N.times { traverse parsed_dvport_nokogiri.root }
+    N.times { Nokogiri(raw) }
   end
   
   GC.start
   b.report("libxml parsing") do
     N.times do
-      LibXML::XML::Parser.string(serialized_dvport).parse
+      LibXML::XML::Parser.string(raw).parse
     end
   end
-  
-  GC.start
-  b.report("recursive traversal of libxml") do
-    N.times { traverse parsed_dvport_libxml.root }
-  end
-=end
   
   GC.start
   b.report("old deserialization (nokogiri)") do
     deserializer = RbVmomi::OldDeserializer.new($conn)
     N.times do
-      deserializer.deserialize Nokogiri::XML(serialized_dvport).root
+      deserializer.deserialize Nokogiri::XML(raw).root
     end
   end
 
@@ -307,16 +96,15 @@ Benchmark.bmbm do|b|
   b.report("new deserialization (nokogiri)") do
     deserializer = RbVmomi::NewDeserializer.new($conn)
     N.times do
-      deserializer.deserialize Nokogiri::XML(serialized_dvport).root
+      deserializer.deserialize Nokogiri::XML(raw).root
     end
   end
 
   GC.start
-
   b.report("new deserialization (libxml)") do
     deserializer = RbVmomi::NewDeserializer.new($conn)
     N.times do
-      deserializer.deserialize LibXML::XML::Parser.string(serialized_dvport).parse.root
+      deserializer.deserialize LibXML::XML::Parser.string(raw).parse.root
     end
   end
 end
