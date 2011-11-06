@@ -18,6 +18,7 @@ class NewDeserializer
     when 'xsd:string' then leaf_string node
     when 'xsd:boolean' then leaf_boolean node
     when 'xsd:int', 'xsd:long' then leaf_int node
+    when 'xsd:float' then leaf_float node
     when 'xsd:dateTime' then leaf_date node
     else
       klass = @loader.get(type) or fail "no such type #{type}"
@@ -69,6 +70,10 @@ class NewDeserializer
 
   def leaf_int node
     node.content.to_i
+  end
+
+  def leaf_float node
+    node.content.to_f
   end
 
   def leaf_date node
