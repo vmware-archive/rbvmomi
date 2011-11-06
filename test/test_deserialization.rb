@@ -291,4 +291,11 @@ end
 </root>
     EOS
   end
+
+  def test_float
+    obj = 1.2
+    check <<-EOS, obj, 'xsd:float'
+<root>1.2</root>
+    EOS
+  end
 end
