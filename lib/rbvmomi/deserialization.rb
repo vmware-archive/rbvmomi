@@ -58,7 +58,7 @@ class NewDeserializer
       elsif klass < RbVmomi::BasicTypes::Enum
         node.content
       elsif klass < VIM::ManagedObject
-        traverse_managed node, klass
+        leaf_managed node, klass
       else fail
       end
     end
@@ -89,7 +89,7 @@ class NewDeserializer
     obj
   end
 
-  def traverse_managed node, klass
+  def leaf_managed node, klass
     type_attr = node['type']
     klass = @loader.get(type_attr) if type_attr
     klass.new(@conn, node.content)
