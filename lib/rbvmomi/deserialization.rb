@@ -20,6 +20,7 @@ class NewDeserializer
     when 'xsd:int', 'xsd:long' then leaf_int node
     when 'xsd:float' then leaf_float node
     when 'xsd:dateTime' then leaf_date node
+    when 'xsd:base64Binary' then leaf_binary node
     else
       klass = @loader.get(type) or fail "no such type #{type}"
       if klass < VIM::DataObject then traverse_data node, klass
@@ -83,6 +84,10 @@ class NewDeserializer
 
   def leaf_enum node
     node.content
+  end
+
+  def leaf_binary node
+    node.content.unpack('m')[0]
   end
 end
 
