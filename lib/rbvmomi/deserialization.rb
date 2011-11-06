@@ -14,6 +14,11 @@ class NewDeserializer
     DEMANGLED_ARRAY_TYPES[x] = "xsd:#{x.downcase}"
   end
 
+  BUILTIN = Set.new %w(
+    xsd:string xsd:boolean xsd:int xsd:long xsd:float xsd:dateTime xsd:base64Binary
+    KeyValue PropertyPath
+  )
+
   def initialize conn
     @conn = conn
     @loader = conn.class.loader
@@ -23,20 +28,23 @@ class NewDeserializer
     type_attr = node['type']
     type = type_attr if type_attr
 
-    if type =~ /^ArrayOf/
-      type = DEMANGLED_ARRAY_TYPES[$'] || $'
-      return node.children.select(&:element?).map { |c| deserialize c, type }
-    end
-
-    case type
-    when 'xsd:string', 'PropertyPath' then leaf_string node
-    when 'xsd:boolean' then leaf_boolean node
-    when 'xsd:int', 'xsd:long' then leaf_int node
-    when 'xsd:float' then leaf_float node
-    when 'xsd:dateTime' then leaf_date node
-    when 'xsd:base64Binary' then leaf_binary node
-    when 'KeyValue' then leaf_keyvalue node
+    if BUILTIN.member? type
+      case type
+      when 'xsd:string', 'PropertyPath' then leaf_string node
+      when 'xsd:boolean' then leaf_boolean node
+      when 'xsd:int', 'xsd:long' then leaf_int node
+      when 'xsd:float' then leaf_float node
+      when 'xsd:dateTime' then leaf_date node
+      when 'xsd:base64Binary' then leaf_binary node
+      when 'KeyValue' then leaf_keyvalue node
+      else fail
+      end
     else
+      if type =~ /^ArrayOf/
+        type = DEMANGLED_ARRAY_TYPES[$'] || $'
+        return node.children.select(&:element?).map { |c| deserialize c, type }
+      end
+
       klass = @loader.get(type) or fail "no such type #{type}"
       if klass < VIM::DataObject then traverse_data node, klass
       elsif klass < VIM::ManagedObject then traverse_managed node, klass
