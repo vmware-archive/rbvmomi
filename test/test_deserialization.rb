@@ -298,4 +298,24 @@ end
 <root>1.2</root>
     EOS
   end
+
+  def test_array_mangling
+    obj = ["foo"]
+    check <<-EOS, obj, 'ArrayOfString'
+<root><e>foo</e></root>
+    EOS
+
+    time_str = '2010-08-20T05:44:35.0Z'
+    obj = [Time.parse(time_str)]
+    check <<-EOS, obj, 'ArrayOfDateTime'
+<root><e>#{time_str}</e></root>
+    EOS
+
+    obj = [1]
+    check <<-EOS, obj, 'ArrayOfAnyType'
+<root xmlns:xsi="#{VIM::NS_XSI}">
+  <e xsi:type="xsd:int">1</e>
+</root>
+    EOS
+  end
 end
