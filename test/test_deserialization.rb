@@ -1,3 +1,9 @@
+begin
+  require 'cover_me'
+rescue LoadError
+  puts "Install the cover_me gem for code coverage"
+end
+
 require 'test/unit'
 require 'rbvmomi'
 VIM = RbVmomi::VIM unless Object.const_defined? :VIM

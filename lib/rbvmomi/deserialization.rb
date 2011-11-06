@@ -3,7 +3,7 @@ require 'time'
 
 module RbVmomi
 
-class Deserializer
+class NewDeserializer
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
   def initialize conn
@@ -160,6 +160,12 @@ class OldDeserializer
     else x
     end
   end
+end
+
+if ENV['RBVMOMI_NEW_DESERIALIZER'] == '1'
+  Deserializer = NewDeserializer
+else
+  Deserializer = OldDeserializer
 end
 
 end
