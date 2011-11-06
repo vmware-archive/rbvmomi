@@ -299,6 +299,14 @@ end
     EOS
   end
 
+  def test_date
+    time_str = '2010-08-20T05:44:35.0Z'
+    obj = Time.parse(time_str)
+    check <<-EOS, obj, 'xsd:dateTime'
+<root>#{time_str}</root>
+    EOS
+  end
+
   def test_array_mangling
     obj = ["foo"]
     check <<-EOS, obj, 'ArrayOfString'

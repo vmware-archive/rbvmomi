@@ -77,7 +77,7 @@ class NewDeserializer
   end
 
   def leaf_date node
-    Time.now
+    Time.parse node.content
   end
 end
 
