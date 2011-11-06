@@ -6,6 +6,14 @@ module RbVmomi
 class NewDeserializer
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
+  DEMANGLED_ARRAY_TYPES = {
+    'AnyType' => 'xsd:anyType',
+    'DateTime' => 'xsd:dateTime',
+  }
+  %w(Boolean String Byte Short Int Long Float Double).each do |x|
+    DEMANGLED_ARRAY_TYPES[x] = "xsd:#{x.downcase}"
+  end
+
   def initialize conn
     @conn = conn
     @loader = conn.class.loader
@@ -14,6 +22,12 @@ class NewDeserializer
   def deserialize node, type=nil
     type_attr = node['type']
     type = type_attr if type_attr
+
+    if type =~ /^ArrayOf/
+      type = DEMANGLED_ARRAY_TYPES[$'] || $'
+      return node.children.select(&:element?).map { |c| deserialize c, type }
+    end
+
     case type
     when 'xsd:string', 'PropertyPath' then leaf_string node
     when 'xsd:boolean' then leaf_boolean node
