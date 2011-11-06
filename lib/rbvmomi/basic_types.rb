@@ -84,6 +84,8 @@ end
 class DataObject < ObjectWithProperties
   attr_reader :props
 
+  def self.kind; :data end
+
   def initialize props={}
     # Deserialization fast path
     if props == nil
@@ -155,6 +157,8 @@ class DataObject < ObjectWithProperties
 end
 
 class ManagedObject < ObjectWithMethods
+  def self.kind; :managed end
+
   def initialize connection, ref
     super()
     @connection = connection
@@ -228,6 +232,8 @@ class Enum < Base
       @values = values
     end
   end
+
+  def self.kind; :enum end
 
   attr_reader :value
 

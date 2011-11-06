@@ -53,11 +53,12 @@ class NewDeserializer
       end
 
       klass = @loader.get(type) or fail "no such type #{type}"
-      if klass < VIM::DataObject then
+      case klass.kind
+      when :data
         traverse_data node, klass
-      elsif klass < RbVmomi::BasicTypes::Enum
+      when :enum
         node.content
-      elsif klass < VIM::ManagedObject
+      when :managed
         leaf_managed node, klass
       else fail
       end
