@@ -30,10 +30,10 @@ class NewDeserializer
 
     if BUILTIN.member? type
       case type
-      when 'xsd:string', 'PropertyPath' then leaf_string node
-      when 'xsd:boolean' then leaf_boolean node
-      when 'xsd:int', 'xsd:long' then leaf_int node
-      when 'xsd:float' then leaf_float node
+      when 'xsd:string', 'PropertyPath' then node.content
+      when 'xsd:boolean' then node.content == '1'
+      when 'xsd:int', 'xsd:long' then node.content.to_i
+      when 'xsd:float' then node.content.to_f
       when 'xsd:dateTime' then leaf_date node
       when 'xsd:base64Binary' then leaf_binary node
       when 'KeyValue' then leaf_keyvalue node
@@ -47,8 +47,8 @@ class NewDeserializer
 
       klass = @loader.get(type) or fail "no such type #{type}"
       if klass < VIM::DataObject then traverse_data node, klass
+      elsif klass < RbVmomi::BasicTypes::Enum then node.content
       elsif klass < VIM::ManagedObject then traverse_managed node, klass
-      elsif klass < RbVmomi::BasicTypes::Enum then leaf_enum node
       else fail "unexpected class #{klass}"
       end
     end
@@ -85,28 +85,8 @@ class NewDeserializer
     klass.new(@conn, node.content)
   end
 
-  def leaf_string node
-    node.content
-  end
-
-  def leaf_boolean node
-    node.content == '1'
-  end
-
-  def leaf_int node
-    node.content.to_i
-  end
-
-  def leaf_float node
-    node.content.to_f
-  end
-
   def leaf_date node
     Time.parse node.content
-  end
-
-  def leaf_enum node
-    node.content
   end
 
   def leaf_binary node
