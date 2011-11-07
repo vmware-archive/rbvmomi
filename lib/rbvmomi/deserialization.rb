@@ -157,9 +157,9 @@ class OldDeserializer
       end
       t.new h
     elsif t == BasicTypes::ManagedObjectReference
-      @conn.type(xml['type']).new self, xml.text
+      @conn.type(xml['type']).new @conn, xml.text
     elsif t <= BasicTypes::ManagedObject
-      @conn.type(xml['type'] || t.wsdl_name).new self, xml.text
+      @conn.type(xml['type'] || t.wsdl_name).new @conn, xml.text
     elsif t <= BasicTypes::Enum
       xml.text
     elsif t <= BasicTypes::KeyValue
