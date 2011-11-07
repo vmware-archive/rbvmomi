@@ -292,6 +292,12 @@ end
     EOS
   end
 
+  def test_int
+    check "<root>5</root>", 5, 'xsd:short'
+    check "<root>5</root>", 5, 'xsd:int'
+    check "<root>5</root>", 5, 'xsd:long'
+  end
+
   def test_float
     obj = 1.2
     check <<-EOS, obj, 'xsd:float'

@@ -15,7 +15,7 @@ class NewDeserializer
   end
 
   BUILTIN = Set.new %w(
-    xsd:string xsd:boolean xsd:int xsd:long xsd:float xsd:dateTime xsd:base64Binary
+    xsd:string xsd:boolean xsd:short xsd:int xsd:long xsd:float xsd:dateTime xsd:base64Binary
     KeyValue PropertyPath
   )
 
@@ -34,7 +34,7 @@ class NewDeserializer
         node.content
       when 'xsd:boolean'
         node.content == '1'
-      when 'xsd:int', 'xsd:long'
+      when 'xsd:int', 'xsd:long', 'xsd:short'
         node.content.to_i
       when 'xsd:float'
         node.content.to_f
