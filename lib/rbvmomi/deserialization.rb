@@ -16,7 +16,7 @@ class NewDeserializer
 
   BUILTIN = Set.new %w(
     xsd:string xsd:boolean xsd:short xsd:int xsd:long xsd:float xsd:dateTime xsd:base64Binary
-    KeyValue PropertyPath
+    KeyValue PropertyPath MethodName TypeName
   )
 
   def initialize conn
@@ -30,7 +30,7 @@ class NewDeserializer
 
     if BUILTIN.member? type
       case type
-      when 'xsd:string', 'PropertyPath'
+      when 'xsd:string'
         node.content
       when 'xsd:boolean'
         node.content == '1'
@@ -40,6 +40,8 @@ class NewDeserializer
         node.content.to_f
       when 'xsd:dateTime'
         leaf_date node
+      when 'PropertyPath', 'MethodName', 'TypeName'
+        node.content
       when 'xsd:base64Binary'
         leaf_binary node
       when 'KeyValue'

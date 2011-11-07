@@ -332,4 +332,16 @@ end
 </root>
     EOS
   end
+
+  def test_propertypath
+    check "<root>foo</root>", "foo", 'PropertyPath'
+  end
+
+  def test_methodname
+    check "<root>foo</root>", "foo", 'MethodName'
+  end
+
+  def test_typename
+    check "<root>foo</root>", "foo", 'TypeName'
+  end
 end
