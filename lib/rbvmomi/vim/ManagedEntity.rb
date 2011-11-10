@@ -33,7 +33,7 @@ class RbVmomi::VIM::ManagedEntity
       }]
     )
 
-    propCollector = objs.first.propertyCollector
+    propCollector = objs.first._connection.propertyCollector
     result = propCollector.RetrieveProperties(:specSet => [filterSpec])
 
     Hash[objs.map do |obj|

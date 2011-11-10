@@ -22,8 +22,4 @@ class RbVmomi::VIM::PropertyCollector
       [x.obj, x.to_hash]
     end]
   end
-  
-  def pathsOfMany objs
-    RbVmomi::VIM::ManagedEntity.paths objs
-  end
 end
