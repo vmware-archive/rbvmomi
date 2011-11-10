@@ -8,20 +8,18 @@ class RbVmomi::VIM::ManagedEntity
   # Retrieve the ancestors of a list of entries.
   # @return [Hash] Object-indexed hash of ancestors of entities, starting with the root.
   def self.paths objs
-    i = 0
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
       :objectSet => objs.map do |obj|
-        i += 1
         RbVmomi::VIM.ObjectSpec(
           :obj => obj,
           :selectSet => [
             RbVmomi::VIM.TraversalSpec(
-              :name => "tsME-#{i}",
+              :name => "tsME",
               :type => 'ManagedEntity',
               :path => 'parent',
               :skip => false,
               :selectSet => [
-                RbVmomi::VIM.SelectionSpec(:name => "tsME-#{i}")
+                RbVmomi::VIM.SelectionSpec(:name => "tsME")
               ]
             )
           ]
