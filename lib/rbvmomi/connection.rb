@@ -16,12 +16,22 @@ class Connection < TrivialSoap
   NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
   attr_accessor :rev
-
+  attr_reader :profile
+  attr_reader :profile_summary
+  attr_accessor :profiling
+  
   def initialize opts
     @ns = opts[:ns] or fail "no namespace specified"
     @rev = opts[:rev] or fail "no revision specified"
     @deserializer = Deserializer.new self
+    reset_profiling
+    @profiling = false
     super opts
+  end
+  
+  def reset_profiling
+    @profile = {}
+    @profile_summary = {:network_latency => 0, :request_emit => 0, :response_parse => 0, :num_calls => 0}
   end
 
   def emit_request xml, method, descs, this, params
@@ -66,11 +76,38 @@ class Connection < TrivialSoap
     fail "parameters must be passed as a hash" unless params.is_a? Hash
     fail unless desc.is_a? Hash
 
-    resp = request "#{@ns}/#{@rev}" do |xml|
+    t1 = Time.now
+    body = soap_envelope do |xml|
       emit_request xml, method, desc['params'], this, params
-    end
+    end.target!
 
-    parse_response resp, desc['result']
+    t2 = Time.now
+    resp, resp_size = request "#{@ns}/#{@rev}", body
+
+    t3 = Time.now
+    out = parse_response resp, desc['result']
+    
+    if @profiling
+      t4 = Time.now
+      @profile[method] ||= []
+      profile_info = {
+        :network_latency => (t3 - t2),
+        :request_emit => t2 - t1,
+        :response_parse => t4 - t3,
+        :params => params, 
+        :obj => this, 
+        :backtrace => caller,
+        :request_size => body.length,
+        :response_size => resp_size,
+      }
+      @profile[method] << profile_info
+      @profile_summary[:network_latency] += profile_info[:network_latency]
+      @profile_summary[:response_parse] += profile_info[:response_parse]
+      @profile_summary[:request_emit] += profile_info[:request_emit]
+      @profile_summary[:num_calls] += 1
+    end
+    
+    out
   end
 
   # hic sunt dracones
