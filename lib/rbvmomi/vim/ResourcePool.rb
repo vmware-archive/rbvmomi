@@ -22,20 +22,18 @@ class RbVmomi::VIM::ResourcePool
   
   def self.resourcePoolSubTree objs, fields = []
     fields = (fields + ['name', 'resourcePool']).uniq
-    i = 0
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
       :objectSet => objs.map do |obj|
-        i += 1
         RbVmomi::VIM.ObjectSpec(
           :obj => obj,
           :selectSet => [
             RbVmomi::VIM.TraversalSpec(
-              :name => "tsRP-#{i}",
+              :name => "tsRP",
               :type => 'ResourcePool',
               :path => 'resourcePool',
               :skip => false,
               :selectSet => [
-                RbVmomi::VIM.SelectionSpec(:name => "tsRP-#{i}")
+                RbVmomi::VIM.SelectionSpec(:name => "tsRP")
               ]
             )
           ]
