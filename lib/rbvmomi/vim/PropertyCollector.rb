@@ -24,44 +24,6 @@ class RbVmomi::VIM::PropertyCollector
   end
   
   def pathsOfMany objs
-    i = 0
-    filterSpec = RbVmomi::VIM.PropertyFilterSpec(
-      :objectSet => objs.map do |obj|
-        i += 1
-        RbVmomi::VIM.ObjectSpec(
-          :obj => obj,
-          :selectSet => [
-            RbVmomi::VIM.TraversalSpec(
-              :name => "tsME-#{i}",
-              :type => 'ManagedEntity',
-              :path => 'parent',
-              :skip => false,
-              :selectSet => [
-                RbVmomi::VIM.SelectionSpec(:name => "tsME-#{i}")
-              ]
-            )
-          ]
-        )
-      end,
-      :propSet => [{
-        :pathSet => %w(name parent),
-        :type => 'ManagedEntity'
-      }]
-    )
-
-    result = self.RetrieveProperties(:specSet => [filterSpec])
-
-    Hash[objs.map do |obj|
-      tree = {}
-      result.each { |x| tree[x.obj] = [x['parent'], x['name']] }
-      a = []
-      cur = obj
-      while cur
-        parent, name = *tree[cur]
-        a << [cur, name]
-        cur = parent
-      end
-      [obj, a.reverse]
-    end]
+    RbVmomi::VIM::ManagedEntity.paths objs
   end
 end

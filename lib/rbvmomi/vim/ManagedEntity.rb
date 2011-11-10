@@ -2,39 +2,52 @@ class RbVmomi::VIM::ManagedEntity
   # Retrieve the ancestors of the entity.
   # @return [Array] Ancestors of this entity, starting with the root.
   def path
+    self.class.paths([self])[self]
+  end
+  
+  # Retrieve the ancestors of a list of entries.
+  # @return [Hash] Object-indexed hash of ancestors of entities, starting with the root.
+  def self.paths objs
+    i = 0
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
-      :objectSet => [{
-        :obj => self,
-        :selectSet => [
-          RbVmomi::VIM.TraversalSpec(
-            :name => 'tsME',
-            :type => 'ManagedEntity',
-            :path => 'parent',
-            :skip => false,
-            :selectSet => [
-              RbVmomi::VIM.SelectionSpec(:name => 'tsME')
-            ]
-          )
-        ]
-      }],
+      :objectSet => objs.map do |obj|
+        i += 1
+        RbVmomi::VIM.ObjectSpec(
+          :obj => obj,
+          :selectSet => [
+            RbVmomi::VIM.TraversalSpec(
+              :name => "tsME-#{i}",
+              :type => 'ManagedEntity',
+              :path => 'parent',
+              :skip => false,
+              :selectSet => [
+                RbVmomi::VIM.SelectionSpec(:name => "tsME-#{i}")
+              ]
+            )
+          ]
+        )
+      end,
       :propSet => [{
         :pathSet => %w(name parent),
         :type => 'ManagedEntity'
       }]
     )
 
-    result = @soap.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
+    propCollector = objs.first.propertyCollector
+    result = propCollector.RetrieveProperties(:specSet => [filterSpec])
 
-    tree = {}
-    result.each { |x| tree[x.obj] = [x['parent'], x['name']] }
-    a = []
-    cur = self
-    while cur
-      parent, name = *tree[cur]
-      a << [cur, name]
-      cur = parent
-    end
-    a.reverse
+    Hash[objs.map do |obj|
+      tree = {}
+      result.each { |x| tree[x.obj] = [x['parent'], x['name']] }
+      a = []
+      cur = obj
+      while cur
+        parent, name = *tree[cur]
+        a << [cur, name]
+        cur = parent
+      end
+      [obj, a.reverse]
+    end]
   end
 
   # Return a string representation of +path+ suitable for display.
