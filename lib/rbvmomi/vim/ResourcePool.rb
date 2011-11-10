@@ -17,7 +17,7 @@ class RbVmomi::VIM::ResourcePool
   end
 
   def resourcePoolSubTree fields = []
-    self.class.resourcePoolSubTree self, fields
+    self.class.resourcePoolSubTree [self], fields
   end
   
   def self.resourcePoolSubTree objs, fields = []
@@ -30,12 +30,12 @@ class RbVmomi::VIM::ResourcePool
           :obj => obj,
           :selectSet => [
             RbVmomi::VIM.TraversalSpec(
-              :name => "tsME-#{i}",
+              :name => "tsRP-#{i}",
               :type => 'ResourcePool',
               :path => 'resourcePool',
               :skip => false,
               :selectSet => [
-                RbVmomi::VIM.SelectionSpec(:name => "tsME-#{i}")
+                RbVmomi::VIM.SelectionSpec(:name => "tsRP-#{i}")
               ]
             )
           ]
@@ -53,7 +53,7 @@ class RbVmomi::VIM::ResourcePool
     hash = Hash[result.map do |x| 
       [
         x.obj, 
-        Hash[ fields.map{|f| [f.to_sym, x.propSet.find{|y| y.name == f}.val] } ]
+        x.propSet.to_hash
       ]
     end]
   end
