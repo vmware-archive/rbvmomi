@@ -15,4 +15,41 @@ class RbVmomi::VIM::ResourcePool
       f.find(e) || return
     end
   end
+
+  def resourcePoolSubTree fields = []
+    self.class.resourcePoolSubTree [self], fields
+  end
+  
+  def self.resourcePoolSubTree objs, fields = []
+    fields = (fields + ['name', 'resourcePool']).uniq
+    filterSpec = RbVmomi::VIM.PropertyFilterSpec(
+      :objectSet => objs.map do |obj|
+        RbVmomi::VIM.ObjectSpec(
+          :obj => obj,
+          :selectSet => [
+            RbVmomi::VIM.TraversalSpec(
+              :name => "tsRP",
+              :type => 'ResourcePool',
+              :path => 'resourcePool',
+              :skip => false,
+              :selectSet => [
+                RbVmomi::VIM.SelectionSpec(:name => "tsRP")
+              ]
+            )
+          ]
+        )
+      end,
+      :propSet => [{
+        :pathSet => fields,
+        :type => 'ResourcePool'
+      }]
+    )
+  
+    propCollector = objs.first._connection.propertyCollector
+    result = propCollector.RetrieveProperties(:specSet => [filterSpec])
+    
+    Hash[result.map do |x|
+      [x.obj, x.to_hash]
+    end]
+  end
 end
