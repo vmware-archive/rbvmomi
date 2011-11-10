@@ -50,11 +50,8 @@ class RbVmomi::VIM::ResourcePool
     propCollector = objs.first._connection.propertyCollector
     result = propCollector.RetrieveProperties(:specSet => [filterSpec])
     
-    hash = Hash[result.map do |x| 
-      [
-        x.obj, 
-        x.propSet.to_hash
-      ]
+    Hash[result.map do |x|
+      [x.obj, x.to_hash]
     end]
   end
 end
