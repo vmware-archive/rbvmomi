@@ -16,20 +16,20 @@ class Connection < TrivialSoap
 
   attr_accessor :rev
   attr_reader :profile
-  attr_reader :profileSummary
+  attr_reader :profile_summary
   attr_accessor :profiling
   
   def initialize opts
     @ns = opts[:ns] or fail "no namespace specified"
     @rev = opts[:rev] or fail "no revision specified"
-    resetProfiling
+    reset_profiling
     @profiling = false
     super opts
   end
   
-  def resetProfiling
+  def reset_profiling
     @profile = {}
-    @profileSummary = {:network_latency => 0, :request_emit => 0, :response_parse => 0, :numCalls => 0}
+    @profile_summary = {:network_latency => 0, :request_emit => 0, :response_parse => 0, :num_calls => 0}
   end
 
   def emit_request xml, method, descs, this, params
@@ -80,7 +80,7 @@ class Connection < TrivialSoap
     end.target!
 
     t2 = Time.now
-    resp, respSize = request "#{@ns}/#{@rev}", body
+    resp, resp_size = request "#{@ns}/#{@rev}", body
 
     t3 = Time.now
     out = parse_response resp, desc['result']
@@ -88,7 +88,7 @@ class Connection < TrivialSoap
     if @profiling
       t4 = Time.now
       @profile[method] ||= []
-      profileInfo = {
+      profile_info = {
         :network_latency => (t3 - t2),
         :request_emit => t2 - t1,
         :response_parse => t4 - t3,
@@ -96,13 +96,13 @@ class Connection < TrivialSoap
         :obj => this, 
         :backtrace => caller,
         :request_size => body.length,
-        :response_size => respSize,
+        :response_size => resp_size,
       }
-      @profile[method] << profileInfo
-      @profileSummary[:network_latency] += profileInfo[:network_latency]
-      @profileSummary[:response_parse] += profileInfo[:response_parse]
-      @profileSummary[:request_emit] += profileInfo[:request_emit]
-      @profileSummary[:numCalls] += 1
+      @profile[method] << profile_info
+      @profile_summary[:network_latency] += profile_info[:network_latency]
+      @profile_summary[:response_parse] += profile_info[:response_parse]
+      @profile_summary[:request_emit] += profile_info[:request_emit]
+      @profile_summary[:num_calls] += 1
     end
     
     out
