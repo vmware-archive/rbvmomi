@@ -113,12 +113,13 @@ class RbVmomi::VIM::Folder
     propSet = [{ :type => 'Folder', :pathSet => ['name', 'parent'] }]
     propSpecs.each do |k,v|
       case k
-      when RbVmomi::VIM::ManagedEntity
+      when Class
+        fail "key must be a subclass of ManagedEntity" unless k > RbVmomi::VIM::ManagedEntity
         k = k.wsdl_name
       when Symbol, String
         k = k.to_s
       else
-        fail "key must be a ManagedEntity"
+        fail "invalid key"
       end
 
       h = { :type => k }
