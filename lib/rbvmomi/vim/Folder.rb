@@ -114,7 +114,7 @@ class RbVmomi::VIM::Folder
     propSpecs.each do |k,v|
       case k
       when Class
-        fail "key must be a subclass of ManagedEntity" unless k > RbVmomi::VIM::ManagedEntity
+        fail "key must be a subclass of ManagedEntity" unless k < RbVmomi::VIM::ManagedEntity
         k = k.wsdl_name
       when Symbol, String
         k = k.to_s
