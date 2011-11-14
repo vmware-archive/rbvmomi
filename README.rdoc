@@ -22,7 +22,7 @@ A simple example of turning on a VM:
     vm = dc.find_vm("myvm") or fail "VM not found"
     vm.PowerOnVM_Task.wait_for_completion
 
-This code uses several RbVmomi extensions to the VI API for concision. The
+This code uses several RbVmomi extensions to the vSphere API for concision. The
 expanded snippet below uses only standard API calls and should be familiar to
 users of the Java SDK:
 
