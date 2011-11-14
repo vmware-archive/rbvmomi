@@ -2,8 +2,8 @@ require 'test_helper'
 
 class DeserializationTest < Test::Unit::TestCase
   def setup
-    @soap = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
-    @deserializer = RbVmomi::Deserializer.new @soap
+    conn = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
+    @deserializer = RbVmomi::Deserializer.new conn
   end
 
   def check str, expected, type

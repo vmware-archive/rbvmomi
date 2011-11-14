@@ -29,7 +29,7 @@ class RbVmomi::VIM::ComputeResource
       }]
     )
 
-    result = @soap.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
+    result = _connection.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
 
     stats = {
       :totalCPU => 0,

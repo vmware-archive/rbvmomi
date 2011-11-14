@@ -2,9 +2,9 @@ require 'test_helper'
 
 class SerializationTest < Test::Unit::TestCase
   def check str, obj, type, array=false
-    @soap = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
+    conn = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
     xml = Builder::XmlMarkup.new :indent => 2
-    @soap.obj2xml(xml, 'root', type, array, obj)
+    conn.obj2xml(xml, 'root', type, array, obj)
 
     begin
       assert_equal str, xml.target!

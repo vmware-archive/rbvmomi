@@ -8,13 +8,13 @@ class RbVmomi::VIM::ManagedObject
   # @todo Pass the current property values to the block.
   def wait_until *pathSet, &b
     all = pathSet.empty?
-    filter = @soap.propertyCollector.CreateFilter :spec => {
+    filter = _connection.propertyCollector.CreateFilter :spec => {
       :propSet => [{ :type => self.class.wsdl_name, :all => all, :pathSet => pathSet }],
       :objectSet => [{ :obj => self }],
     }, :partialUpdates => false
     ver = ''
     loop do
-      result = @soap.propertyCollector.WaitForUpdates(:version => ver)
+      result = _connection.propertyCollector.WaitForUpdates(:version => ver)
       ver = result.version
       if x = b.call
         return x
@@ -35,7 +35,7 @@ class RbVmomi::VIM::ManagedObject
         :type => self.class.wsdl_name
       }]
     }
-    @soap.propertyCollector.RetrieveProperties(:specSet => [spec])[0].to_hash
+    _connection.propertyCollector.RetrieveProperties(:specSet => [spec])[0].to_hash
   end
 
   # Efficiently retrieve multiple properties from an object.

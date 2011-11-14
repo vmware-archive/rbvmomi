@@ -4,7 +4,7 @@ class RbVmomi::VIM::Folder
   # @param type [Class] Return nil unless the found entity <tt>is_a? type</tt>.
   # @return [VIM::ManagedEntity]
   def find name, type=Object
-    x = @soap.searchIndex.FindChild(:entity => self, :name => name)
+    x = _connection.searchIndex.FindChild(:entity => self, :name => name)
     x if x.is_a? type
   end
 
@@ -19,7 +19,7 @@ class RbVmomi::VIM::Folder
       :vmSearch => type == RbVmomi::VIM::VirtualMachine
     }
     propSpecs[:datacenter] = dc if dc
-    x = @soap.searchIndex.FindByDnsName(propSpecs)
+    x = _connection.searchIndex.FindByDnsName(propSpecs)
     x if x.is_a? type
   end
 
@@ -34,7 +34,7 @@ class RbVmomi::VIM::Folder
       :vmSearch => type == RbVmomi::VIM::VirtualMachine
     }
     propSpecs[:datacenter] = dc if dc
-    x = @soap.searchIndex.FindByIp(propSpecs)
+    x = _connection.searchIndex.FindByIp(propSpecs)
     x if x.is_a? type
   end
 
@@ -49,7 +49,7 @@ class RbVmomi::VIM::Folder
       :vmSearch => type == RbVmomi::VIM::VirtualMachine
     }
     propSpecs[:datacenter] = dc if dc
-    x = @soap.searchIndex.FindByUuid(propSpecs)
+    x = _connection.searchIndex.FindByUuid(propSpecs)
     x if x.is_a? type
   end
 
@@ -151,7 +151,7 @@ class RbVmomi::VIM::Folder
       :propSet => propSet
     )
 
-    result = @soap.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
+    result = _connection.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
 
     tree = { self => {} }
     result.each do |x|

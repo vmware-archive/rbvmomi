@@ -23,14 +23,14 @@ class RbVmomi::VIM::ServiceInstance
     interested = (interested + ['info.state']).uniq
     task_props = Hash.new { |h,k| h[k] = {} }
 
-    filter = @soap.propertyCollector.CreateFilter :spec => {
+    filter = _connection.propertyCollector.CreateFilter :spec => {
       :propSet => [{ :type => 'Task', :all => false, :pathSet => interested }],
       :objectSet => tasks.map { |x| { :obj => x } },
     }, :partialUpdates => false
 
     begin
       until task_props.size == tasks.size and task_props.all? { |k,h| %w(success error).member? h['info.state'] }
-        result = @soap.propertyCollector.WaitForUpdates(:version => version)
+        result = _connection.propertyCollector.WaitForUpdates(:version => version)
         version = result.version
         os = result.filterSet[0].objectSet
 
@@ -46,7 +46,7 @@ class RbVmomi::VIM::ServiceInstance
         yield task_props if block_given?
       end
     ensure
-      @soap.propertyCollector.CancelWaitForUpdates
+      _connection.propertyCollector.CancelWaitForUpdates
       filter.DestroyPropertyFilter
     end
 

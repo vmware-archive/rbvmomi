@@ -8,8 +8,8 @@ class RbVmomi::VIM::Datastore
   # @param path [String] Path on the datastore.
   def exists? path
     req = Net::HTTP::Head.new mkuripath(path)
-    req.initialize_http_header 'cookie' => @soap.cookie
-    resp = @soap.http.request req
+    req.initialize_http_header 'cookie' => _connection.cookie
+    resp = _connection.http.request req
     case resp
     when Net::HTTPSuccess
       true
@@ -25,10 +25,10 @@ class RbVmomi::VIM::Datastore
   # @param local_path [String] Destination path on the local machine.
   # @return [void]
   def download remote_path, local_path
-    url = "http#{@soap.http.use_ssl? ? 's' : ''}://#{@soap.http.address}:#{@soap.http.port}#{mkuripath(remote_path)}"
+    url = "http#{_connection.http.use_ssl? ? 's' : ''}://#{_connection.http.address}:#{_connection.http.port}#{mkuripath(remote_path)}"
     pid = spawn CURLBIN, "-k", '--noproxy', '*', '-f',
                 "-o", local_path,
-                "-b", @soap.cookie,
+                "-b", _connection.cookie,
                 url,
                 :out => '/dev/null'
     Process.waitpid(pid, 0)
@@ -40,10 +40,10 @@ class RbVmomi::VIM::Datastore
   # @param local_path [String] Source path on the local machine.
   # @return [void]
   def upload remote_path, local_path
-    url = "http#{@soap.http.use_ssl? ? 's' : ''}://#{@soap.http.address}:#{@soap.http.port}#{mkuripath(remote_path)}"
+    url = "http#{_connection.http.use_ssl? ? 's' : ''}://#{_connection.http.address}:#{_connection.http.port}#{mkuripath(remote_path)}"
     pid = spawn CURLBIN, "-k", '--noproxy', '*', '-f',
                 "-T", local_path,
-                "-b", @soap.cookie,
+                "-b", _connection.cookie,
                 url,
                 :out => '/dev/null'
     Process.waitpid(pid, 0)
