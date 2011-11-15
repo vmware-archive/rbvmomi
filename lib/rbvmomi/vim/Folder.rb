@@ -104,13 +104,9 @@ class RbVmomi::VIM::Folder
   #                         included in the results. Values are an array of
   #                         property paths (strings) or the symbol :all.
   #
-  # @return [Hash] Tree of inventory items. Folders are hashes from child name
-  #                to child result. Objects are hashes from property path to
-  #                value.
-  #
-  # @todo Return ObjectContent instead of the leaf hash.
-  def inventory propSpecs={}
-    propSet = [{ :type => 'Folder', :pathSet => ['name', 'parent'] }]
+  # @return [Hash] Hash of ManagedObjects to properties.
+  def inventory_flat propSpecs={}
+    propSet = [{ :type => 'Folder', :pathSet => ['name', 'parent', 'childEntity'] }]
     propSpecs.each do |k,v|
       case k
       when Class
@@ -152,10 +148,45 @@ class RbVmomi::VIM::Folder
     )
 
     result = _connection.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
+    {}.tap do |h|
+      result.each { |r| h[r.obj] = r }
+    end
+  end
 
+  # Efficiently retrieve properties from descendants of this folder.
+  #
+  # @param propSpecs [Hash] Specification of which properties to retrieve from
+  #                         which entities. Keys may be symbols, strings, or
+  #                         classes identifying ManagedEntity subtypes to be
+  #                         included in the results. Values are an array of
+  #                         property paths (strings) or the symbol :all.
+  #
+  # @return [Hash] Tree of inventory items. Each node is a hash from
+  #                VIM::ObjectContent to children.
+  def inventory_tree propSpecs={}
+    inv = inventory_flat propSpecs
+    children = inv.values.group_by { |v| v['parent'] }
+    rec = lambda { |parent| Hash[(children[parent]||[]).map { |x| [x, rec[x.obj]] }] }
+    rec[self]
+  end
+
+  # Efficiently retrieve properties from descendants of this folder.
+  #
+  # @param propSpecs [Hash] Specification of which properties to retrieve from
+  #                         which entities. Keys may be symbols, strings, or
+  #                         classes identifying ManagedEntity subtypes to be
+  #                         included in the results. Values are an array of
+  #                         property paths (strings) or the symbol :all.
+  #
+  # @return [Hash] Tree of inventory items. Folders are hashes from child name
+  #                to child result. Objects are hashes from property path to
+  #                value.
+  #
+  # @deprecated
+  def inventory propSpecs={}
+    inv = inventory_flat propSpecs
     tree = { self => {} }
-    result.each do |x|
-      obj = x.obj
+    inv.each do |obj,x|
       next if obj == self
       h = Hash[x.propSet.map { |y| [y.name, y.val] }]
       tree[h['parent']][h['name']] = [obj, h]
