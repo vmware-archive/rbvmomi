@@ -1,5 +1,6 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
 require 'time'
+require 'date'
 require 'rbvmomi/trivial_soap'
 require 'rbvmomi/basic_types'
 require 'rbvmomi/fault'
@@ -168,7 +169,10 @@ class Connection < TrivialSoap
       xml.tag! name, o.to_s, attrs
     when DateTime
       attrs['xsi:type'] = 'xsd:dateTime' if expected == BasicTypes::AnyType
-      xml.tag! name, o.to_s, attrs
+      xml.tag! name, o.strftime('%FT%T%:z'), attrs
+    when Time
+      attrs['xsi:type'] = 'xsd:dateTime' if expected == BasicTypes::AnyType
+      xml.tag! name, o.iso8601, attrs
     else fail "unexpected object class #{o.class}"
     end
     xml

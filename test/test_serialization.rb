@@ -224,4 +224,18 @@ class SerializationTest < Test::Unit::TestCase
 </root>
     EOS
   end
+
+  def test_datetime
+    obj = DateTime.new(2011, 11, 16, 13, 36, 8, Rational(-8,24))
+    check <<-EOS, obj, 'xsd:dateTime', false
+<root>2011-11-16T13:36:08-08:00</root>
+    EOS
+  end
+
+  def test_time
+    obj = Time.at DateTime.new(2011, 11, 16, 13, 36, 8, Rational(-8,24)).strftime("%s").to_i
+    check <<-EOS, obj, 'xsd:dateTime', false
+<root>2011-11-16T13:36:08-08:00</root>
+    EOS
+  end
 end
