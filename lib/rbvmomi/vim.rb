@@ -42,13 +42,14 @@ class VIM < Connection
 
   def close
     VIM::SessionManager(self, 'SessionManager').Logout rescue RbVmomi::Fault
+    self.cookie = nil
     super
   end
 
   def cookie= cookie
     super
     ObjectSpace.undefine_finalizer self
-    ObjectSpace.define_finalizer(self, self.class.finalizer(cookie,@opts))
+    ObjectSpace.define_finalizer(self, self.class.finalizer(cookie, @opts)) if cookie
   end
 
   def self.finalizer cookie, opts
