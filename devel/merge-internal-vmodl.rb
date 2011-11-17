@@ -7,6 +7,11 @@ internal_vmodl_filename = ARGV[1] or abort "internal vmodl filename required"
 output_vmodl_filename = ARGV[2] or abort "output vmodl filename required"
 
 TYPES = %w(
+DVSKeyedOpaqueData
+DVSOpaqueDataConfigSpec
+DVPortgroupSelection
+DVPortSelection
+DVSSelection
 DynamicTypeEnumTypeInfo
 DynamicTypeMgrAllTypeInfo
 DynamicTypeMgrAnnotation
@@ -27,9 +32,11 @@ ReflectManagedMethodExecuter
 ReflectManagedMethodExecuterSoapArgument
 ReflectManagedMethodExecuterSoapFault
 ReflectManagedMethodExecuterSoapResult
+SelectionSet
 )
 
 METHODS = %w(
+DistributedVirtualSwitchManager.UpdateDvsOpaqueData_Task
 HostSystem.RetrieveDynamicTypeManager
 HostSystem.RetrieveManagedMethodExecuter
 )
