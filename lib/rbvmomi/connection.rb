@@ -20,6 +20,7 @@ class Connection < TrivialSoap
   attr_reader :profile
   attr_reader :profile_summary
   attr_accessor :profiling
+  attr_reader :deserializer
   
   def initialize opts
     @ns = opts[:ns] or fail "no namespace specified"

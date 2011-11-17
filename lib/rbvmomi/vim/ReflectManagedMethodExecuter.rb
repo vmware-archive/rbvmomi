@@ -4,7 +4,7 @@ class VIM::ReflectManagedMethodExecuter
   def fetch moid, prop
     result = FetchSoap(:moid => moid, :version => 'urn:vim25/5.0', :prop => prop)
     xml = Nokogiri(result.response)
-    _connection.xml2obj xml.root, nil
+    _connection.deserializer.deserialize xml.root, nil
   end
 
   def execute moid, method, args
@@ -18,7 +18,7 @@ class VIM::ReflectManagedMethodExecuter
     end
     result = ExecuteSoap(:moid => moid, :version => 'urn:vim25/5.0',
                          :method => method, :argument => soap_args)
-    _connection.xml2obj Nokogiri(result.response).root, nil
+    _connection.deserializer.deserialize Nokogiri(result.response).root, nil
   end
 end
 
