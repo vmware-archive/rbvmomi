@@ -34,7 +34,7 @@ class NewDeserializer
         node.content
       when 'xsd:boolean'
         node.content == '1'
-      when 'xsd:int', 'xsd:long', 'xsd:short'
+      when 'xsd:int', 'xsd:long', 'xsd:short', 'xsd:byte'
         node.content.to_i
       when 'xsd:float'
         node.content.to_f

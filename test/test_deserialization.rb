@@ -293,6 +293,7 @@ end
   end
 
   def test_int
+    check "<root>5</root>", 5, 'xsd:byte'
     check "<root>5</root>", 5, 'xsd:short'
     check "<root>5</root>", 5, 'xsd:int'
     check "<root>5</root>", 5, 'xsd:long'
