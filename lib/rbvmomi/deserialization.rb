@@ -15,7 +15,7 @@ class NewDeserializer
   end
 
   BUILTIN = Set.new %w(
-    xsd:string xsd:boolean xsd:short xsd:int xsd:long xsd:float xsd:dateTime xsd:base64Binary
+    xsd:string xsd:boolean xsd:byte xsd:short xsd:int xsd:long xsd:float xsd:dateTime xsd:base64Binary
     KeyValue PropertyPath MethodName TypeName
   )
 
