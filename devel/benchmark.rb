@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+require 'tempfile'
 
 if ENV['RBVMOMI_COVERAGE'] == '1'
   require 'simplecov'
@@ -80,7 +81,7 @@ end
 Benchmark.bmbm do|b|
   GC.start
   b.report("nokogiri parsing") do
-    N.times { Nokogiri(raw) }
+    N.times { Nokogiri::XML(raw) }
   end
   
   GC.start
