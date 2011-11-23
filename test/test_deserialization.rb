@@ -352,4 +352,29 @@ end
   def test_typename
     check "<root>foo</root>", "foo", 'TypeName'
   end
+
+  def test_new_fields
+    obj = VIM::HostBlockHba(
+      :dynamicProperty => [],
+      :key => 'key-vim.host.BlockHba-vmhba0',
+      :device => 'vmhba0',
+      :bus => 0,
+      :status => 'unknown',
+      :model => 'Virtual Machine Chipset',
+      :driver => 'ata_piix',
+      :pci => '00:07.1')
+
+    check <<-EOS, obj, "HostBlockHba"
+<hostBusAdapter xsi:type="HostBlockHba">
+  <key>key-vim.host.BlockHba-vmhba0</key>
+  <device>vmhba0</device>
+  <bus>0</bus>
+  <status>unknown</status>
+  <foo>bar</foo>
+  <model>Virtual Machine Chipset</model>
+  <driver>ata_piix</driver>
+  <pci>00:07.1</pci>
+</hostBusAdapter>
+    EOS
+  end
 end

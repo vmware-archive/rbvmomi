@@ -37,6 +37,10 @@ class ObjectWithProperties < Base
       end
     end
 
+    def full_props_set
+      @full_props_set ||= Set.new(full_props_desc.map { |x| x['name'] })
+    end
+
     def full_props_desc
       @full_props_desc ||= (self == ObjectWithProperties ? [] : superclass.full_props_desc) + props_desc
     end

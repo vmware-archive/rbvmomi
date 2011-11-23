@@ -77,6 +77,12 @@ class NewDeserializer
     klass.full_props_desc.each do |desc|
       name = desc['name']
       child_type = desc['wsdl_type']
+
+      # Ignore unknown fields
+      while child = children[i] and not klass.full_props_set.member? child.name
+        i += 1
+      end
+
       if desc['is-array']
         a = []
         while ((child = children[i]) && (child.name == name))
