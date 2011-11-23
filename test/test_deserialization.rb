@@ -292,6 +292,13 @@ end
     EOS
   end
 
+  def test_boolean
+    check "<root>1</root>", true, 'xsd:boolean'
+    check "<root>true</root>", true, 'xsd:boolean'
+    check "<root>0</root>", false, 'xsd:boolean'
+    check "<root>false</root>", false, 'xsd:boolean'
+  end
+
   def test_int
     check "<root>5</root>", 5, 'xsd:byte'
     check "<root>5</root>", 5, 'xsd:short'

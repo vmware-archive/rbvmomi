@@ -33,7 +33,7 @@ class NewDeserializer
       when 'xsd:string'
         node.content
       when 'xsd:boolean'
-        node.content == '1'
+        node.content == '1' || node.content == 'true'
       when 'xsd:int', 'xsd:long', 'xsd:short', 'xsd:byte'
         node.content.to_i
       when 'xsd:float'
