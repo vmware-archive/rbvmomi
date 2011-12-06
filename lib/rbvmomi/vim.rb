@@ -45,22 +45,6 @@ class VIM < Connection
     self.cookie = nil
     super
   end
-
-  def cookie= cookie
-    super
-    ObjectSpace.undefine_finalizer self
-    ObjectSpace.define_finalizer(self, self.class.finalizer(cookie, @opts)) if cookie
-  end
-
-  def self.finalizer cookie, opts
-    proc do |object_id|
-      new(opts).tap do |vim|
-        vim.instance_variable_set :@cookie, cookie
-        vim.close
-      end
-      nil
-    end
-  end
   
   def rev= x
     super
