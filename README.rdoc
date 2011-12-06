@@ -75,4 +75,4 @@ write something generally useful please send it to me and I'll add it in.
 == Development
 
 Fork the project on Github and send me a merge request, or send a patch to
-rlane@vmware.com.
+rlane@vmware.com. RbVmomi developers hang out in #rbvmomi on Freenode.
