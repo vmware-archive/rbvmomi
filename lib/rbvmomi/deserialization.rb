@@ -35,6 +35,12 @@ class NewDeserializer
     'KeyValue' => :keyvalue,
   }
 
+  TYPE_ACTIONS.dup.each do |k,v|
+    if k =~ /^xsd:/
+      TYPE_ACTIONS[$'] = v
+    end
+  end
+
   def initialize conn
     @conn = conn
     @loader = conn.class.loader
