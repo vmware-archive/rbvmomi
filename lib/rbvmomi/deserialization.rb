@@ -14,12 +14,7 @@ class NewDeserializer
     DEMANGLED_ARRAY_TYPES[x] = "xsd:#{x.downcase}"
   end
 
-  BUILTIN = Set.new %w(
-    xsd:string xsd:boolean xsd:byte xsd:short xsd:int xsd:long xsd:float xsd:dateTime xsd:base64Binary
-    KeyValue PropertyPath MethodName TypeName
-  )
-
-  TYPE_ACTIONS = {
+  BUILTIN_TYPE_ACTIONS = {
     'xsd:string' => :string,
     'xsd:boolean' => :boolean,
     'xsd:byte' => :int,
@@ -35,9 +30,9 @@ class NewDeserializer
     'KeyValue' => :keyvalue,
   }
 
-  TYPE_ACTIONS.dup.each do |k,v|
+  BUILTIN_TYPE_ACTIONS.dup.each do |k,v|
     if k =~ /^xsd:/
-      TYPE_ACTIONS[$'] = v
+      BUILTIN_TYPE_ACTIONS[$'] = v
     end
   end
 
@@ -50,7 +45,7 @@ class NewDeserializer
     type_attr = node['type']
     type = type_attr if type_attr
 
-    if action = TYPE_ACTIONS[type]
+    if action = BUILTIN_TYPE_ACTIONS[type]
       case action
       when :string
         node.content
