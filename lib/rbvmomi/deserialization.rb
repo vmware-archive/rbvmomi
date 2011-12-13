@@ -19,6 +19,22 @@ class NewDeserializer
     KeyValue PropertyPath MethodName TypeName
   )
 
+  TYPE_ACTIONS = {
+    'xsd:string' => :string,
+    'xsd:boolean' => :boolean,
+    'xsd:byte' => :int,
+    'xsd:short' => :int,
+    'xsd:int' => :int,
+    'xsd:long' => :int,
+    'xsd:float' => :float,
+    'xsd:dateTime' => :date,
+    'PropertyPath' => :string,
+    'MethodName' => :string,
+    'TypeName' => :string,
+    'xsd:base64Binary' => :binary,
+    'KeyValue' => :keyvalue,
+  }
+
   def initialize conn
     @conn = conn
     @loader = conn.class.loader
@@ -28,23 +44,21 @@ class NewDeserializer
     type_attr = node['type']
     type = type_attr if type_attr
 
-    if BUILTIN.member? type
-      case type
-      when 'xsd:string'
+    if action = TYPE_ACTIONS[type]
+      case action
+      when :string
         node.content
-      when 'xsd:boolean'
+      when :boolean
         node.content == '1' || node.content == 'true'
-      when 'xsd:int', 'xsd:long', 'xsd:short', 'xsd:byte'
+      when :int
         node.content.to_i
-      when 'xsd:float'
+      when :float
         node.content.to_f
-      when 'xsd:dateTime'
+      when :date
         leaf_date node
-      when 'PropertyPath', 'MethodName', 'TypeName'
-        node.content
-      when 'xsd:base64Binary'
+      when :binary
         leaf_binary node
-      when 'KeyValue'
+      when :keyvalue
         leaf_keyvalue node
       else fail
       end
