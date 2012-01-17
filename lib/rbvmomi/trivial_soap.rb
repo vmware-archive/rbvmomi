@@ -49,7 +49,7 @@ class RbVmomi::TrivialSoap
     end
     @http.set_debug_output(STDERR) if $DEBUG
     @http.read_timeout = 1000000
-    @http.open_timeout = 5
+    @http.open_timeout = 60
     def @http.on_connect
       @socket.io.setsockopt(Socket::IPPROTO_TCP, Socket::TCP_NODELAY, 1)
     end
