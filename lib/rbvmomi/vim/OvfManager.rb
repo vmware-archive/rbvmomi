@@ -101,7 +101,7 @@ class RbVmomi::VIM::OvfManager
       vm
     end
   rescue Exception
-    nfcLease.HttpNfcLeaseAbort if nfcLease
+    (nfcLease.HttpNfcLeaseAbort rescue nil) if nfcLease
     raise
   end
 end
