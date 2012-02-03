@@ -31,7 +31,7 @@ class RbVmomi::VIM::OvfManager
       :entityName => opts[:vmName],
       :deploymentOption => "",
       :networkMapping => opts[:networkMappings].map{|from, to| RbVmomi::VIM::OvfNetworkMapping(:name => from, :network => to)},
-      :propertyMapping => opts[:propertyMappings].map{|key, value| RbVmomi::VIM::KeyValue(:key => key, :value => value)},
+      :propertyMapping => opts[:propertyMappings].to_a,
       :diskProvisioning => opts[:diskProvisioning]
     )
 
