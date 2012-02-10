@@ -120,7 +120,7 @@ class Connection < TrivialSoap
     when Array, BasicTypes::KeyValue
       if o.is_a? BasicTypes::KeyValue and expected != BasicTypes::KeyValue
         fail "expected #{expected.wsdl_name}, got KeyValue"
-      elsif expected == BasicTypes::KeyValue
+      elsif expected == BasicTypes::KeyValue and not is_array
         xml.tag! name, attrs do
           xml.tag! 'key', o[0]
           xml.tag! 'value', o[1]

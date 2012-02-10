@@ -223,6 +223,48 @@ class SerializationTest < Test::Unit::TestCase
   <value>b</value>
 </root>
     EOS
+
+    obj = [['a', 'b'], ['c', 'd']]
+    check <<-EOS, obj, 'KeyValue', true
+<root>
+  <key>a</key>
+  <value>b</value>
+</root>
+<root>
+  <key>c</key>
+  <value>d</value>
+</root>
+    EOS
+  end
+
+  def test_ovf_import_spec_params
+    obj = RbVmomi::VIM::OvfCreateImportSpecParams(
+      :hostSystem => VIM::HostSystem(nil, "myhost"),
+      :locale => "US",
+      :entityName => "myvm",
+      :deploymentOption => "",
+      :networkMapping => [],
+      :propertyMapping => [['a', 'b'], ['c', 'd']],
+      :diskProvisioning => :thin
+    )
+
+    check <<-EOS, obj, 'OvfCreateImportSpecParams', false
+<root xsi:type="OvfCreateImportSpecParams">
+  <locale>US</locale>
+  <deploymentOption></deploymentOption>
+  <entityName>myvm</entityName>
+  <hostSystem type="HostSystem">myhost</hostSystem>
+  <propertyMapping>
+    <key>a</key>
+    <value>b</value>
+  </propertyMapping>
+  <propertyMapping>
+    <key>c</key>
+    <value>d</value>
+  </propertyMapping>
+  <diskProvisioning>thin</diskProvisioning>
+</root>
+    EOS
   end
 
   def test_datetime
