@@ -235,6 +235,18 @@ class SerializationTest < Test::Unit::TestCase
   <value>d</value>
 </root>
     EOS
+
+    obj = { 'a' => 'b', :c => 'd' }
+    check <<-EOS, obj, 'KeyValue', true
+<root>
+  <key>a</key>
+  <value>b</value>
+</root>
+<root>
+  <key>c</key>
+  <value>d</value>
+</root>
+    EOS
   end
 
   def test_ovf_import_spec_params

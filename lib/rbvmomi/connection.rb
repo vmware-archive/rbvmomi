@@ -115,15 +115,15 @@ class Connection < TrivialSoap
   # hic sunt dracones
   def obj2xml xml, name, type, is_array, o, attrs={}
     expected = type(type)
-    fail "expected array, got #{o.class.wsdl_name}" if is_array and not o.is_a? Array
+    fail "expected array, got #{o.class.wsdl_name}" if is_array and not (o.is_a? Array or (o.is_a? Hash and expected == BasicTypes::KeyValue))
     case o
     when Array, BasicTypes::KeyValue
       if o.is_a? BasicTypes::KeyValue and expected != BasicTypes::KeyValue
         fail "expected #{expected.wsdl_name}, got KeyValue"
       elsif expected == BasicTypes::KeyValue and not is_array
         xml.tag! name, attrs do
-          xml.tag! 'key', o[0]
-          xml.tag! 'value', o[1]
+          xml.tag! 'key', o[0].to_s
+          xml.tag! 'value', o[1].to_s
         end
       else
         fail "expected #{expected.wsdl_name}, got array" unless is_array
@@ -148,8 +148,12 @@ class Connection < TrivialSoap
     when BasicTypes::Enum
       xml.tag! name, o.value.to_s, attrs
     when Hash
-      fail "expected #{expected.wsdl_name}, got a hash" unless expected <= BasicTypes::DataObject
-      obj2xml xml, name, type, false, expected.new(o), attrs
+      if expected == BasicTypes::KeyValue and is_array
+        obj2xml xml, name, type, is_array, o.to_a, attrs
+      else
+        fail "expected #{expected.wsdl_name}, got a hash" unless expected <= BasicTypes::DataObject
+        obj2xml xml, name, type, false, expected.new(o), attrs
+      end
     when true, false
       fail "expected #{expected.wsdl_name}, got a boolean" unless [BasicTypes::Boolean, BasicTypes::AnyType].member? expected
       attrs['xsi:type'] = 'xsd:boolean' if expected == BasicTypes::AnyType
