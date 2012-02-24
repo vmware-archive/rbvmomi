@@ -25,6 +25,26 @@ class TypeLoader
     names.each { |x| get(x) }
   end
 
+  # Reload all extensions for loaded VMODL types
+  def reload_extensions
+    @extension_dirs.each do |path|
+      reload_extensions_dir path
+    end
+  end
+
+  # Reload all extensions for loaded VMODL types from the given directory
+  def reload_extensions_dir path
+    loaded = Set.new(typenames.select { |x| @namespace.const_defined? x })
+    Dir.open(path) do |dir|
+      dir.each do |file|
+        next unless file =~ /\.rb$/
+        next unless loaded.member? $`
+        file_path = File.join(dir, file)
+        load file_path
+      end
+    end
+  end
+
   def has? name
     fail unless name.is_a? String
     @db.member?(name) or BasicTypes::BUILTIN.member?(name)

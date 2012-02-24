@@ -218,6 +218,11 @@ class Connection < TrivialSoap
 
   def self.add_extension_dir dir
     extension_dirs << dir
+    @loader.reload_extensions_dir dir if @loader
+  end
+
+  def self.reload_extensions
+    @loader.reload_extensions
   end
 
   def self.loader; @loader; end
