@@ -212,8 +212,12 @@ class Connection < TrivialSoap
     self.class.type name
   end
 
-  def self.extension_path
-    fail "must be implemented in subclass"
+  def self.extension_dirs
+    @extension_dirs ||= []
+  end
+
+  def self.add_extension_dir dir
+    extension_dirs << dir
   end
 
   def self.loader; @loader; end

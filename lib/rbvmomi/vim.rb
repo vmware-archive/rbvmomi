@@ -86,12 +86,8 @@ class VIM < Connection
     pp.text "VIM(#{@opts[:host]})"
   end
 
-  @extension_dirs = [File.join(File.dirname(__FILE__), "vim")] + (ENV['RBVMOMI_VIM_EXTENSION_PATH']||'').split(':')
-
-  # Directories to search for extensions
-  def self.extension_dirs
-    @extension_dirs
-  end
+  add_extension_dir File.join(File.dirname(__FILE__), "vim")
+  (ENV['RBVMOMI_VIM_EXTENSION_PATH']||'').split(':').each { |dir| add_extension_dir dir }
 
   load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.db"))
 end
