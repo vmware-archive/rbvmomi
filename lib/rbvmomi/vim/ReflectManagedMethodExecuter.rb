@@ -18,7 +18,11 @@ class VIM::ReflectManagedMethodExecuter
     end
     result = ExecuteSoap(:moid => moid, :version => 'urn:vim25/5.0',
                          :method => method, :argument => soap_args)
-    _connection.deserializer.deserialize Nokogiri(result.response).root, nil
+    if result
+      _connection.deserializer.deserialize Nokogiri(result.response).root, nil
+    else
+      nil
+    end
   end
 end
 
