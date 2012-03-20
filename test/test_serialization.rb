@@ -292,4 +292,20 @@ class SerializationTest < Test::Unit::TestCase
 <root>2011-11-16T13:36:08-08:00</root>
     EOS
   end
+
+  # TODO test all types
+  def test_any_type
+    obj = 1
+    check <<-EOS, obj, 'xsd:anyType', false
+<root xsi:type="xsd:long">1</root>
+    EOS
+
+    obj = VIM::HostAccountSpec(:id => 'root', :password => 'foo')
+    check <<-EOS, obj, 'xsd:anyType', false
+<root xsi:type="HostAccountSpec">
+  <id>root</id>
+  <password>foo</password>
+</root>
+    EOS
+  end
 end
