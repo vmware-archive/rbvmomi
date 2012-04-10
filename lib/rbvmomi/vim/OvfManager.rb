@@ -100,8 +100,12 @@ class RbVmomi::VIM::OvfManager
       nfcLease.HttpNfcLeaseComplete
       vm
     end
-  rescue Exception
-    nfcLease.HttpNfcLeaseAbort if nfcLease
+  rescue Exception => ex
+    begin
+      nfcLease.HttpNfcLeaseAbort if nfcLease
+    rescue
+      # Do nothing, just swallow this exception
+    end
     raise
   end
 end
