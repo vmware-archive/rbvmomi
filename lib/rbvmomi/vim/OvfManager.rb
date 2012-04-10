@@ -31,7 +31,7 @@ class RbVmomi::VIM::OvfManager
       :entityName => opts[:vmName],
       :deploymentOption => "",
       :networkMapping => opts[:networkMappings].map{|from, to| RbVmomi::VIM::OvfNetworkMapping(:name => from, :network => to)},
-      :propertyMapping => opts[:propertyMappings].map{|key, value| RbVmomi::VIM::KeyValue(:key => key, :value => value)},
+      :propertyMapping => opts[:propertyMappings].to_a,
       :diskProvisioning => opts[:diskProvisioning]
     )
 
@@ -100,12 +100,8 @@ class RbVmomi::VIM::OvfManager
       nfcLease.HttpNfcLeaseComplete
       vm
     end
-  rescue Exception => ex
-    begin
-      nfcLease.HttpNfcLeaseAbort if nfcLease
-    rescue
-      # Do nothing, just swallow this exception
-    end
+  rescue Exception
+    (nfcLease.HttpNfcLeaseAbort rescue nil) if nfcLease
     raise
   end
 end

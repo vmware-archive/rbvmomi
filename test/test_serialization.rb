@@ -223,6 +223,60 @@ class SerializationTest < Test::Unit::TestCase
   <value>b</value>
 </root>
     EOS
+
+    obj = [['a', 'b'], ['c', 'd']]
+    check <<-EOS, obj, 'KeyValue', true
+<root>
+  <key>a</key>
+  <value>b</value>
+</root>
+<root>
+  <key>c</key>
+  <value>d</value>
+</root>
+    EOS
+
+    obj = { 'a' => 'b', :c => 'd' }
+    check <<-EOS, obj, 'KeyValue', true
+<root>
+  <key>a</key>
+  <value>b</value>
+</root>
+<root>
+  <key>c</key>
+  <value>d</value>
+</root>
+    EOS
+  end
+
+  def test_ovf_import_spec_params
+    obj = RbVmomi::VIM::OvfCreateImportSpecParams(
+      :hostSystem => VIM::HostSystem(nil, "myhost"),
+      :locale => "US",
+      :entityName => "myvm",
+      :deploymentOption => "",
+      :networkMapping => [],
+      :propertyMapping => [['a', 'b'], ['c', 'd']],
+      :diskProvisioning => :thin
+    )
+
+    check <<-EOS, obj, 'OvfCreateImportSpecParams', false
+<root xsi:type="OvfCreateImportSpecParams">
+  <locale>US</locale>
+  <deploymentOption></deploymentOption>
+  <entityName>myvm</entityName>
+  <hostSystem type="HostSystem">myhost</hostSystem>
+  <propertyMapping>
+    <key>a</key>
+    <value>b</value>
+  </propertyMapping>
+  <propertyMapping>
+    <key>c</key>
+    <value>d</value>
+  </propertyMapping>
+  <diskProvisioning>thin</diskProvisioning>
+</root>
+    EOS
   end
 
   def test_datetime
@@ -236,6 +290,22 @@ class SerializationTest < Test::Unit::TestCase
     obj = Time.at DateTime.new(2011, 11, 16, 13, 36, 8, Rational(-8,24)).strftime("%s").to_i
     check <<-EOS, obj, 'xsd:dateTime', false
 <root>2011-11-16T13:36:08-08:00</root>
+    EOS
+  end
+
+  # TODO test all types
+  def test_any_type
+    obj = 1
+    check <<-EOS, obj, 'xsd:anyType', false
+<root xsi:type="xsd:long">1</root>
+    EOS
+
+    obj = VIM::HostAccountSpec(:id => 'root', :password => 'foo')
+    check <<-EOS, obj, 'xsd:anyType', false
+<root xsi:type="HostAccountSpec">
+  <id>root</id>
+  <password>foo</password>
+</root>
     EOS
   end
 end

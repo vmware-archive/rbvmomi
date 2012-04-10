@@ -145,7 +145,8 @@ class DataObject < ObjectWithProperties
       q.text '('
       q.breakable
       props = @props.sort_by { |k,v| k.to_s }
-      q.seplist props, nil, :each do |k, v|
+      q.seplist props, nil, :each do |e|
+        k, v = e
         q.group do
           q.text k.to_s
           q.text ': '
@@ -337,7 +338,7 @@ class ::Float
 end
 
 class KeyValue
-  def self.wsdl_name; 'xsd:float' end
+  def self.wsdl_name; 'KeyValue' end
   attr_accessor :key, :value
 
   def initialize k, v
