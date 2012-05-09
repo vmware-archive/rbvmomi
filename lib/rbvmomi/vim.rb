@@ -13,6 +13,7 @@ class VIM < Connection
   # @option opts [Numeric] :port (443) Port to connect to.
   # @option opts [Boolean] :ssl (true) Whether to use SSL.
   # @option opts [Boolean] :insecure (false) If true, ignore SSL certificate errors.
+  # @option opts [String]  :cookie If set, use cookie to connect instead of user/password
   # @option opts [String]  :user (root) Username.
   # @option opts [String]  :password Password.
   # @option opts [String]  :path (/sdk) SDK endpoint path.
@@ -20,6 +21,7 @@ class VIM < Connection
   def self.connect opts
     fail unless opts.is_a? Hash
     fail "host option required" unless opts[:host]
+    opts[:cookie] ||= nil
     opts[:user] ||= 'root'
     opts[:password] ||= ''
     opts[:ssl] = true unless opts.member? :ssl or opts[:"no-ssl"]
@@ -32,7 +34,9 @@ class VIM < Connection
     opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
 
     new(opts).tap do |vim|
-      vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
+      if vim.serviceContent.sessionManager.currentSession.nil?
+        vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
+      end
       unless rev_given
         rev = vim.serviceContent.about.apiVersion
         vim.rev = [rev, '5.0'].min
