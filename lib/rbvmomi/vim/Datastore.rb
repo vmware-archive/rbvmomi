@@ -23,7 +23,7 @@ class RbVmomi::VIM::Datastore
   def download remote_path, local_path
     url = "http#{_connection.http.use_ssl? ? 's' : ''}://#{_connection.http.address}:#{_connection.http.port}#{mkuripath(remote_path)}"
     response = Excon.get(url, :headers => {:Cookie => _connection.cookie}, :expects => [200])
-    File.open(local_path, 'w') {|f| f.write << response.body}
+    File.open(local_path, 'w') {|f| f.write response.body}
   end
 
   # Upload a file to this datastore.
