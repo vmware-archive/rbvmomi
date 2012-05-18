@@ -1,8 +1,4 @@
-# @note +deployOVF+ and requires +curl+. If +curl+ is not in your +PATH+
-#       then set the +CURL+ environment variable to point to it.
-# @todo Use an HTTP library instead of executing +curl+.
 class RbVmomi::VIM::OvfManager
-  require 'excon'
 
   # Deploy an OVF.
   #
@@ -74,8 +70,6 @@ class RbVmomi::VIM::OvfManager
         end
 
         href = deviceUrl.url.gsub("*", opts[:host].config.network.vnic[0].spec.ip.ipAddress)
-
-        Excon.defaults[:ssl_verify_peer] = false
 
         # fileItem.create actually means that the object has been already
         # created
