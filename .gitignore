@@ -6,3 +6,4 @@ doc
 .yardoc
 *.rbc
 coverage
+Gemfile.lock
