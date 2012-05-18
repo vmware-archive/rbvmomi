@@ -76,7 +76,10 @@ class RbVmomi::VIM::OvfManager
         href = deviceUrl.url.gsub("*", opts[:host].config.network.vnic[0].spec.ip.ipAddress)
 
         Excon.defaults[:ssl_verify_peer] = false
-        if fileItem.create
+
+        # fileItem.create actually means that the object has been already
+        # created
+        unless fileItem.create
           Excon.post(URI::escape(href), :body => File.open(filename))
         else
           Excon.put(URI::escape(href), :body => File.open(filename))
