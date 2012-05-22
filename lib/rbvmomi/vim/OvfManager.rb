@@ -59,9 +59,6 @@ class RbVmomi::VIM::OvfManager
           raise "Couldn't find deviceURL for device '#{fileItem.deviceId}'"
         end
 
-        ovfFilename = opts[:uri].to_s
-        filename = filename_href(ovfFilename, fileItem.path)
-
         keepAliveThread = Thread.new do
           while true
             sleep 2 * 60
@@ -73,10 +70,13 @@ class RbVmomi::VIM::OvfManager
 
         # fileItem.create actually means that the object has been already
         # created
+        ovfFilename = opts[:uri].to_s
+        file_body = file_body(ovfFilename, fileItem.path)
+
         unless fileItem.create
-          Excon.post(URI::escape(href), :body => File.open(filename))
+          Excon.post(URI::escape(href), :body => file_body)
         else
-          Excon.put(URI::escape(href), :body => File.open(filename))
+          Excon.put(URI::escape(href), :body => file_body)
         end
 
         keepAliveThread.kill
@@ -96,13 +96,12 @@ class RbVmomi::VIM::OvfManager
     raise
   end
 
-  def filename_href(ovf_uri, path)
+  def file_body(ovf_uri, path)
     require 'uri'
-    require 'tmpdir'
     uri = URI.parse(ovf_uri)
     if uri.scheme.nil?
       # local path
-      File.expand_path(path, File.dirname(ovf_uri))
+      File.open(File.expand_path(path, File.dirname(ovf_uri)))
     else
       # same hack that we had before
       tmp = ovf_uri.split(/\//)
@@ -110,14 +109,7 @@ class RbVmomi::VIM::OvfManager
       tmp << path
       tmp.join("/")
 
-      # Download the file from the remote server to upload it to vsphere.
-      # IT MUST BE A BETTER WAY!!
-      tmp_dir = Dir.mktmpdir
-      file_body = Excon.get(tmp).body
-      file_path = File.expand_path(path, ovf_uri)
-      File.open(file_path, 'w') {|f| f.write file_body}
-
-      file_path
+      Excon.get(tmp).body
     end
   end
 end
