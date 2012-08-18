@@ -116,6 +116,9 @@ class CachedOvfDeployer
       is_ds_accessible = host_props['datastore'].member?(@datastore)
       is_connected && is_ds_accessible && !host_props['runtime.inMaintenanceMode']
     end
+    if !host
+      fail "No host in the cluster available to upload OVF to"
+    end
     
     log "Uploading OVF to #{hosts_props[host]['name']}..."
     property_mappings = {}
