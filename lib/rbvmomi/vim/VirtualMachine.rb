@@ -32,7 +32,7 @@ class RbVmomi::VIM::VirtualMachine
   # are cloning from uses delta-disks. Only then it will allow us to
   # share the base disk.
   def add_delta_disk_layer_on_all_disks
-    devices = self.collect 'config.hardware.device'
+    devices,  = self.collect 'config.hardware.device'
     disks = devices.grep(RbVmomi::VIM::VirtualDisk)
     # XXX: Should create a single reconfig spec instead of one per disk
     disks.each do |disk|
