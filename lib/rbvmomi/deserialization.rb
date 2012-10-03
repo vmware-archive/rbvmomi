@@ -69,6 +69,9 @@ class NewDeserializer
         return node.children.select(&:element?).map { |c| deserialize c, type }
       end
 
+      if type =~ /:/
+        type = type.split(":", 2)[1]
+      end
       klass = @loader.get(type) or fail "no such type #{type}"
       case klass.kind
       when :data
