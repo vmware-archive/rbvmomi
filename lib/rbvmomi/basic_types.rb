@@ -9,7 +9,7 @@ BUILTIN = Set.new %w(ManagedObject DataObject TypeName PropertyPath ManagedObjec
 
 class Base
   class << self
-    attr_reader :wsdl_name
+    attr_accessor :wsdl_name
 
     def init wsdl_name=self.name
       @wsdl_name = wsdl_name
@@ -335,6 +335,18 @@ end
 
 class ::Float
   def self.wsdl_name; 'xsd:float' end
+end
+
+class Int
+  def self.wsdl_name; 'xsd:int' end
+  
+  def initialize x
+    @val = x
+  end
+  
+  def to_s
+    @val.to_s
+  end
 end
 
 class KeyValue

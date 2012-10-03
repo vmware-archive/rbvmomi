@@ -178,6 +178,9 @@ class Connection < TrivialSoap
     when Time
       attrs['xsi:type'] = 'xsd:dateTime' if expected == BasicTypes::AnyType
       xml.tag! name, o.iso8601, attrs
+    when BasicTypes::Int
+      attrs['xsi:type'] = 'xsd:int'
+      xml.tag! name, o.to_s, attrs
     else fail "unexpected object class #{o.class}"
     end
     xml
@@ -200,6 +203,10 @@ class Connection < TrivialSoap
     when :base64Binary then BasicTypes::Binary
     when :KeyValue then BasicTypes::KeyValue
     else
+      if name[0].downcase == name[0]
+        name = "%s%s" % [name[0].upcase, name[1..-1]]
+      end
+
       if @loader.has? name
         const_get(name)
       else

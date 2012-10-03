@@ -62,6 +62,11 @@ class RbVmomi::TrivialSoap
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
     xml = Builder::XmlMarkup.new :indent => 0
     xml.tag!('env:Envelope', 'xmlns:xsd' => xsd, 'xmlns:env' => env, 'xmlns:xsi' => xsi) do
+      if @vcSessionCookie
+        xml.tag!('env:Header') do
+          xml.tag!('vcSessionCookie', @vcSessionCookie)
+        end
+      end
       xml.tag!('env:Body') do
         yield xml if block_given?
       end
