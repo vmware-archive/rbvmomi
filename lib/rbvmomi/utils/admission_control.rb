@@ -60,10 +60,16 @@ class AdmissionControlledResourceScheduler
     
     @pc = @vim.serviceContent.propertyCollector
     @root_folder = @vim.serviceContent.rootFolder
+    
+    @logger = opts[:logger]
   end
    
   def log x
-    puts "#{Time.now}: #{x}"
+    if @logger
+      @logger.info x
+    else
+      puts "#{Time.now}: #{x}"
+    end
   end
 
   # Returns the used VM folder. If not set yet, uses the vm_folder_path to 
