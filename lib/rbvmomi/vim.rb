@@ -85,6 +85,10 @@ class VIM < Connection
   def pretty_print pp
     pp.text "VIM(#{@opts[:host]})"
   end
+  
+  def instanceUuid
+    serviceContent.about.instanceUuid
+  end
 
   add_extension_dir File.join(File.dirname(__FILE__), "vim")
   (ENV['RBVMOMI_VIM_EXTENSION_PATH']||'').split(':').each { |dir| add_extension_dir dir }

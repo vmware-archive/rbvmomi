@@ -216,7 +216,9 @@ class ManagedObject < ObjectWithMethods
   end
 
   def == x
-    x.class == self.class and x._ref == @ref
+    out = (x.class == self.class && x._ref == @ref) 
+    out = (out && x._connection.instanceUuid == self._connection.instanceUuid)
+    out
   end
 
   alias eql? ==
