@@ -33,7 +33,8 @@ class CachedOvfDeployer
   # @param template_folder [VIM::Folder] Folder in which all templates are kept
   # @param vm_folder [VIM::Folder] Folder into which to deploy VMs
   # @param datastore [VIM::Folder] Datastore to store template/VM in
-  def initialize vim, network, computer, template_folder, vm_folder, datastore
+  # @param opts [Hash] Additional parameters
+  def initialize vim, network, computer, template_folder, vm_folder, datastore, opts = {}
     @vim = vim
     @network = network
     @computer = computer
@@ -41,11 +42,15 @@ class CachedOvfDeployer
     @template_folder = template_folder
     @vmfolder = vm_folder
     @datastore = datastore
+    @logger = opts[:logger]
   end
   
   def log x
-    # XXX: Should find a better way for users to customize how logging is done
-    puts "#{Time.now}: #{x}"
+    if @logger 
+      @logger.info x
+    else
+      puts "#{Time.now}: #{x}"
+    end
   end
   
   # Internal helper method that executes the passed in block while disabling 
@@ -85,6 +90,13 @@ class CachedOvfDeployer
   #                             to set annotations.
   # @return [VIM::VirtualMachine] The template as a VIM::VirtualMachine instance
   def upload_ovf_as_template ovf_url, template_name, opts = {}
+    # Optimization: If there happens to be a fully prepared template, then
+    # there is no need to do the complicated OVF upload dance
+    template = lookup_template template_name
+    if template
+      return template
+    end
+    
     # The OVFManager expects us to know the names of the networks mentioned
     # in the OVF file so we can map them to VIM::Network objects. For 
     # simplicity this function assumes we need to read the OVF file 
@@ -197,7 +209,8 @@ class CachedOvfDeployer
     template_path = "#{template_name}-#{@computer.name}"
     template = @template_folder.traverse(template_path, VIM::VirtualMachine)
     if template
-      is_template = template.collect 'config.template'
+      config = template.config
+      is_template = config && config.template
       if !is_template
         template = nil
       end

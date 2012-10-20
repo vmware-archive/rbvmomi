@@ -218,6 +218,10 @@ class Connection < TrivialSoap
   def type name
     self.class.type name
   end
+  
+  def instanceUuid
+    nil
+  end
 
   def self.extension_dirs
     @extension_dirs ||= []
