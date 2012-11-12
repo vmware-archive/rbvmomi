@@ -494,7 +494,11 @@ class PerfAggregator
     @inventory = inventory
     @vms_props = vms_props
     
-    [inventory, vms_props, hosts_props]
+    {
+      'inventory' => inventory, 
+      'vms_props' => vms_props, 
+      'hosts_props' => hosts_props,
+    }
   end
   
   def _make_marshal_friendly hash
