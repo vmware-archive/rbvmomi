@@ -56,7 +56,7 @@ class RbVmomi::VIM::OvfManager
     raise nfcLease.error if nfcLease.state == "error"
     begin
       nfcLease.HttpNfcLeaseProgress(:percent => 5)
-      timeout = nfcLease.collect 'info.leaseTimeout'
+      timeout, = nfcLease.collect 'info.leaseTimeout'
       if timeout < 4 * 60
         puts "WARNING: OVF upload NFC lease timeout less than 4 minutes"
       end
