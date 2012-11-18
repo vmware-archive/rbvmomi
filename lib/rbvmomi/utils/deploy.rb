@@ -178,11 +178,10 @@ class CachedOvfDeployer
       # prepare it for (linked) cloning and mark it as a template to signal
       # we are done.
       if !wait_for_template
-        vm.add_delta_disk_layer_on_all_disks
-        if opts[:config]
-          # XXX: Should we add a version that does retries?
-          vm.ReconfigVM_Task(:spec => opts[:config]).wait_for_completion
-        end
+        config = opts[:config] || {}
+        config = vm.update_spec_add_delta_disk_layer_on_all_disks(config)
+        # XXX: Should we add a version that does retries?
+        vm.ReconfigVM_Task(:spec => opts[:config]).wait_for_completion
         vm.MarkAsTemplate
       end
     end
