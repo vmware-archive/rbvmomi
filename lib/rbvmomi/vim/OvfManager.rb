@@ -56,9 +56,20 @@ class RbVmomi::VIM::OvfManager
     raise nfcLease.error if nfcLease.state == "error"
     begin
       nfcLease.HttpNfcLeaseProgress(:percent => 5)
+      timeout = nfcLease.collect 'info.leaseTimeout'
+      if timeout < 4 * 60
+        puts "WARNING: OVF upload NFC lease timeout less than 4 minutes"
+      end
       progress = 5.0
       result.fileItem.each do |fileItem|
-        deviceUrl = nfcLease.info.deviceUrl.find{|x| x.importKey == fileItem.deviceId}
+        leaseInfo, leaseState, leaseError = nfcLease.collect 'info', 'state', 'error'
+        if leaseState != "ready"
+          raise "NFC lease is no longer ready: #{leaseState}: #{leaseError}"
+        end
+        if leaseInfo == nil
+          raise "NFC lease disappeared?"
+        end
+        deviceUrl = leaseInfo.deviceUrl.find{|x| x.importKey == fileItem.deviceId}
         if !deviceUrl
           raise "Couldn't find deviceURL for device '#{fileItem.deviceId}'"
         end
@@ -74,8 +85,8 @@ class RbVmomi::VIM::OvfManager
 
         keepAliveThread = Thread.new do
           while true
-            sleep 2 * 60
             nfcLease.HttpNfcLeaseProgress(:percent => progress.to_i)
+            sleep 2 * 60
           end
         end
 

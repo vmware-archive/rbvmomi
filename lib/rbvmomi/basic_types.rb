@@ -185,7 +185,9 @@ class ManagedObject < ObjectWithMethods
       :objectSet => [{ :obj => self }],
     }])[0]
 
-    if ret.propSet.empty?
+    if !ret
+      return nil
+    elsif ret.propSet.empty?
       return nil if ret.missingSet.empty?
       raise ret.missingSet[0].fault
     else
