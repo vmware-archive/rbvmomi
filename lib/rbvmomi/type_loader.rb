@@ -54,8 +54,9 @@ class TypeLoader
   def get name
     fail unless name.is_a? String
 
-    if name[0].downcase == name[0]
-      name = "%s%s" % [name[0].upcase, name[1..-1]]
+    first_char = name[0].chr
+    if first_char.downcase == first_char
+      name = "%s%s" % [first_char.upcase, name[1..-1]]
     end
 
     return @loaded[name] if @loaded.member? name
@@ -75,8 +76,9 @@ class TypeLoader
         if value
           value['wsdl_name'] ||= name
         end
-        if name[0].downcase == name[0]
-          name = "%s%s" % [name[0].upcase, name[1..-1]]
+        first_char = name[0].chr
+        if first_char.downcase == first_char
+          name = "%s%s" % [first_char.upcase, name[1..-1]]
         end
         [name, value]
       end]
