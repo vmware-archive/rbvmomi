@@ -63,6 +63,17 @@ class RbVmomi::VIM::OvfManager
       progress = 5.0
       result.fileItem.each do |fileItem|
         leaseInfo, leaseState, leaseError = nfcLease.collect 'info', 'state', 'error'
+        # Retry nfcLease.collect because of PR 969599:
+        # If retrying property collector works, this means there is a network
+        # or VC overloading problem.
+        retrynum = 5
+        i = 1
+        while i <= retrynum && !leaseState
+          puts "Retrying at iteration #{i}"
+          sleep 1
+          leaseInfo, leaseState, leaseError = nfcLease.collect 'info', 'state', 'error'
+          i += 1
+        end
         if leaseState != "ready"
           raise "NFC lease is no longer ready: #{leaseState}: #{leaseError}"
         end
@@ -86,7 +97,7 @@ class RbVmomi::VIM::OvfManager
         keepAliveThread = Thread.new do
           while true
             nfcLease.HttpNfcLeaseProgress(:percent => progress.to_i)
-            sleep 2 * 60
+            sleep 1 * 60
           end
         end
 
