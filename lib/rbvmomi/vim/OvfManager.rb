@@ -101,7 +101,20 @@ class RbVmomi::VIM::OvfManager
           end
         end
 
-        href = deviceUrl.url.gsub("*", opts[:host].config.network.vnic[0].spec.ip.ipAddress)
+        i = 1
+        ip = nil
+        begin
+          begin
+            puts "Iteration #{i}: Trying to get host's IP address ..."
+            ip = opts[:host].config.network.vnic[0].spec.ip.ipAddress
+          rescue Exception=>e
+            puts "Iteration #{i}: Couldn't get host's IP address: #{e}"
+          end
+          sleep 1
+          i += 1
+        end while i <= 5 && !ip
+        raise "Couldn't get host's IP address" unless ip
+        href = deviceUrl.url.gsub("*", ip)
         downloadCmd = "#{CURLBIN} -L '#{URI::escape(filename)}'"
         uploadCmd = "#{CURLBIN} -Ss -X #{method} --insecure -T - -H 'Content-Type: application/x-vnd.vmware-streamVmdk' '#{URI::escape(href)}'"
         # Previously we used to append "-H 'Content-Length: #{fileItem.size}'"
@@ -118,7 +131,20 @@ class RbVmomi::VIM::OvfManager
       end
 
       nfcLease.HttpNfcLeaseProgress(:percent => 100)
-      vm = nfcLease.info.entity
+      raise nfcLease.error if nfcLease.state == "error"
+      i = 1
+      vm = nil
+      begin
+        begin
+          puts "Iteration #{i}: Trying to access nfcLease.info.entity ..."
+          vm = nfcLease.info.entity
+        rescue Exception=>e
+          puts "Iteration #{i}: Couldn't access nfcLease.info.entity: #{e}"
+        end
+        sleep 1
+        i += 1
+      end while i <= 5 && !vm
+      raise "Couldn't access nfcLease.info.entity" unless vm
       nfcLease.HttpNfcLeaseComplete
       vm
     end
