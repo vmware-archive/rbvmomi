@@ -47,11 +47,17 @@ class TypeLoader
 
   def has? name
     fail unless name.is_a? String
+
     @db.member?(name) or BasicTypes::BUILTIN.member?(name)
   end
 
   def get name
     fail unless name.is_a? String
+
+    if name[0].downcase == name[0]
+      name = "%s%s" % [name[0].upcase, name[1..-1]]
+    end
+
     return @loaded[name] if @loaded.member? name
     @lock.synchronize do
       return @loaded[name] if @loaded.member? name
@@ -65,6 +71,15 @@ class TypeLoader
   def add_types types
     @lock.synchronize do
       @db.merge! types
+      @db = Hash[@db.map do |name, value|
+        if value
+          value['wsdl_name'] ||= name
+        end
+        if name[0].downcase == name[0]
+          name = "%s%s" % [name[0].upcase, name[1..-1]]
+        end
+        [name, value]
+      end]
     end
   end
 
@@ -96,6 +111,7 @@ class TypeLoader
     superclass = get desc['wsdl_base']
     Class.new(superclass).tap do |klass|
       klass.init name, desc['props']
+      klass.wsdl_name = desc['wsdl_name']
     end
   end
 
@@ -103,12 +119,14 @@ class TypeLoader
     superclass = get desc['wsdl_base']
     Class.new(superclass).tap do |klass|
       klass.init name, desc['props'], desc['methods']
+      klass.wsdl_name = desc['wsdl_name']
     end
   end
 
   def make_enum_type name, desc
     Class.new(BasicTypes::Enum).tap do |klass|
       klass.init name, desc['values']
+      klass.wsdl_name = desc['wsdl_name']
     end
   end
 end
