@@ -28,6 +28,7 @@ ID2NAME.merge!({
   'vmodl.DateTime' => 'xsd:dateTime',
   'vmodl.Binary' => 'xsd:base64Binary',
   'vmodl.Any' => 'xsd:anyType',
+  'vmodl.URI' => 'xsd:anyURI',
   'void' => nil,
 })
 
