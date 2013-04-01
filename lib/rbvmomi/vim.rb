@@ -31,6 +31,8 @@ class VIM < Connection
     opts[:rev] = '4.0' unless rev_given
     opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
 
+    Excon.defaults[:ssl_verify_peer] = false if opts[:insecure]
+
     new(opts).tap do |vim|
       vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
       unless rev_given
