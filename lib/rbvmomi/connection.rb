@@ -65,7 +65,6 @@ class Connection < TrivialSoap
     else
       if desc
         type = desc['is-task'] ? 'Task' : desc['wsdl_type']
-        puts "PR 1019166: type = nil, desc = #{desc}" if type == nil #PR 1019166 debug
         returnvals = resp.children.select(&:element?).map { |c| @deserializer.deserialize c, type }
         (desc['is-array'] && !desc['is-task']) ? returnvals : returnvals.first
       else
