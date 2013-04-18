@@ -97,6 +97,7 @@ class VIM < Connection
       lineEnd = log.lineEnd
       start = lineEnd - lines
     end
+    start = start < 0 ? 0 : start
     log = diagMgr.BrowseDiagnosticLog(host: host, key: logKey, start: start)
     if log.lineText.size > 0
       [log.lineText.slice(-lines, log.lineText.size), log.lineEnd]
