@@ -52,6 +52,7 @@ class TypeLoader
   end
 
   def get name
+    puts "PR 1019166: name = #{name}" unless name.is_a? String #PR 1019166 debug
     fail unless name.is_a? String
 
     if name[0].downcase == name[0]
