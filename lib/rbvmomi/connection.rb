@@ -95,8 +95,9 @@ class Connection < TrivialSoap
         $stderr.puts "PR 1019166: resp: #{resp}"
         $stderr.puts "PR 1019166: desc: #{desc}"
         $stderr.puts "PR 1019166: method.to_s: #{method.to_s}"
+        $stderr.puts "PR 1019166: @opts: #{@opts}"
 
-        phonehome 'connectionResponse.error', method: method.to_s, result_desc: desc['result'], response: resp
+        phonehome 'connectionResponse.error', method: method.to_s, result_desc: desc['result'], response: resp, opts: @opts
       end
     end
 
