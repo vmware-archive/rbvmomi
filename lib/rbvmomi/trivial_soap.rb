@@ -101,6 +101,17 @@ class RbVmomi::TrivialSoap
     end
 
     self.cookie = response['set-cookie'] if response.key? 'set-cookie'
+
+    #PR 1019166
+    if (body.include? "<env:Body><") && (response.body.include? "<soapenv:Body>")
+      req = body.split("<env:Body><")[1].split(' ')[0]
+      unless response.body.include? req
+        $stderr.puts "\nPR 1019166: Request-response mismatch!!"
+        $stderr.puts "PR 1019166: requested: #{req} not in response.body: #{response.body}"
+        phonehome 'connectionResponse.mismatch', requested: req, responded: response.body
+      end
+    end
+
     nk = Nokogiri(response.body)
 
     if @debug
