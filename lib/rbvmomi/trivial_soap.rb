@@ -4,6 +4,7 @@ require 'builder'
 require 'nokogiri'
 require 'net/http'
 require 'pp'
+require 'rbvmomi-utils/phonehome'
 
 class RbVmomi::TrivialSoap
   attr_accessor :debug, :cookie
@@ -109,7 +110,8 @@ class RbVmomi::TrivialSoap
       if "#{req}Response" != res
         $stderr.puts "\nPR 1019166: Request-response mismatch!!"
         $stderr.puts "PR 1019166: requested: #{req}"
-        $stderr.puts "PR 1019166: responsded: #{res}\n"
+        $stderr.puts "PR 1019166: responded: #{res}\n"
+        phonehome 'connectionResponse.error', requested: req, responded: res
       end
     end
 
