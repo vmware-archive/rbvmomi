@@ -4,6 +4,7 @@ require 'builder'
 require 'nokogiri'
 require 'net/http'
 require 'pp'
+require 'rbvmomi-utils/phonehome'
 
 class RbVmomi::TrivialSoap
   attr_accessor :debug, :cookie
@@ -102,6 +103,17 @@ class RbVmomi::TrivialSoap
     self.cookie = response['set-cookie'] if response.key? 'set-cookie'
 
     nk = Nokogiri(response.body)
+
+    #PR 1019166
+    if (body.include? "<env:Body><") && (response.body.include? "<soapenv:Body>")
+      req = body.split("<env:Body><")[1].split(' ')[0]
+      resp = nk.xpath('//soapenv:Body/*').select(&:element?).first
+      if !(response.body.include? req) && !resp.at('faultcode')
+        $stderr.puts "\nPR 1019166: Request-response mismatch!!"
+        $stderr.puts "PR 1019166: requested: #{req} not in response.body: #{response.body}"
+        phonehome 'connectionResponse.mismatch', requested: req, responded: response.body
+      end
+    end
 
     if @debug
       $stderr.puts "Response (in #{'%.3f' % (end_time - start_time)} s)"
