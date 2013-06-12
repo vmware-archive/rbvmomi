@@ -145,7 +145,25 @@ class RbVmomi::VIM::OvfManager
         i += 1
       end while i <= 5 && !vm
       raise "Couldn't access nfcLease.info.entity" unless vm
-      nfcLease.HttpNfcLeaseComplete
+
+      # Ignore sporadic connection errors caused by PR 1019166..
+      # Three attempts are made to execute HttpNfcLeaseComplete.
+      # Not critical if none goes through, as long as vm is obtained
+      #
+      # TODO: find the reason why HttpNfcLeaseComplete gets a wrong
+      # response (RetrievePropertiesResponse)
+      i = 0
+      begin
+        nfcLease.HttpNfcLeaseComplete
+        puts "HttpNfcLeaseComplete succeeded"
+      rescue RbVmomi::VIM::InvalidState
+        puts "HttpNfcLeaseComplete already finished.."
+      rescue Exception => e
+        puts "HttpNfcLeaseComplete failed at iteration #{i} with exception: #{e}"
+        i += 1
+        retry if i < 3
+        puts "Giving up HttpNfcLeaseComplete.."
+      end
       vm
     end
   rescue Exception
