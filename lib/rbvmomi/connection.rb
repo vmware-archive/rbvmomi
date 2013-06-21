@@ -90,13 +90,6 @@ class Connection < TrivialSoap
     if (!resp.at('faultcode')) && desc && desc['result']
       returnvals = resp.children.select(&:element?).map { |c| c['type'] }
       if (returnvals.include? nil) && (!desc['result']['is-task']) && desc['result']['wsdl_type'] == nil
-        $stderr.puts "!!!! error condition"
-        $stderr.puts "PR 1019166: returnvals: #{returnvals}"
-        $stderr.puts "PR 1019166: resp: #{resp}"
-        $stderr.puts "PR 1019166: desc: #{desc}"
-        $stderr.puts "PR 1019166: method.to_s: #{method.to_s}"
-        $stderr.puts "PR 1019166: @opts: #{@opts}"
-
         phonehome 'connectionResponse.error', method: method.to_s, result_desc: desc['result'], response: resp, opts: @opts
       end
     end
