@@ -6,6 +6,7 @@ require 'rbvmomi/basic_types'
 require 'rbvmomi/fault'
 require 'rbvmomi/type_loader'
 require 'rbvmomi/deserialization'
+require 'rbvmomi-utils/phonehome'
 
 module RbVmomi
 
@@ -85,6 +86,13 @@ class Connection < TrivialSoap
 
     t2 = Time.now
     resp, resp_size = request "#{@ns}/#{@rev}", body
+
+    if (!resp.at('faultcode')) && desc && desc['result']
+      returnvals = resp.children.select(&:element?).map { |c| c['type'] }
+      if (returnvals.include? nil) && (!desc['result']['is-task']) && desc['result']['wsdl_type'] == nil
+        phonehome 'connectionResponse.error', method: method.to_s, result_desc: desc['result'], response: resp, opts: @opts
+      end
+    end
 
     t3 = Time.now
     out = parse_response resp, desc['result']
