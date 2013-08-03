@@ -63,6 +63,17 @@ class RbVmomi::VIM::OvfManager
       progress = 5.0
       result.fileItem.each do |fileItem|
         leaseInfo, leaseState, leaseError = nfcLease.collect 'info', 'state', 'error'
+        # Retry nfcLease.collect because of PR 969599:
+        # If retrying property collector works, this means there is a network
+        # or VC overloading problem.
+        retrynum = 5
+        i = 1
+        while i <= retrynum && !leaseState
+          puts "Retrying at iteration #{i}"
+          sleep 1
+          leaseInfo, leaseState, leaseError = nfcLease.collect 'info', 'state', 'error'
+          i += 1
+        end
         if leaseState != "ready"
           raise "NFC lease is no longer ready: #{leaseState}: #{leaseError}"
         end
@@ -86,11 +97,24 @@ class RbVmomi::VIM::OvfManager
         keepAliveThread = Thread.new do
           while true
             nfcLease.HttpNfcLeaseProgress(:percent => progress.to_i)
-            sleep 2 * 60
+            sleep 1 * 60
           end
         end
 
-        href = deviceUrl.url.gsub("*", opts[:host].config.network.vnic[0].spec.ip.ipAddress)
+        i = 1
+        ip = nil
+        begin
+          begin
+            puts "Iteration #{i}: Trying to get host's IP address ..."
+            ip = opts[:host].config.network.vnic[0].spec.ip.ipAddress
+          rescue Exception=>e
+            puts "Iteration #{i}: Couldn't get host's IP address: #{e}"
+          end
+          sleep 1
+          i += 1
+        end while i <= 5 && !ip
+        raise "Couldn't get host's IP address" unless ip
+        href = deviceUrl.url.gsub("*", ip)
         downloadCmd = "#{CURLBIN} -L '#{URI::escape(filename)}'"
         uploadCmd = "#{CURLBIN} -Ss -X #{method} --insecure -T - -H 'Content-Type: application/x-vnd.vmware-streamVmdk' '#{URI::escape(href)}'"
         # Previously we used to append "-H 'Content-Length: #{fileItem.size}'"
@@ -107,8 +131,39 @@ class RbVmomi::VIM::OvfManager
       end
 
       nfcLease.HttpNfcLeaseProgress(:percent => 100)
-      vm = nfcLease.info.entity
-      nfcLease.HttpNfcLeaseComplete
+      raise nfcLease.error if nfcLease.state == "error"
+      i = 1
+      vm = nil
+      begin
+        begin
+          puts "Iteration #{i}: Trying to access nfcLease.info.entity ..."
+          vm = nfcLease.info.entity
+        rescue Exception=>e
+          puts "Iteration #{i}: Couldn't access nfcLease.info.entity: #{e}"
+        end
+        sleep 1
+        i += 1
+      end while i <= 5 && !vm
+      raise "Couldn't access nfcLease.info.entity" unless vm
+
+      # Ignore sporadic connection errors caused by PR 1019166..
+      # Three attempts are made to execute HttpNfcLeaseComplete.
+      # Not critical if none goes through, as long as vm is obtained
+      #
+      # TODO: find the reason why HttpNfcLeaseComplete gets a wrong
+      # response (RetrievePropertiesResponse)
+      i = 0
+      begin
+        nfcLease.HttpNfcLeaseComplete
+        puts "HttpNfcLeaseComplete succeeded"
+      rescue RbVmomi::VIM::InvalidState
+        puts "HttpNfcLeaseComplete already finished.."
+      rescue Exception => e
+        puts "HttpNfcLeaseComplete failed at iteration #{i} with exception: #{e}"
+        i += 1
+        retry if i < 3
+        puts "Giving up HttpNfcLeaseComplete.."
+      end
       vm
     end
   rescue Exception
