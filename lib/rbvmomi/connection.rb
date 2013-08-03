@@ -135,7 +135,9 @@ class Connection < TrivialSoap
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
       xml.tag! name, o._ref, :type => o.class.wsdl_name
     when BasicTypes::DataObject
-      fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
+      if expected and not expected >= o.class and not expected == BasicTypes::AnyType
+        fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}"
+      end 
       xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
           if o.props.member? desc['name'].to_sym
