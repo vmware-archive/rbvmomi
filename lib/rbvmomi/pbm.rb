@@ -51,7 +51,7 @@ class PBM < Connection
 
   # Alias to serviceInstance.RetrieveServiceContent
   def serviceContent
-    @serviceContent ||= serviceInstance.RetrieveServiceContent
+    @serviceContent ||= serviceInstance.PbmRetrieveServiceContent
   end
 
   # @private

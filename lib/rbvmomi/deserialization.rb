@@ -64,15 +64,18 @@ class NewDeserializer
       else fail
       end
     else
+      if type =~ /:/
+        type = type.split(":", 2)[1]
+      end
       if type =~ /^ArrayOf/
         type = DEMANGLED_ARRAY_TYPES[$'] || $'
         return node.children.select(&:element?).map { |c| deserialize c, type }
       end
-
       if type =~ /:/
         type = type.split(":", 2)[1]
       end
-      klass = @loader.get(type) or fail "no such type #{type}"
+
+      klass = @loader.get(type) or fail "no such type '#{type}'"
       case klass.kind
       when :data
         traverse_data node, klass
