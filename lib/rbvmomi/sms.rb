@@ -48,16 +48,6 @@ class SMS < Connection
     @serviceInstance ||= VIM::SmsServiceInstance self, 'ServiceInstance'
   end
 
-  # Alias to serviceInstance.PbmRetrieveServiceContent
-  def serviceContent
-    @serviceContent ||= serviceInstance.RetrieveServiceContent
-  end
-
-  def self.vasaProviderSpec
-    VIM.VasaProviderSpec 
-  end
-
-
   # @private
   def pretty_print pp
     pp.text "SMS(#{@opts[:host]})"
