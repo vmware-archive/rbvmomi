@@ -34,7 +34,7 @@ class VIM < Connection
     opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
 
     new(opts).tap do |vim|
-      if vim.serviceContent.sessionManager.currentSession.nil?
+      unless opts[:cookie]
         vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
       end
       unless rev_given
@@ -49,7 +49,7 @@ class VIM < Connection
     self.cookie = nil
     super
   end
-  
+
   def rev= x
     super
     @serviceContent = nil
@@ -89,7 +89,7 @@ class VIM < Connection
   def pretty_print pp
     pp.text "VIM(#{@opts[:host]})"
   end
-  
+
   def instanceUuid
     serviceContent.about.instanceUuid
   end
