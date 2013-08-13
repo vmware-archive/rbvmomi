@@ -90,13 +90,6 @@ class Connection < TrivialSoap
     if (!resp.at('faultcode')) && desc && desc['result']
       returnvals = resp.children.select(&:element?).map { |c| c['type'] }
       if (returnvals.include? nil) && (!desc['result']['is-task']) && desc['result']['wsdl_type'] == nil
-        $stderr.puts "!!!! error condition"
-        $stderr.puts "PR 1019166: returnvals: #{returnvals}"
-        $stderr.puts "PR 1019166: resp: #{resp}"
-        $stderr.puts "PR 1019166: desc: #{desc}"
-        $stderr.puts "PR 1019166: method.to_s: #{method.to_s}"
-        $stderr.puts "PR 1019166: @opts: #{@opts}"
-
         phonehome 'connectionResponse.error', method: method.to_s, result_desc: desc['result'], response: resp, opts: @opts
       end
     end
@@ -150,7 +143,9 @@ class Connection < TrivialSoap
       fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
       xml.tag! name, o._ref, :type => o.class.wsdl_name
     when BasicTypes::DataObject
-      fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
+      if expected and not expected >= o.class and not expected == BasicTypes::AnyType
+        fail "expected #{expected.wsdl_name}, got #{o.class.wsdl_name} for field #{name.inspect}"
+      end 
       xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
           if o.props.member? desc['name'].to_sym

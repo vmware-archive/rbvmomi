@@ -109,8 +109,6 @@ class RbVmomi::TrivialSoap
       req = body.split("<env:Body><")[1].split(' ')[0]
       resp = nk.xpath('//soapenv:Body/*').select(&:element?).first
       if !(response.body.include? req) && !resp.at('faultcode')
-        $stderr.puts "\nPR 1019166: Request-response mismatch!!"
-        $stderr.puts "PR 1019166: requested: #{req} not in response.body: #{response.body}"
         phonehome 'connectionResponse.mismatch', requested: req, responded: response.body
       end
     end
