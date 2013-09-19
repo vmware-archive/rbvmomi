@@ -48,7 +48,16 @@ class RbVmomi::VIM::OvfManager
       result.warning.each{|x| puts "OVF Warning: #{x.localizedMessage.chomp}" }
     end
 
-    nfcLease = opts[:resourcePool].ImportVApp(:spec => result.importSpec,
+    importSpec = result.importSpec
+    if importSpec.instantiationOst && importSpec.instantiationOst.child
+      importSpec.instantiationOst.child.each do |child|
+        child.section.map do |section|
+          section.xml = _handle_ost(section.xml, opts)
+        end
+      end
+    end
+    
+    nfcLease = opts[:resourcePool].ImportVApp(:spec => importSpec,
                                               :folder => opts[:vmFolder],
                                               :host => opts[:host])
 
@@ -169,5 +178,18 @@ class RbVmomi::VIM::OvfManager
   rescue Exception
     (nfcLease.HttpNfcLeaseAbort rescue nil) if nfcLease
     raise
+  end
+  
+  def _handle_ost ost, opts = {}
+    ost = Nokogiri::XML(ost)
+    if opts[:vservice] == ['com.vmware.vim.vsm:extension_vservice']
+      ost.xpath('//vmw:Annotations/vmw:Providers/vmw:Provider').each do |x|
+        x['vmw:selected'] = 'selected'
+      end
+      ost.xpath('//vmw:Annotations/vmw:Providers').each do |x|
+        x['vmw:selected'] = 'com.vmware.vim.vsm:extension_vservice'
+      end
+    end
+    ost.to_s
   end
 end
