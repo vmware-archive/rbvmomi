@@ -49,7 +49,7 @@ class RbVmomi::VIM::OvfManager
     end
 
     importSpec = result.importSpec
-    if importSpec.instantiationOst && importSpec.instantiationOst.child
+    if importSpec && importSpec.instantiationOst && importSpec.instantiationOst.child
       importSpec.instantiationOst.child.each do |child|
         child.section.map do |section|
           section.xml = _handle_ost(section.xml, opts)
