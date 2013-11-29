@@ -95,12 +95,16 @@ class RbVmomi::VIM::OvfManager
           raise "Couldn't find deviceURL for device '#{fileItem.deviceId}'"
         end
 
-        # XXX handle file:// URIs
         ovfFilename = opts[:uri].to_s
         tmp = ovfFilename.split(/\//)
         tmp.pop
         tmp << fileItem.path
         filename = tmp.join("/")
+
+        # If filename doesn't have a URI scheme, we're considering it a local file
+        if URI(filename).scheme.nil?
+          filename = "file://" + filename
+        end
 
         method = fileItem.create ? "PUT" : "POST"
 
