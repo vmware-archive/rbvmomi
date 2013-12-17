@@ -219,7 +219,7 @@ class ManagedObject < ObjectWithMethods
 
   def == x
     out = (x.class == self.class && x._ref == @ref) 
-    out = (out && x._connection.instanceUuid == self._connection.instanceUuid)
+    out = (x._connection.instanceUuid == self._connection.instanceUuid) if out && x._connection.host
     out
   end
 
