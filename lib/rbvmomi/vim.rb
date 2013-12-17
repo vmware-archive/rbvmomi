@@ -39,7 +39,7 @@ class VIM < Connection
       end
       unless rev_given
         rev = vim.serviceContent.about.apiVersion
-        vim.rev = [rev, '5.1'].min
+        vim.rev = [rev, '5.5'].min
       end
     end
   end
