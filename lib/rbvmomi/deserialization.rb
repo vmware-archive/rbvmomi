@@ -232,7 +232,7 @@ class OldDeserializer
   end
 end
 
-if ENV['RBVMOMI_NEW_DESERIALIZER'] == '1'
+if ENV['RBVMOMI_NEW_DESERIALIZER'] == '1' || true # Always use new one now
   Deserializer = NewDeserializer
 else
   Deserializer = OldDeserializer

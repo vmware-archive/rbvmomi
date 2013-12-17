@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'nokogiri'
-
+require 'pp'
 # :usage => analyze-vim-declarations.rb vim-declarations.xml foo-declarations.xml vmodl.db
 
 XML_FNS = ARGV[0...-1]
@@ -28,6 +28,7 @@ ID2NAME.merge!({
   'vmodl.DateTime' => 'xsd:dateTime',
   'vmodl.Binary' => 'xsd:base64Binary',
   'vmodl.Any' => 'xsd:anyType',
+  'vmodl.URI' => 'xsd:anyURI',
   'void' => nil,
 })
 
@@ -129,13 +130,17 @@ end
 
 XML_FNS.each do |fn|
   puts "parsing #{fn} ..."
-  xml = Nokogiri.parse(File.read(fn), nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS)
+  xml_str = File.read(fn)
+  xml_str = xml_str.gsub(/\<description-html\>(.*?)\<\/description-html\>/m, "")
+  xml = Nokogiri.parse(xml_str, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS)
   xml.root.at('enums').children.each { |x| handle_enum x }
   xml.root.at('managed-objects').children.each { |x| handle_managed_object x }
   xml.root.at('data-objects').children.each { |x| handle_data_object x }
   xml.root.at('faults').children.each { |x| handle_fault x }
   #xml.root.at('definitions').at('version-types').children.each { |x| handle_version x }
 end
+
+#pp ID2NAME
 
 munge_fault = lambda { |x| true }
 
@@ -159,12 +164,20 @@ TYPES.each do |k,t|
     end
     t['methods'].each do |mName,x|
       if y = x['result']
-        y['wsdl_type'] = ID2NAME[y['type-id-ref']]
+        begin
+          y['wsdl_type'] = ID2NAME[y['type-id-ref']]
+        rescue Exception => ex
+          pp ex
+        end
         y.delete 'type-id-ref'
         munge_fault[y]
       end
       x['params'].each do |r|
-        r['wsdl_type'] = ID2NAME[r['type-id-ref']]
+        begin
+          r['wsdl_type'] = ID2NAME[r['type-id-ref']]
+        rescue Exception => ex
+          pp ex
+        end
         r.delete 'type-id-ref'
         munge_fault[r]
       end
