@@ -102,6 +102,13 @@ class CachedOvfDeployer
     # simplicity this function assumes we need to read the OVF file 
     # ourselves to know the names, and we map all of them to the same
     # VIM::Network.
+
+    # If we're handling a file:// URI we need to strip the scheme as open-uri
+    # can't handle them.
+    if URI(ovf_url).scheme == "file" && URI(ovf_url).host.nil?
+      ovf_url = URI(ovf_url).path
+    end
+
     ovf = open(ovf_url, 'r'){|io| Nokogiri::XML(io.read)}
     ovf.remove_namespaces!
     networks = ovf.xpath('//NetworkSection/Network').map{|x| x['name']}
@@ -206,7 +213,7 @@ class CachedOvfDeployer
   #                               or nil
   def lookup_template template_name
     template_path = "#{template_name}-#{@computer.name}"
-    template = @template_folder.traverse(template_path, VIM::VirtualMachine)
+    template = @template_folder.traverse(template_path, RbVmomi::VIM::VirtualMachine)
     if template
       config = template.config
       is_template = config && config.template
