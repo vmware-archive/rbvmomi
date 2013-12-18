@@ -97,12 +97,12 @@ class VIM < Connection
   def get_log_lines logKey, lines=5, start=nil, host=nil
     diagMgr = self.serviceContent.diagnosticManager
     if !start
-      log = diagMgr.BrowseDiagnosticLog(host: host, key: logKey, start: 999999999)
+      log = diagMgr.BrowseDiagnosticLog(:host => host, :key => logKey, :start => 999999999)
       lineEnd = log.lineEnd
       start = lineEnd - lines
     end
     start = start < 0 ? 0 : start
-    log = diagMgr.BrowseDiagnosticLog(host: host, key: logKey, start: start)
+    log = diagMgr.BrowseDiagnosticLog(:host => host, :key => logKey, :start => start)
     if log.lineText.size > 0
       [log.lineText.slice(-lines, log.lineText.size), log.lineEnd]
     else
@@ -113,7 +113,7 @@ class VIM < Connection
   def get_log_keys host=nil
     diagMgr = self.serviceContent.diagnosticManager
     keys = []
-    diagMgr.QueryDescriptions(host: host).each do |desc|
+    diagMgr.QueryDescriptions(:host => host).each do |desc|
       keys << "#{desc.key}"
     end
     keys
