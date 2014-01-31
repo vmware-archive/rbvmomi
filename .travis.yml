@@ -1,0 +1,16 @@
+language: ruby
+rvm:
+  - 1.8.7
+  - 1.9.2
+  - 1.9.3
+  - 2.0.0
+  - jruby-18mode
+  - rbx-18mode
+  - rbx-19mode
+  - ruby-head
+  - jruby-head
+  - ree
+jdk:
+  - openjdk7
+  - oraclejdk7
+  - openjdk6
