@@ -42,7 +42,13 @@ class NewDeserializer
   end
 
   def deserialize node, type=nil
-    type_attr = node['type']
+    if type_attr = node['type']
+    elsif node.attributes['type']
+      # Work around for 1.5.x which doesn't populate node['type']
+      # XXX what changed
+      type_attr = node.attributes['type'].value
+    end
+
     type = type_attr if type_attr
 
     if action = BUILTIN_TYPE_ACTIONS[type]
