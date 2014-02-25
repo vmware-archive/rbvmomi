@@ -91,8 +91,14 @@ class CachedOvfDeployer
   # @return [VIM::VirtualMachine] The template as a VIM::VirtualMachine instance
   def upload_ovf_as_template ovf_url, template_name, opts = {}
     # Optimization: If there happens to be a fully prepared template, then
-    # there is no need to do the complicated OVF upload dance
-    template = lookup_template template_name
+    # there is no need to do the complicated OVF upload dance.
+    # Also takes care of adding the right suffix if not called with opts[:simple_vm_name]
+    if opts[:simple_vm_name]
+      template = lookup_template template_name
+    else
+      template = lookup_template template_name + "-#{@computer.name}"
+    end
+
     if template
       return template
     end
@@ -145,7 +151,12 @@ class CachedOvfDeployer
     # To work around the VMFS 8-host limit (existed until ESX 5.0), as 
     # well as just for organization purposes, we create one template per 
     # cluster. This also provides us with additional isolation. 
-    vm_name = template_name+"-#{@computer.name}"
+    # This setting can be overriden by passing opts[:simple_vm_name].
+    if opts[:simple_vm_name]
+      vm_name = template_name
+    else
+      vm_name = template_name + "-#{@computer.name}"
+    end
 
     vm = nil
     wait_for_template = false
@@ -212,7 +223,11 @@ class CachedOvfDeployer
   # @return [VIM::VirtualMachine] The template as a VIM::VirtualMachine instance 
   #                               or nil
   def lookup_template template_name
-    template_path = "#{template_name}-#{@computer.name}"
+    
+    # This code used to be template_path = "#{template_name}-#{@computer.name}"
+    # changed this as it should be reflected in the calling code and not here.
+    template_path = "#{template_name}"
+    
     template = @template_folder.traverse(template_path, RbVmomi::VIM::VirtualMachine)
     if template
       config = template.config
@@ -238,6 +253,8 @@ class CachedOvfDeployer
   # @option opts [int] :is_template If true, the clone is assumed to be a template
   #                                 again and collision and de-duping logic kicks
   #                                 in.
+  #                    :simple_vm_name If true, the template name will not
+  #                                    include #{@computer.name}
   # @return [VIM::VirtualMachine] The VIM::VirtualMachine instance of the clone
   def linked_clone template_vm, vm_name, config, opts = {}
     spec = {
@@ -252,7 +269,12 @@ class CachedOvfDeployer
     }
     if opts[:is_template]
       wait_for_template = false
-      template_name = "#{vm_name}-#{@computer.name}"
+      
+      if opts[:simple_vm_name]
+        template_name = "#{vm_name}"
+      else
+        template_name = "#{vm_name}-#{@computer.name}"
+      end
       begin
         vm = template_vm.CloneVM_Task(
           folder: @template_folder, 
