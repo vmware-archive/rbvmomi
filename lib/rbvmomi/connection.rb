@@ -117,6 +117,21 @@ class Connection < TrivialSoap
     expected = type(type)
     fail "expected array for '#{name}', got #{o.class.wsdl_name}" if is_array and not (o.is_a? Array or (o.is_a? Hash and expected == BasicTypes::KeyValue))
     case o
+    when VIM::KeyAnyValue
+      xml.tag! name, attrs do
+        xml.tag! 'key', o.key.to_s
+        if o.value.kind_of? Array
+          types = o.value.map { |e| e.class }.uniq
+          fail "Expected homogenous array for '#{name}', got '#{types}'" unless types.count == 1
+          xml.tag! 'value', { 'xsi:type' => "ArrayOf#{types.first}" } do
+            o.value.each do |v|
+              xml.tag! v.class.to_s.downcase, v.to_s
+            end
+          end
+        else
+          obj2xml xml, 'value', BasicTypes::AnyType.wsdl_name, false, o.value, {}
+        end
+      end
     when Array, BasicTypes::KeyValue
       if o.is_a? BasicTypes::KeyValue and expected != BasicTypes::KeyValue
         fail "expected #{expected.wsdl_name} for '#{name}', got KeyValue"
@@ -180,7 +195,7 @@ class Connection < TrivialSoap
     when Time
       attrs['xsi:type'] = 'xsd:dateTime' if expected == BasicTypes::AnyType
       xml.tag! name, o.iso8601, attrs
-    when BasicTypes::Int
+    when BasicTypes::Int, Fixnum, Integer
       attrs['xsi:type'] = 'xsd:int'
       xml.tag! name, o.to_s, attrs
     else fail "unexpected object class #{o.class} for '#{name}'"
@@ -199,7 +214,8 @@ class Connection < TrivialSoap
     when :anyType then BasicTypes::AnyType
     when :boolean then BasicTypes::Boolean
     when :string then String
-    when :int, :long, :short, :byte then Integer
+    when :long then Integer
+    when :int, :short, :byte then BasicTypes::Int
     when :float, :double then Float
     when :dateTime then Time
     when :base64Binary then BasicTypes::Binary

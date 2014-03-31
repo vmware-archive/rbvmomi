@@ -351,6 +351,16 @@ class Int
   def to_s
     @val.to_s
   end
+
+  def inspect
+    @val
+  end
+
+  def == o
+    @val.to_i == o
+  end
+
+  alias eql? ==
 end
 
 class KeyValue
