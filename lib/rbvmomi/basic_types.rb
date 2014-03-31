@@ -364,8 +364,8 @@ class Int < Object
 
   alias eql? ==
 
-  def respond_to?
-    @val.respond_to?
+  def respond_to? method
+    @val.respond_to? method
   end
 
   private
