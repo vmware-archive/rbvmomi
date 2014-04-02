@@ -5,7 +5,7 @@ class RbVmomi::VIM::ServiceInstance
   # @return [Datacenter]
   def find_datacenter path=nil
     if path
-      content.rootFolder.traverse path, RbVmomi::VIM::Datacenter
+      content.searchIndex.FindByInventoryPath(:inventoryPath => path)
     else
       content.rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).first
     end
