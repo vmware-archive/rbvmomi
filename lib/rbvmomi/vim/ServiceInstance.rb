@@ -5,10 +5,17 @@ class RbVmomi::VIM::ServiceInstance
   # @return [Datacenter]
   def find_datacenter path=nil
     if path
-      content.searchIndex.FindByInventoryPath(:inventoryPath => path)
+      content.rootFolder.traverse path, RbVmomi::VIM::Datacenter
     else
       content.rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).first
     end
+  end
+  
+  # Retrieve a Datacenter via searchIndex.
+  # @param path (Path to datacenter)
+  # @return [Datacenter]
+  def find_datacenter_by_searchindex path=nil
+    content.searchIndex.FindByInventoryPath(:inventoryPath => path)
   end
 
   # Wait for several tasks to complete.
