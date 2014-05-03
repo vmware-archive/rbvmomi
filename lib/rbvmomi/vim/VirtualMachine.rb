@@ -1,4 +1,6 @@
 class RbVmomi::VIM::VirtualMachine
+  CURLBIN = ENV['CURL'] || "curl" #@private
+
   # Retrieve the MAC addresses for all virtual NICs.
   # @return [Hash] Keyed by device label.
   def macs
@@ -196,5 +198,22 @@ class RbVmomi::VIM::VirtualMachine
     end
 
     fail "Didn't find disk for file #{@file}"
+  end
+
+  # Download file from VirtualMachine
+  def download vim, remote_path, npa
+    @local_path = "/tmp/#{(0...8).map { (65 + rand(26)).chr }.join}"
+    @transfer = vim.serviceContent.guestOperationsManager.fileManager.InitiateFileTransferFromGuest(:vm => self, :auth => npa, :guestFilePath => remote_path)
+    @cmd = "#{CURLBIN} -k --noproxy '*' -f -o #{@local_path} -b '#{_connection.cookie}', '#{@transfer.url}'"
+    pid = IO.popen(@cmd).pid
+    Process.waitpid(pid, 0)
+    fail "download failed" unless $?.success?
+
+    @local_path
+  end
+
+  # Delete file from VirtualMachine
+  def delete_file vim, remote_path, npa
+    vim.serviceContent.guestOperationsManager.fileManager.DeleteFileInGuest(:vm => self, :auth => npa, :filePath => remote_path)
   end
 end
