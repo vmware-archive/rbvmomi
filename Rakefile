@@ -1,6 +1,13 @@
 require 'rake/testtask'
-require 'rake/rdoctask'
-require 'yard'
+require 'rdoc/task'
+
+begin
+  require 'yard'
+  YARD::Rake::YardocTask.new
+rescue LoadError
+  puts "Yard not available. Cannot build documentation. This is most likely not a problem for production use."
+  puts "Install Yard with: gem install yard"
+end
 
 begin
   require 'jeweler'
@@ -19,7 +26,8 @@ begin
     gem.files.include '.yardopts'
   end
 rescue LoadError
-  puts "Jeweler not available. Install it with: gem install jeweler"
+  puts "Jeweler not available. Cannot build gem. This is most likely fatal."
+  puts "Install Jeweler with: gem install jeweler"
 end
 
 Rake::TestTask.new do |t|
@@ -27,8 +35,6 @@ Rake::TestTask.new do |t|
   t.test_files = FileList['test/test_*.rb']
   t.verbose = true
 end
-
-YARD::Rake::YardocTask.new
 
 begin
   require 'rcov/rcovtask'
@@ -41,5 +47,6 @@ begin
     rcov.rcov_opts << '--exclude "gems/*"'
   end
 rescue LoadError
-  puts "Rcov not available. Install it with: gem install rcov"
+  puts "Rcov not available. Cannot build tests. This is most likely not a problem for production use."
+  puts "Install Rcov it with: gem install rcov"
 end
