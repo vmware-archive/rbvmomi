@@ -1,5 +1,7 @@
 = RbVmomi
 
+{<img src="https://secure.travis-ci.org/vmware/rbvmomi.png?branch=master">}[http://travis-ci.org/vmware/rbvmomi]
+
 == Introduction
 
 RbVmomi is a Ruby interface to the vSphere API. Like the Perl and Java SDKs,
