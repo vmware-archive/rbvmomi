@@ -88,21 +88,15 @@ class RbVmomi::VIM::VirtualMachine
   #   Defaults to "SCSI controller 0"
   # @return nil on success
   def add_disk(options={})
-    defaults = {
-      :controller => "SCSI controller 0",
-    }
-    options = defaults.merge(options)
     fail "Please provide a datastore" unless options[:datastore].is_a? RbVmomi::VIM::Datastore
-
     @ds = options[:datastore]
     @file = options[:file]
-    @file_path = options[:vmdk_path]
-    @controller = options[:controller]
+    options[:controller] ||= "SCSI controller 0"
 
-    if @vmdk_path.nil?
+    if options[:vmdk_path].nil?
       @file_path = @ds.find_file_path(@file)
     else 
-      @file_path = @vmdk_path
+      @file_path = options[:vmdk_path]
     end
 
     @full_file_path = "[#{@ds.info.name}] #{@file_path}#{@file}"
@@ -114,8 +108,8 @@ class RbVmomi::VIM::VirtualMachine
     @vm_controllers = self.controllers
 
     @vm_controller = nil
-    @vm_controllers.each { |c| @vm_controller = c if c.deviceInfo.label == @controller }
-    fail "Could not find Virtual Controller #{@controller}" if @vm_controller.nil?
+    @vm_controllers.each { |c| @vm_controller = c if c.deviceInfo.label == options[:controller] }
+    fail "Could not find Virtual Controller #{options[:controller]}" if @vm_controller.nil?
 
     # Because the unit number starts at 0, count will return the next value we can use
     @unit_number = @vm_controller.device.count
@@ -141,27 +135,21 @@ class RbVmomi::VIM::VirtualMachine
   # @param destroy (optional) [Boolean] whether or not to delete the underlying disk file
   # @return nil on success
   def remove_disk(options={})
-    defaults = {
-      :destroy => false,
-    }
-    options = defaults.merge(options)
+    fail "Please provide a datastore" unless @ds.is_a? RbVmomi::VIM::Datastore
     @ds = options[:datastore]
     @file = options[:file]
     @file_path = options[:file_path]
-    @destroy = options[:destroy]
-
+    options[:destroy] ||= false
     if @file_path.nil?
       @file_path = @ds.find_file_path(@file)
     end
 
-    fail "Please provide a datastore" unless @ds.is_a? RbVmomi::VIM::Datastore
-
-    @disk = self.find_disk(:datastore => @ds, :file => "#{@file_path}#{@file}")
+    @disk = self.find_disk("#{@file_path}#{@file}", @ds)
 
     fail "Couldn't find disk attached to #{self.name} for file #{@file}" if @disk.nil?
 
     @config_remove_operation = RbVmomi::VIM::VirtualDeviceConfigSpecOperation.new('remove');
-    if @destroy
+    if options[:destroy]
       @config_destroy_operation = RbVmomi::VIM::VirtualDeviceConfigSpecFileOperation.new('destroy');
       @device_spec = RbVmomi::VIM::VirtualDeviceConfigSpec.new( :operation => @config_remove_operation,
                                                                 :device => @disk,
@@ -183,21 +171,17 @@ class RbVmomi::VIM::VirtualMachine
   # @param file [String] the name of the file for the VirtualDisk
   # @param datastore [RbVmomi::VIM::Datastore] the datastore to look for the disk in
   # @return pRbVmomi::VIM::VirtualDevice] for the disk
-  def find_disk(options={})
-    @file = options[:file]
-    @datastore = options[:datastore]
-
-    @disk = nil
+  def find_disk file, datastore
     @devices = self.disks
     @devices.each do |device|
       next unless device.backing.is_a? RbVmomi::VIM::VirtualDeviceFileBackingInfo
       @device_datastore,@device_file = device.backing.fileName.gsub(/(\[|\])/, '').split(' ')
-      if @device_file == @file and @device_datastore == @datastore.info.name
+      if @device_file == file and @device_datastore == datastore.info.name
         return device
       end
     end
 
-    fail "Didn't find disk for file #{@file}"
+    fail "Didn't find disk for file #{file}"
   end
 
   # Download file from VirtualMachine

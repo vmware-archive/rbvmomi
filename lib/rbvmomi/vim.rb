@@ -1,5 +1,6 @@
 # Copyright (c) 2011 VMware, Inc.  All Rights Reserved.
 require 'rbvmomi'
+require 'timeout'
 
 module RbVmomi
 
@@ -138,24 +139,20 @@ class VIM < Connection
     @pid = self.serviceContent.guestOperationsManager.processManager.StartProgramInGuest(:vm => @vm, :auth => @npa, :spec => @spec)
 
     # Wait for command to finish
-    while self.serviceContent.guestOperationsManager.processManager.ListProcessesInGuest(:vm => @vm, :auth => @npa, :pid => @pid).first.endTime.nil?
-      unless @timeout.nil?
-        # Convert all time to GMT
-        @start_time = self.serviceContent.guestOperationsManager.processManager.ListProcessesInGuest(:vm => @vm, :auth => @npa, :pid => @pid).startTime.gmtime.to_i
-        @now = Time.now.gmtime.to_i
-        # Kill process if timed out
-        if (@now.to_i - @start_time.to_i) > @timeout
-          begin
-            self.serviceContent.guestOperationsManager.processManager.TerminateProcessInGuest(:vm => @vm, :auth => @npa, :pid => @pid)
-          # If process not found, assume it exited cleanly
-          rescue RbVmomi::Fault::GuestProcessNotFound
-            break
-          end
-          fail "Timeout reached when executing #{options[:command]}\nProcess terminated"
-          break
+    begin
+      status = Timeout::timeout(@timeout) do
+        while self.serviceContent.guestOperationsManager.processManager.ListProcessesInGuest(:vm => @vm, :auth => @npa, :pid => @pid).first.endTime.nil?
+          sleep @interval
         end
       end
-      sleep @interval
+    rescue Timeout::Error          
+      begin
+        self.serviceContent.guestOperationsManager.processManager.TerminateProcessInGuest(:vm => @vm, :auth => @npa, :pid => @pid)
+      # If process not found, assume it exited cleanly
+      rescue RbVmomi::Fault::GuestProcessNotFound
+        break
+      end
+      fail "Timeout reached while executing #{options[:command]}\nProcess terminated"
     end
 
     # Get process information

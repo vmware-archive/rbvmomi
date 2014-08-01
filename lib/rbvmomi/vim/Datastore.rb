@@ -91,41 +91,36 @@ class RbVmomi::VIM::Datastore
   # @param path (optional) [String] Path to search for file under
   # @return [Array] of files found
   def files_in_sub path
-    unless path.nil?
-      @ds_path = "[#{self.info.name}] #{path}"
-    else
-      @ds_path = "[#{self.info.name}]"
-    end
-    
-    @query_spec = file_query_spec
-    @return = self.browser.SearchDatastoreSubFolders_Task(:datastorePath => @ds_path, :searchSpec => @query_spec).wait_for_completion
-
-    unless @return.is_a? Array
-      @return = [*@return]
-    end
-
-    @return
+    find_files(path,true)
   end
 
   # Find all files in a datastore path
   # @param path (optional) [String] Path to search for file under
   # @return [Array] of files found
   def files_in_dir path
-    unless path.nil?
-      @ds_path = "[#{self.info.name}] #{path}"
-    else
+    find_files(path, false)
+  end
+
+  def find_files path, sub
+    if path.nil?
       @ds_path = "[#{self.info.name}]"
+    else
+      @ds_path = "[#{self.info.name}] #{path}"
     end
 
     @query_spec = file_query_spec
-    self.browser.SearchDatastore_Task(:datastorePath => @ds_path, :searchSpec => @query_spec).wait_for_completion
+    if sub
+      @return = self.browser.SearchDatastoreSubFolders_Task(:datastorePath => @ds_path, :searchSpec => @query_spec).wait_for_completion
+    else
+      @return = self.browser.SearchDatastore_Task(:datastorePath => @ds_path, :searchSpec => @query_spec).wait_for_completion
+    end
 
     unless @return.is_a? Array
       @return = [*@return]
     end
-
+    
     @return
-  end
+  end  
 
   private
 
