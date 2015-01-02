@@ -54,8 +54,8 @@ class RbVmomi::VIM::Datastore
   # @params file [String]
   # @return [String] of the file's path
   def find_file_path file
-    @results = files_in_sub(nil)
-    @results.each do |result|
+    results = files_in_sub(nil)
+    results.each do |result|
       result.file.each do |file_info|
         return result.folderPath[/\[[^\]]*\] (.*)/, 1] if file == file_info.path
       end
@@ -68,19 +68,16 @@ class RbVmomi::VIM::Datastore
   # @params file [String] the file for which fileInfo is to be returned
   # @params path (optional) the path for the file
   # @return [FileInfo] object for the file
-  def get_file_info(options={})
-    @file = options[:file]
-    @path = options[:path]
-
-    if @path.nil?
-      @results = files_in_sub(nil)
+  def get_file_info file, path = nil
+    if path.nil?
+      results = files_in_sub(nil)
     else
-      @results = files_in_dir(@path)
+      results = files_in_dir(path)
     end
 
-    @results.each do |result|
+    results.each do |result|
       result.file.each do |file_info|
-        return file_info if @file == file_info.path
+        return file_info if file == file_info.path
       end
     end
 
@@ -90,45 +87,50 @@ class RbVmomi::VIM::Datastore
   # Find all files in a datastore path and sub-directories
   # @param path (optional) [String] Path to search for file under
   # @return [Array] of files found
-  def files_in_sub path
-    find_files(path,true)
+  def files_in_sub path = nil
+    if path.nil?
+      ds_path = "[#{self.info.name}]"
+    else
+      ds_path = "[#{self.info.name}] #{path}"
+    end
+    
+    query_spec = file_query_spec
+    result = self.browser.SearchDatastoreSubFolders_Task(:datastorePath => ds_path, :searchSpec => query_spec).wait_for_completion
+
+    unless result.is_a? Array
+      result = [*result]
+    end
+
+    result
   end
 
   # Find all files in a datastore path
   # @param path (optional) [String] Path to search for file under
   # @return [Array] of files found
-  def files_in_dir path
-    find_files(path, false)
-  end
-
-  def find_files path, sub
+  def files_in_dir path = nil
     if path.nil?
-      @ds_path = "[#{self.info.name}]"
+      ds_path = "[#{self.info.name}]"
     else
-      @ds_path = "[#{self.info.name}] #{path}"
+      ds_path = "[#{self.info.name}] #{path}"
     end
 
-    @query_spec = file_query_spec
-    if sub
-      @return = self.browser.SearchDatastoreSubFolders_Task(:datastorePath => @ds_path, :searchSpec => @query_spec).wait_for_completion
-    else
-      @return = self.browser.SearchDatastore_Task(:datastorePath => @ds_path, :searchSpec => @query_spec).wait_for_completion
+    query_spec = file_query_spec
+    result = self.browser.SearchDatastore_Task(:datastorePath => ds_path, :searchSpec => query_spec).wait_for_completion
+
+    unless result.is_a? Array
+      result = [*result]
     end
 
-    unless @return.is_a? Array
-      @return = [*@return]
-    end
-    
-    @return
-  end  
+    result
+  end 
 
   private
 
   def file_query_spec
-    @disk_flags = RbVmomi::VIM::VmDiskFileQueryFlags.new(:capacityKb => true, :diskType => true, :thin => false, :hardwareVersion => false)
-    @disk_query = RbVmomi::VIM::VmDiskFileQuery.new(:details => @disk_flags)
-    @detail_flags = RbVmomi::VIM::FileQueryFlags.new(:fileOwner => false, :fileSize => false, :fileType => true, :modification => false)
-    RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new(:query => [*@disk_query], :details => @detail_flags)
+    disk_flags = RbVmomi::VIM::VmDiskFileQueryFlags.new(:capacityKb => true, :diskType => true, :thin => false, :hardwareVersion => false)
+    disk_query = RbVmomi::VIM::VmDiskFileQuery.new(:details => disk_flags)
+    detail_flags = RbVmomi::VIM::FileQueryFlags.new(:fileOwner => false, :fileSize => false, :fileType => true, :modification => false)
+    RbVmomi::VIM::HostDatastoreBrowserSearchSpec.new(:query => [*disk_query], :details => detail_flags)
   end
   
   def datacenter

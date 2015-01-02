@@ -44,6 +44,37 @@ class VIM::HostSystem
   def direct?
     @ref == 'ha-host'
   end
+
+  # Find an Unresolved VMFS volume and attempt to resignature it
+  def resig_vmfs_snapshot host, vmfsLabel
+    @unbound_vmfs = host.configManager.datastoreSystem.QueryUnresolvedVmfsVolumes
+
+    fail "No unresolved VMFS volumes found" if @unbound_vmfs.empty?
+
+    @volume = nil
+
+    @unbound_vmfs.each do |dstore|
+      next unless dstore.is_a? RbVmomi::VIM::HostUnresolvedVmfsVolume
+
+      # Unless this volume matches our vmfsLabel skip it
+      next unless dstore.vmfsLabel == vmfsLabel
+
+      @extpaths = []
+      dstore.extent.each { |ex| @extpaths.push ex.devicePath }
+
+      # Build a spec to find our volume paths
+      @res_spec = RbVmomi::VIM::HostUnresolvedVmfsResignatureSpec.new(:extentDevicePath => @extpaths)
+
+      # Resignature our volume's VMFS ID so it's unique
+      host.configManager.datastoreSystem.ResignatureUnresolvedVmfsVolume_Task(:resolutionSpec => @res_spec ).wait_for_completion
+
+      @volume = dstore
+    end
+
+    fail "No VMFS volume matching #{vmfsLabel} found" unless @volume
+
+    @volume
+  end
 end
 
 class VIM::EsxcliNamespace
