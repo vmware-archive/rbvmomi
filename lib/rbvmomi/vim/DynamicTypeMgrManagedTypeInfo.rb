@@ -29,13 +29,24 @@ class RbVmomi::VIM::DynamicTypeMgrManagedTypeInfo
                    'version-id-ref' => param.version,
                  }
                end,
-               'result' => {
-                 'name' => result.name,
-                 'type-id-ref' => result.type.gsub("[]", ""),
-                 'is-array' => (result.type =~ /\[\]$/) ? true : false,
-                 'is-optional' => result.annotation.find{|a| a.name == "optional"} ? true : false,
-                 'version-id-ref' => result.version,
-               }
+               'result' => (
+               if result.nil? then
+                 {
+                     'name' => 'noname',
+                     'type-id-ref' => 'notype',
+                     'is-array' => false,
+                     'is-optional' => true,
+                     'version-id-ref' => 'noversion',
+                 }
+               else
+                 {
+                     'name' => result.name,
+                     'type-id-ref' => result.type.gsub("[]", ""),
+                     'is-array' => (result.type =~ /\[\]$/) ? true : false,
+                     'is-optional' => result.annotation.find { |a| a.name == "optional" } ? true : false,
+                     'version-id-ref' => result.version,
+                 }
+               end)
              }
             ]
           end
