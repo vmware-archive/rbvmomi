@@ -1,6 +1,6 @@
 = RbVmomi
 
-This is a fine Open Source at VMware Community supported project built and maintained by programmers like you!
+This is an Open Source at VMware Community supported project built and maintained by programmers like you!
 
 == Introduction
 
