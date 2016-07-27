@@ -1,5 +1,7 @@
 = RbVmomi
 
+This is an Open Source community supported project at VMware. It is built and maintained by programmers like you!
+
 == Introduction
 
 RbVmomi is a Ruby interface to the vSphere API. Like the Perl and Java SDKs,
