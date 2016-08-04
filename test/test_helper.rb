@@ -1,12 +1,5 @@
-coverage_tool = :simplecov if ENV['RBVMOMI_COVERAGE']
-
-case coverage_tool
-when :simplecov
-  require 'simplecov'
-  SimpleCov.start
-when :cover_me
-  require 'cover_me'
-end
+require 'simplecov'
+SimpleCov.start { add_filter '/test/' }
 
 require 'rbvmomi'
 VIM = RbVmomi::VIM
