@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency('nokogiri', '~> 1.5.11')
   spec.add_runtime_dependency('trollop', '~> 2.1')
 
-  spec.add_development_dependency('rake', '~> 11.2')
+  spec.add_development_dependency('rake', '~> 10.5')
   spec.add_development_dependency('simplecov', '~> 0.12.0')
   spec.add_development_dependency('test-unit', '~> 3.2')
   spec.add_development_dependency('yard', '~> 0.9.5')
