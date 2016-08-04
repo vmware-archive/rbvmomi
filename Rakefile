@@ -1,7 +1,7 @@
 require 'rake/testtask'
 require 'yard'
 
-task(default: :test)
+task(:default => :test)
 
 Rake::TestTask.new do |t|
   t.libs << "test"
