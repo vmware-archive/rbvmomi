@@ -1,3 +1,3 @@
 module RbVmomi
-  VERSION = '1.8.3.pre'.freeze
+  VERSION = '1.9.0'.freeze
 end
