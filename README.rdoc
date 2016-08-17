@@ -8,7 +8,7 @@ RbVmomi is a Ruby interface to the vSphere API. Like the Perl and Java SDKs,
 you can use it to manage ESX and VirtualCenter servers. The current release
 supports the vSphere 5.0 API. RbVmomi specific documentation is
 online[http://rdoc.info/github/rlane/rbvmomi/master/frames] and is meant to
-be used alongside the official documentation[http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/index.html].
+be used alongside the official documentation[http://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.wssdk.apiref.doc_50%2Fright-pane.html].
 
 == Installation
 
@@ -58,7 +58,7 @@ in the first example uses the SearchIndex for fast lookups.
 
 A few important points:
 
-* All class, method, parameter, and property names match the official documentation[http://www.vmware.com/support/developer/vc-sdk/visdk41pubs/ApiReference/index.html].
+* All class, method, parameter, and property names match the official documentation[http://pubs.vmware.com/vsphere-50/index.jsp?topic=%2Fcom.vmware.wssdk.apiref.doc_50%2Fright-pane.html].
 * Properties are exposed as accessor methods.
 * Data object types can usually be inferred from context, so you may use a hash instead.
 * Enumeration values are simply strings.
