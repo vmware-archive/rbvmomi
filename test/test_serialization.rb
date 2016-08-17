@@ -8,7 +8,7 @@ class SerializationTest < Test::Unit::TestCase
 
     begin
       assert_equal str, xml.target!
-    rescue MiniTest::Assertion
+    rescue Test::Unit::AssertionFailedError
       puts "expected:"
       puts str
       puts
@@ -237,7 +237,7 @@ class SerializationTest < Test::Unit::TestCase
     EOS
 
     obj = { 'a' => 'b', :c => 'd' }
-    check <<-EOS, obj, 'KeyValue', true
+    check <<-EOS, obj, 'KeyValue', true unless RUBY_VERSION =~ /^1.8/
 <root>
   <key>a</key>
   <value>b</value>

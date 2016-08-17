@@ -10,7 +10,7 @@ class EmitRequestTest < Test::Unit::TestCase
 
     begin
       assert_equal str, xml.target!
-    rescue MiniTest::Assertion
+    rescue Test::Unit::AssertionFailedError
       puts "expected:"
       puts str
       puts
