@@ -16,6 +16,19 @@ be used alongside the official documentation[http://pubs.vmware.com/vsphere-60/t
 
     gem install rbvmomi
 
+=== Support for older Ruby versions
+
+RbVmomi supports Ruby 1.8.7 and higher, but certain dependencies may need
+pinning to older versions to get a compatible set of gems.
+
+On Ruby 1.8.7:
+
+* use +nokogiri+ 1.5.x (Gemfile: <code>gem 'nokogiri', '< 1.6'</code>)
+
+On both Ruby 1.9 and 1.8.7:
+
+* use +json+ 1.x (Gemfile: <code>gem 'json', '< 2'</code>)
+
 == Usage
 
 A simple example of turning on a VM:
