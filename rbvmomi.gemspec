@@ -14,7 +14,6 @@ Gem::Specification.new do |spec|
   spec.bindir = 'exe'
   spec.files  = `git ls-files -z`.split("\x0").reject { |f| f.match(/^test\//) }
   spec.executables << 'rbvmomish'
-  spec.extensions << 'ext/mkrf_conf.rb'
 
   spec.add_runtime_dependency('builder', '~> 3.2')
   spec.add_runtime_dependency('json', '>= 1.8')
@@ -24,10 +23,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('rake', '~> 10.5')
   spec.add_development_dependency('simplecov', '~> 0.12.0')
   spec.add_development_dependency('yard', '~> 0.9.5')
-
-  unless RUBY_VERSION =~ /^1.8/
-    spec.add_development_dependency('test-unit', '~> 3.2')
-  end
+  spec.add_development_dependency('test-unit', '>= 2.5')
 
   spec.required_ruby_version = '>= 1.8.7'
 end
