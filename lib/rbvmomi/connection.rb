@@ -262,7 +262,7 @@ protected
   end
 
   def self.vmodl_filename
-    ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.db")
+    ENV['VMODL'] || Dir[File.join(File.dirname(__FILE__), "../../vmodl.*")].first
   end
 
   def self.load_vmodl fn

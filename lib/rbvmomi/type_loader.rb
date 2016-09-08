@@ -1,6 +1,7 @@
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
 require 'set'
 require 'monitor'
+require 'yaml'
 
 module RbVmomi
 
@@ -13,7 +14,12 @@ class TypeLoader
     @id2wsdl = {}
     @loaded = {}
     add_types Hash[BasicTypes::BUILTIN.map { |k| [k,nil] }]
-    vmodl_database = File.open(fn, 'r') { |io| Marshal.load io }
+    vmodl_database = case File.extname(fn)
+    when '.yml', '.yaml'
+      File.open(fn, 'r') { |io| YAML.load io }
+    else
+      File.open(fn, 'r') { |io| Marshal.load io }
+    end
     vmodl_database.reject! { |k,v| k =~ /^_/ }
     add_types vmodl_database
     preload
