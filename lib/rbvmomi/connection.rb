@@ -261,6 +261,10 @@ protected
     end
   end
 
+  def self.vmodl_filename
+    ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.db")
+  end
+
   def self.load_vmodl fn
     @loader = RbVmomi::TypeLoader.new fn, extension_dirs, self
     nil
