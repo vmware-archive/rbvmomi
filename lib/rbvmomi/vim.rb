@@ -39,7 +39,7 @@ class VIM < Connection
     opts[:path] ||= '/sdk'
     opts[:ns] ||= 'urn:vim25'
     rev_given = opts[:rev] != nil
-    opts[:rev] = '6.0' unless rev_given
+    opts[:rev] = '6.5' unless rev_given
     opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
 
     conn = new(opts).tap do |vim|
@@ -62,7 +62,7 @@ class VIM < Connection
       end
       unless rev_given
         rev = vim.serviceContent.about.apiVersion
-        vim.rev = [rev, '6.0'].min
+        vim.rev = [rev, '6.5'].min
       end
     end
 
