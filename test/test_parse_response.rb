@@ -1,3 +1,6 @@
+# Copyright (c) 2010-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 require 'test_helper'
 
 class ParseResponseTest < Test::Unit::TestCase

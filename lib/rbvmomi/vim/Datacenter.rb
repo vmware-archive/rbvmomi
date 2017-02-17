@@ -1,3 +1,6 @@
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 class RbVmomi::VIM::Datacenter
   # Traverse the given inventory +path+ to find a ComputeResource.
   def find_compute_resource path

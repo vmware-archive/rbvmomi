@@ -1,3 +1,6 @@
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 # Based on takeVMScreenshot.pl by William Lam
 require 'trollop'
 require 'rbvmomi'

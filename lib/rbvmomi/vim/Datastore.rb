@@ -1,3 +1,6 @@
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 # @note +download+ and +upload+ require +curl+. If +curl+ is not in your +PATH+
 #       then set the +CURL+ environment variable to point to it.
 # @todo Use an HTTP library instead of executing +curl+.

@@ -1,3 +1,6 @@
+# Copyright (c) 2012-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 
 # An admission controlled resource scheduler for large scale vSphere deployments
 #

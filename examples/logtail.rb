@@ -1,3 +1,6 @@
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 # Translation of example 2-2 from the vSphere SDK for Perl Programming Guide
 require 'trollop'
 require 'rbvmomi'

@@ -1,4 +1,6 @@
-# Copyright (c) 2011 VMware, Inc.  All Rights Reserved.
+# Copyright (c) 2010-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 require 'trollop'
 
 # Convenience methods for Trollop, Ruby's premier option parser.

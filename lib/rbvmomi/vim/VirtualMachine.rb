@@ -1,3 +1,6 @@
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 class RbVmomi::VIM::VirtualMachine
   # Retrieve the MAC addresses for all virtual NICs.
   # @return [Hash] Keyed by device label.

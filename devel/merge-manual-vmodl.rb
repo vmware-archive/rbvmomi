@@ -1,3 +1,6 @@
+# Copyright (c) 2013-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 #!/usr/bin/env ruby
 # Manually merge two versions of vmodl.db
 

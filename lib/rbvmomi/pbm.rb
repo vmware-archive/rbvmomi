@@ -1,4 +1,6 @@
-# Copyright (c) 2012 VMware, Inc.  All Rights Reserved.
+# Copyright (c) 2012-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 require 'rbvmomi'
 
 module RbVmomi

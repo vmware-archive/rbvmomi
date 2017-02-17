@@ -1,3 +1,6 @@
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 class RbVmomi::VIM::ObjectContent
   # Represent this ObjectContent as a hash.
   # @return [Hash] A hash from property paths to values.

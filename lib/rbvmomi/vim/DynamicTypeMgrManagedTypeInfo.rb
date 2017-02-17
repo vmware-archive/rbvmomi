@@ -1,3 +1,6 @@
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 class RbVmomi::VIM::DynamicTypeMgrManagedTypeInfo
   def toRbvmomiTypeHash
     {

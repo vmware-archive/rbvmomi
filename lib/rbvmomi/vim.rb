@@ -1,4 +1,6 @@
-# Copyright (c) 2011 VMware, Inc.  All Rights Reserved.
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 require 'rbvmomi'
 
 # Win32::SSPI is part of core on Windows

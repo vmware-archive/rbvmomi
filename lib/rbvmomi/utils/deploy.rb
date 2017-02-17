@@ -1,3 +1,6 @@
+# Copyright (c) 2012-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 require 'open-uri'
 require 'nokogiri'
 require 'rbvmomi'

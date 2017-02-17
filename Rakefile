@@ -1,3 +1,6 @@
+# Copyright (c) 2010-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 require 'bundler/gem_tasks'
 require 'rake/testtask'
 require 'yard'

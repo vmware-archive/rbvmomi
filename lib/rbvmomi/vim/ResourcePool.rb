@@ -1,3 +1,6 @@
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 class RbVmomi::VIM::ResourcePool
   # Retrieve a child ResourcePool.
   # @param name [String] Name of the child.

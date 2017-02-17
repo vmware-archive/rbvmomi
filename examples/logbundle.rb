@@ -1,3 +1,6 @@
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 # @todo Retrieve ESX log bundles when run against VC.
 require 'trollop'
 require 'rbvmomi'

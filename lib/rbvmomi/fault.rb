@@ -1,4 +1,6 @@
-# Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 module RbVmomi
 
 class Fault < StandardError

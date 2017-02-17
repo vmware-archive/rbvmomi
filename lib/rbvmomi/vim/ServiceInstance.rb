@@ -1,3 +1,6 @@
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 class RbVmomi::VIM::ServiceInstance
   # Retrieve a Datacenter.
   # If no path is given the first datacenter will be returned.

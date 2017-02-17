@@ -1,3 +1,6 @@
+# Copyright (c) 2016-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 $LOAD_PATH.unshift(File.expand_path('../lib', __FILE__))
 
 require 'rbvmomi/version'
@@ -8,8 +11,9 @@ Gem::Specification.new do |spec|
   spec.version = RbVmomi::VERSION
 
   spec.authors  = ['Rich Lane', 'Christian Dickmann']
-  spec.email    = 'jr@garciaole.com'
+  spec.email    = 'jrg@vmware.com'
   spec.homepage = 'https://github.com/vmware/rbvmomi'
+  spec.license  = 'MIT'
 
   spec.bindir = 'exe'
   spec.files  = `git ls-files -z`.split("\x0").reject { |f| f.match(/^test\//) }

@@ -1,3 +1,6 @@
+# Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
+# SPDX-License-Identifier: MIT
+
 #!/usr/bin/env ruby
 # Find collisions between VMODL property names and Ruby methods
 require 'rbvmomi'
