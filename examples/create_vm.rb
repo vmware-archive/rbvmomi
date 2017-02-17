@@ -1,7 +1,8 @@
+#!/usr/bin/env ruby
+
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-#!/usr/bin/env ruby
 require 'trollop'
 require 'rbvmomi'
 require 'rbvmomi/trollop'

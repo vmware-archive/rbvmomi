@@ -1,7 +1,8 @@
+#!/usr/bin/env ruby
+
 # Copyright (c) 2010-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-#!/usr/bin/env ruby
 require 'nokogiri'
 require 'pp'
 # :usage => analyze-vim-declarations.rb vim-declarations.xml foo-declarations.xml vmodl.db
