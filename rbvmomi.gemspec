@@ -19,7 +19,7 @@ Gem::Specification.new do |spec|
   spec.files  = `git ls-files -z`.split("\x0").reject { |f| f.match(/^test\//) }
   spec.executables << 'rbvmomish'
 
-  spec.add_runtime_dependency('builder', '~> 3.2')
+  spec.add_runtime_dependency('builder', '~> 3.0')
   spec.add_runtime_dependency('json', '>= 1.8')
   spec.add_runtime_dependency('nokogiri', '~> 1.5')
   spec.add_runtime_dependency('trollop', '~> 2.1')
