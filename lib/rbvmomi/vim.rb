@@ -42,7 +42,7 @@ class VIM < Connection
     opts[:rev] = '6.0' unless rev_given
     opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
 
-    new(opts).tap do |vim|
+    conn = new(opts).tap do |vim|
       unless opts[:cookie]
         if WIN32 && opts[:password] == ''
             # Attempt login by SSPI if no password specified on Windows
@@ -65,10 +65,16 @@ class VIM < Connection
         vim.rev = [rev, '6.0'].min
       end
     end
+
+    at_exit { conn.close }
+    conn
   end
 
   def close
-    VIM::SessionManager(self, 'SessionManager').Logout rescue RbVmomi::Fault
+    serviceContent.sessionManager.Logout
+  rescue RbVmomi::Fault => e
+    $stderr.puts(e.message) if debug
+  ensure
     self.cookie = nil
     super
   end
