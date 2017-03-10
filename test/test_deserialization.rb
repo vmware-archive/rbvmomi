@@ -33,8 +33,7 @@ class DeserializationTest < Test::Unit::TestCase
       :multipleHostAccess => false,
       :name => "baz",
       :type => "VMFS",
-      :url => "http://foo/",
-      :dynamicProperty => []
+      :url => "http://foo/"
     )
 
     check <<-EOS, obj, 'DatastoreSummary'
@@ -60,7 +59,6 @@ class DeserializationTest < Test::Unit::TestCase
   def test_array
     obj = VIM.ObjectContent(
       :obj => VIM.Folder(nil, 'ha-folder-root'),
-      :dynamicProperty => [],
       :missingSet => [],
       :propSet => [
         VIM.DynamicProperty(
@@ -87,12 +85,11 @@ class DeserializationTest < Test::Unit::TestCase
 
 def test_array2
   obj = VIM.DVPortStatus(
-    :dynamicProperty => [],
     :linkUp => true,
     :blocked => false,
     :vlanIds => [
-      VIM::NumericRange(:dynamicProperty => [], :start => 5, :end => 7),
-      VIM::NumericRange(:dynamicProperty => [], :start => 10, :end => 20),
+      VIM::NumericRange(:start => 5, :end => 7),
+      VIM::NumericRange(:start => 10, :end => 20),
     ],
     :vmDirectPathGen2InactiveReasonNetwork => [],
     :vmDirectPathGen2InactiveReasonOther => []
@@ -116,7 +113,6 @@ end
 
 def test_empty_array
   obj = VIM.DVPortStatus(
-    :dynamicProperty => [],
     :linkUp => true,
     :blocked => false,
     :vlanIds => [],
@@ -156,21 +152,17 @@ end
   def test_wait_for_updates
     obj = VIM.UpdateSet(
       :version => '7',
-      :dynamicProperty => [],
       :filterSet => [
         VIM.PropertyFilterUpdate(
-          :dynamicProperty => [],
           :filter => VIM.PropertyFilter(nil, "session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF"),
           :missingSet => [],
           :objectSet => [
             VIM.ObjectUpdate(
-              :dynamicProperty => [],
               :kind => 'enter',
               :obj => VIM.VirtualMachine(nil, 'vm-1106'),
               :missingSet => [],
               :changeSet => [
                 VIM.PropertyChange(
-                  :dynamicProperty => [],
                   :name => 'runtime.powerState',
                   :op => 'assign',
                   :val => 'poweredOn'
@@ -210,7 +202,6 @@ end
 
   def test_hba
     obj = VIM::HostBlockHba(
-      :dynamicProperty => [],
       :key => 'key-vim.host.BlockHba-vmhba0',
       :device => 'vmhba0',
       :bus => 0,
@@ -235,7 +226,6 @@ end
 =begin
   def test_runtime_state
     obj = VIM::VirtualMachineDeviceRuntimeInfoVirtualEthernetCardRuntimeState(
-      :dynamicProperty => [],
       vmDirectPathGen2:Active => false,
       vmDirectPathGen2:InactiveReasonOther => ["vmNptIncompatibleHost"],
       vmDirectPathGen2:InactiveReasonVm => []
@@ -253,7 +243,6 @@ end
     obj = VIM::VirtualMachineRuntimeInfo(
       :bootTime => Time.parse('2010-08-20 05:44:35 UTC'),
       :connectionState => "connected",
-      :dynamicProperty => [],
       :faultToleranceState => "notConfigured",
       :featureMask => [],
       :featureRequirement => [],
@@ -361,7 +350,6 @@ end
 
   def test_new_fields
     obj = VIM::HostBlockHba(
-      :dynamicProperty => [],
       :key => 'key-vim.host.BlockHba-vmhba0',
       :device => 'vmhba0',
       :bus => 0,
