@@ -41,19 +41,23 @@ class RbVmomi::VIM::Folder
     x if x.is_a? type
   end
 
-  # Retrieve a virtual machine or host by BIOS UUID.
-  # @param uuid [String] The UUID to find.
-  # @param type [Class] Return nil unless the found entity <tt>is_a? type</tt>.
-  # @param dc [RbVmomi::VIM::Datacenter] Restricts the query to entities in the given Datacenter.
+  # Finds a virtual machine or host by BIOS or instance UUID
+  #
+  # @param uuid [String] UUID to find
+  # @param type [Class] return nil unless found entity <tt>is_a?(type)</tt>
+  # @param dc [RbVmomi::VIM::Datacenter] restricts query to specified datacenter
+  #
   # @return [VIM::ManagedEntity]
-  def findByUuid uuid, type=RbVmomi::VIM::VirtualMachine, dc=nil
-    propSpecs = {
-      :entity => self, :uuid => uuid, :instanceUuid => false,
-      :vmSearch => type == RbVmomi::VIM::VirtualMachine
+  def findByUuid(uuid, type = RbVmomi::VIM::VirtualMachine, dc = nil, instance_uuid = false)
+    prop_specs = {
+      entity: self,
+      instanceUuid: instance_uuid,
+      uuid: uuid,
+      vmSearch: type == RbVmomi::VIM::VirtualMachine
     }
-    propSpecs[:datacenter] = dc if dc
-    x = _connection.searchIndex.FindByUuid(propSpecs)
-    x if x.is_a? type
+    prop_specs[:datacenter] = dc if dc
+    x = _connection.searchIndex.FindByUuid(prop_specs)
+    x if x.is_a?(type)
   end
 
   # Retrieve a managed entity by inventory path.
