@@ -50,10 +50,10 @@ class RbVmomi::VIM::Folder
   # @return [VIM::ManagedEntity]
   def findByUuid(uuid, type = RbVmomi::VIM::VirtualMachine, dc = nil, instance_uuid = false)
     prop_specs = {
-      entity: self,
-      instanceUuid: instance_uuid,
-      uuid: uuid,
-      vmSearch: type == RbVmomi::VIM::VirtualMachine
+      :entity       => self,
+      :instanceUuid => instance_uuid,
+      :uuid         => uuid,
+      :vmSearch     => type == RbVmomi::VIM::VirtualMachine
     }
     prop_specs[:datacenter] = dc if dc
     x = _connection.searchIndex.FindByUuid(prop_specs)
