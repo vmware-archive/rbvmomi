@@ -2,6 +2,7 @@
 
 {<img src="https://badge.fury.io/rb/rbvmomi.svg" alt="gem-version">}[https://rubygems.org/gems/rbvmomi]
 {<img src="https://travis-ci.org/vmware/rbvmomi.svg?branch=master" alt="travis-ci">}[http://travis-ci.org/vmware/rbvmomi]
+{<img src="https://badges.gitter.im/vmware/rbvmomi.svg">}[https://gitter.im/vmware/rbvmomi]
 
 This is a community-supported, open source project at VMware. It is built and maintained by programmers like you!
 
@@ -97,3 +98,8 @@ can be merged back in
 
 Open an issue on the {issues page}[https://github.com/vmware/rbvmomi/issues] or 
 fork the project on {GitHub}[https://github.com/vmware/rbvmomi] and send a {pull request}[https://github.com/vmware/rbvmomi/pulls].
+
+== Support
+
+You can chat on {Gitter}[https://gitter.im/vmware/rbvmomi] or join the {VMware \{code} Slack team}[https://vmwarecode.slack.com/]
+and join the {#rbvmomi channel}[https://vmwarecode.slack.com/messages/rbvmomi].
