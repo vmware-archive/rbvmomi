@@ -8,7 +8,7 @@ require 'net/http'
 require 'pp'
 
 class RbVmomi::TrivialSoap
-  attr_accessor :debug, :cookie
+  attr_accessor :debug, :cookie, :operation_id
   attr_reader :http
 
   def initialize opts
@@ -17,6 +17,7 @@ class RbVmomi::TrivialSoap
     return unless @opts[:host] # for testcases
     @debug = @opts[:debug]
     @cookie = @opts[:cookie]
+    @operation_id = @opts[:operation_id]
     @lock = Mutex.new
     @http = nil
     restart_http
@@ -64,11 +65,13 @@ class RbVmomi::TrivialSoap
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
     xml = Builder::XmlMarkup.new :indent => 0
     xml.tag!('env:Envelope', 'xmlns:xsd' => xsd, 'xmlns:env' => env, 'xmlns:xsi' => xsi) do
-      if @vcSessionCookie
+      if @vcSessionCookie || @operation_id
         xml.tag!('env:Header') do
-          xml.tag!('vcSessionCookie', @vcSessionCookie)
+          xml.tag!('vcSessionCookie', @vcSessionCookie) if @vcSessionCookie
+          xml.tag!('operationID', @operation_id) if @operation_id
         end
       end
+
       xml.tag!('env:Body') do
         yield xml if block_given?
       end

@@ -27,6 +27,7 @@ class VIM < Connection
   # @option opts [String]  :password Password.
   # @option opts [String]  :path (/sdk) SDK endpoint path.
   # @option opts [Boolean] :debug (false) If true, print SOAP traffic to stderr.
+  # @option opts [String]  :operation_id If set, use for operationID
   def self.connect opts
     fail unless opts.is_a? Hash
     fail "host option required" unless opts[:host]
