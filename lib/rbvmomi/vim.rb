@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: MIT
 
 require 'rbvmomi'
+require 'timeout'
 
 # Win32::SSPI is part of core on Windows
 begin
@@ -138,6 +139,64 @@ class VIM < Connection
     else
       [log.lineText, log.lineEnd]
     end
+  end
+
+  # Invoke command on a VirtualMachine
+  # @param username [String] the username for access to the VirtualMachine
+  # @param password [String] the password for access to the VirtualMachine
+  # @param command [String] the command to execute on the VirtualMachine
+  # @param timeout (optional) [Fixnum] timeout to wait before killing the task, defaults to nil
+  # @param interval (optinal) [Fixnum] interval between checkinf if process is completed
+  # @param shell (optional) [String] the optional shell to use, defaults to /bin/bash
+  def invoke_cmd(options={})
+    fail "vm required" unless options[:vm].is_a? RbVmomi::VIM::VirtualMachine
+    fail "username required" unless options[:username].is_a? String
+    fail "password required" unless options[:password].is_a? String
+    fail "command required" unless options[:command].is_a? String
+    options[:shell] ||= '/bin/bash'
+    options[:timeout] ||= nil
+    options[:interval] ||= 2
+
+    @timeout = options[:timeout]
+    @interval = options[:interval]
+    @vm = options[:vm]
+
+    @out_file = "/tmp/#{(0...8).map { (65 + rand(26)).chr }.join}"
+
+    # Run command
+    @npa = RbVmomi::VIM.NamePasswordAuthentication(:username => options[:username], :password => options[:password], :interactiveSession => false)
+    @spec = RbVmomi::VIM.GuestProgramSpec(:programPath => options[:shell], :arguments => "-c '#{options[:command]}' > #{@out_file} 2>&1")
+    @pid = self.serviceContent.guestOperationsManager.processManager.StartProgramInGuest(:vm => @vm, :auth => @npa, :spec => @spec)
+
+    # Wait for command to finish
+    begin
+      status = Timeout::timeout(@timeout) do
+        while self.serviceContent.guestOperationsManager.processManager.ListProcessesInGuest(:vm => @vm, :auth => @npa, :pid => @pid).first.endTime.nil?
+          sleep @interval
+        end
+      end
+    rescue Timeout::Error          
+      begin
+        self.serviceContent.guestOperationsManager.processManager.TerminateProcessInGuest(:vm => @vm, :auth => @npa, :pid => @pid)
+      # If process not found, assume it exited cleanly
+      rescue RbVmomi::Fault::GuestProcessNotFound
+        break
+      end
+      fail "Timeout reached while executing #{options[:command]}\nProcess terminated"
+    end
+
+    # Get process information
+    @return = self.serviceContent.guestOperationsManager.processManager.ListProcessesInGuest(:vm => @vm, :auth => @npa, :pid => @pid).first
+
+    # Retrieve process output
+    @local_path = @vm.download(self, @out_file, @npa)
+    @vm.delete_file(self, @out_file, @npa)
+
+    # Stuff output into modified class object
+    @return.cmd_output = File.read(@local_path)
+    `rm #{@local_path}`
+
+    @return
   end
 
   def get_log_keys host=nil
