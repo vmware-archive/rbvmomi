@@ -91,6 +91,7 @@ class CachedOvfDeployer
   # @option opts [Hash] :config VM Config delta to apply after the OVF deploy is
   #                             done. Allows the template to be customized, e.g.
   #                             to set annotations.
+  #                     :no_delta whether to add a delta disk layer
   # @return [VIM::VirtualMachine] The template as a VIM::VirtualMachine instance
   def upload_ovf_as_template ovf_url, template_name, opts = {}
     # Optimization: If there happens to be a fully prepared template, then
@@ -188,10 +189,12 @@ class CachedOvfDeployer
       # prepare it for (linked) cloning and mark it as a template to signal
       # we are done.
       if !wait_for_template
-        config = opts[:config] || {}
-        config = vm.update_spec_add_delta_disk_layer_on_all_disks(config)
-        # XXX: Should we add a version that does retries?
-        vm.ReconfigVM_Task(:spec => config).wait_for_completion
+        if opts[:no_delta] != true
+          config = opts[:config] || {}
+          config = vm.update_spec_add_delta_disk_layer_on_all_disks(config)
+          # XXX: Should we add a version that does retries?
+          vm.ReconfigVM_Task(:spec => config).wait_for_completion
+        end
         vm.MarkAsTemplate
       end
     end
