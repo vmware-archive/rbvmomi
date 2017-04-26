@@ -13,6 +13,7 @@
 * Erik Peterson <erik@subwindow.com>
 * Fabio Rapposelli <fabio@rapposelli.org>
 * Giuliano <giuliano@108.bz>
+* Guido Günther <agx@sigxcpu.org>
 * Hari Krishnamurthy <hkrishna@vmware.com>
 * J.R. Garcia <jr@garciaole.com>
 * Jacob Evans <jacob@dekz.net>
