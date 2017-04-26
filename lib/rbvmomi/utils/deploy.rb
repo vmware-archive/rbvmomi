@@ -81,19 +81,17 @@ class CachedOvfDeployer
   # it to be marked as a template. This way, the cost of uploading and keeping
   # the full size of the VM is only paid once.
   # @param ovf_url [String] URL to the OVF to be deployed. Currently only http 
-  #                         and https are supported
+  #   and https are supported.
   # @param template_name [String] Name of the template to be used. Should be the
-  #                               same name for the same URL. A cluster specific
-  #                               post-fix will automatically be added.
-  # @option opts [int]  :run_without_interruptions Whether or not to disable
-  #                                                SIGINT and SIGTERM during
-  #                                                the OVF upload.
+  #   same name for the same URL. A cluster specific post-fix will automatically
+  #   be added.
+  # @option opts [int] :run_without_interruptions Whether or not to disable
+  #   SIGINT and SIGTERM during the OVF upload.
   # @option opts [Hash] :config VM Config delta to apply after the OVF deploy is
-  #                             done. Allows the template to be customized, e.g.
-  #                             to set annotations.
-  #                     :no_delta whether to add a delta disk layer
+  #   done. Allows the template to be customized, e.g. to set annotations.
+  # @option opts [Boolean] :no_delta Whether or not to add a delta disk layer.
   # @return [VIM::VirtualMachine] The template as a VIM::VirtualMachine instance
-  def upload_ovf_as_template ovf_url, template_name, opts = {}
+  def upload_ovf_as_template(ovf_url, template_name, opts = {})
     # Optimization: If there happens to be a fully prepared template, then
     # there is no need to do the complicated OVF upload dance
     template = lookup_template template_name
