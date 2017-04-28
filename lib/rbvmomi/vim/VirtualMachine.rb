@@ -8,10 +8,6 @@ class RbVmomi::VIM::VirtualMachine
     Hash[self.config.hardware.device.grep(RbVmomi::VIM::VirtualEthernetCard).map { |x| [x.deviceInfo.label, x.macAddress] }]
   end
 
-  def network
-    Hash[self.config.hardware.device.grep(RbVmomi::VIM::VirtualEthernetCard).map { |x| [x.deviceInfo.label, x.deviceInfo.summary] }]
-  end
-  
   # Retrieve all virtual disk devices.
   # @return [Array] Array of virtual disk devices.
   def disks
