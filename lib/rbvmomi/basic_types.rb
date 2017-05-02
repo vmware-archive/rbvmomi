@@ -172,11 +172,16 @@ end
 class ManagedObject < ObjectWithMethods
   def self.kind; :managed end
 
-  def initialize connection, ref
+  def initialize connection, ref, props={}
     super()
     @connection = connection
     @soap = @connection # XXX deprecated
     @ref = ref
+    if props == nil
+      @props = {}
+    else
+      @props = Hash[props.map { |k, v| [k.to_sym, v] }]
+    end
   end
 
   def _connection
@@ -188,19 +193,23 @@ class ManagedObject < ObjectWithMethods
   end
 
   def _get_property sym
-    ret = @connection.propertyCollector.RetrieveProperties(:specSet => [{
-      :propSet => [{ :type => self.class.wsdl_name, :pathSet => [sym.to_s] }],
-      :objectSet => [{ :obj => self }],
-    }])[0]
+    if !@props.include?(sym)
+      ret = @connection.propertyCollector.RetrieveProperties(:specSet => [{
+        :propSet => [{ :type => self.class.wsdl_name, :pathSet => [sym.to_s] }],
+        :objectSet => [{ :obj => self }],
+      }])[0]
 
-    if !ret
-      return nil
-    elsif ret.propSet.empty?
-      return nil if ret.missingSet.empty?
-      raise ret.missingSet[0].fault
-    else
-      ret.propSet[0].val
+      @props[sym] = if !ret
+                      nil
+                    elsif ret.propSet.empty?
+                      raise ret.missingSet[0].fault unless ret.missingSet.empty?
+                      nil
+                    else
+                      ret.propSet[0].val
+                    end
     end
+
+    @props[sym]
   end
 
   def _set_property sym, val
