@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency('nokogiri', '~> 1.5')
   spec.add_runtime_dependency('trollop', '~> 2.1')
 
+  spec.add_development_dependency('pry', '~> 0.10.4')
   spec.add_development_dependency('rake', '~> 12.0')
   spec.add_development_dependency('rubocop', '~> 0.48.1')
   spec.add_development_dependency('simplecov', '~> 0.14.1')
