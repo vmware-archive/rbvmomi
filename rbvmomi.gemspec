@@ -20,14 +20,14 @@ Gem::Specification.new do |spec|
   spec.executables << 'rbvmomish'
 
   spec.add_runtime_dependency('builder', '~> 3.0')
-  spec.add_runtime_dependency('json', '>= 1.8')
+  spec.add_runtime_dependency('json', '~> 2.1')
   spec.add_runtime_dependency('nokogiri', '~> 1.5')
   spec.add_runtime_dependency('trollop', '~> 2.1')
 
-  spec.add_development_dependency('rake', '~> 10.5')
-  spec.add_development_dependency('simplecov', '~> 0.12.0')
+  spec.add_development_dependency('rake', '~> 12.0')
+  spec.add_development_dependency('simplecov', '~> 0.14.1')
   spec.add_development_dependency('yard', '~> 0.9.5')
-  spec.add_development_dependency('test-unit', '>= 2.5')
+  spec.add_development_dependency('test-unit', '~> 3.2')
 
-  spec.required_ruby_version = '>= 1.8.7'
+  spec.required_ruby_version = '>= 2.2.0'
 end
