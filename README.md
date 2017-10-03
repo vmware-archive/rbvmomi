@@ -56,7 +56,7 @@ require 'rbvmomi'
 
 vim = RbVmomi::VIM.connect(host: 'foo', user: 'bar', password: 'baz')
 root_folder = vim.serviceInstance.content.rootFolder
-dc = rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).find { |x| x.name == 'mydatacenter' } || fail('datacenter not found')
+dc = root_folder.childEntity.grep(RbVmomi::VIM::Datacenter).find { |x| x.name == 'mydatacenter' } || fail('datacenter not found')
 vm = dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine).find { |x| x.name == 'my_vm' } || fail('VM not found')
 task = vm.PowerOnVM_Task
 filter = vim.propertyCollector.CreateFilter(
