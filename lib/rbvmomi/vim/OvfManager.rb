@@ -139,7 +139,7 @@ class RbVmomi::VIM::OvfManager
         # to the uploadCmd. It is not clear to me why, but that leads to 
         # trucation of the uploaded disk. Without this option curl can't tell
         # the progress, but who cares
-        system("#{downloadCmd} | #{uploadCmd}", STDOUT => "/dev/null")
+        system("#{downloadCmd} | #{uploadCmd}", :out => "/dev/null")
         
         keepAliveThread.kill
         keepAliveThread.join
