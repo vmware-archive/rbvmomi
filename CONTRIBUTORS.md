@@ -23,6 +23,7 @@
 * Martin Englund <martin@englund.nu>
 * Nan Liu <nan.liu@gmail.com>
 * Omar Baba <obaba@infinio.com>
+* Peter <peter.adkins@kernelpicnic.net>
 * Puneet Katyal <pkatyal@vmware.com>
 * Randy Robertson <rmrobert@vmware.com>
 * Rich Lane <lanerl@gmail.com>
