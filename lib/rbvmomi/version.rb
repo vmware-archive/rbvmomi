@@ -2,5 +2,5 @@
 # SPDX-License-Identifier: MIT
 
 module RbVmomi
-  VERSION = '1.11.7'.freeze
+  VERSION = '1.12.0'.freeze
 end
