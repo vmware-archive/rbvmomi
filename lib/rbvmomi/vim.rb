@@ -39,8 +39,7 @@ class VIM < Connection
     opts[:port] ||= (opts[:ssl] ? 443 : 80)
     opts[:path] ||= '/sdk'
     opts[:ns] ||= 'urn:vim25'
-    rev_given = opts[:rev] != nil
-    opts[:rev] = '6.5' unless rev_given
+    opts[:rev] = '6.5' if opts[:rev].nil?
     opts[:debug] = (!ENV['RBVMOMI_DEBUG'].empty? rescue false) unless opts.member? :debug
 
     conn = new(opts).tap do |vim|
@@ -61,10 +60,17 @@ class VIM < Connection
             vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
         end
       end
-      unless rev_given
-        rev = vim.serviceContent.about.apiVersion
-        vim.rev = [rev, '6.5'].min
-      end
+      # Version compare
+      vim.rev = [rev, opts[:rev]].min { |a, b|
+        a_parts = a.split('.')
+        b_parts = b.split('.')
+        result = 0
+        [a_parts.size, b_parts.size].min.times {|i|
+          result = (a_parts[i].to_i <=> b_parts[i].to_i)
+          break if result != 0
+        }
+        (result != 0) ? result : (a_parts.size <=> b_parts.size)
+      }
     end
 
     at_exit { conn.close }
