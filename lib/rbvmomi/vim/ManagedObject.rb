@@ -17,7 +17,13 @@ class RbVmomi::VIM::ManagedObject
     }, :partialUpdates => false
     ver = ''
     loop do
-      result = _connection.propertyCollector.WaitForUpdates(:version => ver)
+      result = _connection.propertyCollector.WaitForUpdatesEx(
+          :version => ver,
+          :options => {:maxWaitSeconds => 300}
+      )
+      if result.nil?
+        next
+      end
       ver = result.version
       if x = b.call
         return x
