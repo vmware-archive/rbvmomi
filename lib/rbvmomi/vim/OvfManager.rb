@@ -133,6 +133,7 @@ class RbVmomi::VIM::OvfManager
         end while i <= 5 && !ip
         raise "Couldn't get host's IP address" unless ip
         href = deviceUrl.url.gsub("*", ip)
+        href = href.gsub(URI.parse(href).host, ip)
         downloadCmd = "#{CURLBIN} -L '#{URI::escape(filename)}'"
         uploadCmd = "#{CURLBIN} -Ss -X #{method} --insecure -T - -H 'Content-Type: application/x-vnd.vmware-streamVmdk' '#{URI::escape(href)}'"
         # Previously we used to append "-H 'Content-Length: #{fileItem.size}'"
