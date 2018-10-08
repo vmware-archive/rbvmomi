@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: MIT
 
 # Based on takeVMScreenshot.pl by William Lam
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
 VIM = RbVmomi::VIM
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Take a screenshot.
 
@@ -35,7 +35,7 @@ Other options:
   EOS
 end
 
-Trollop.die("must specify host") unless opts[:host]
+Optimist.die("must specify host") unless opts[:host]
 vm_name = ARGV[0] or abort("must specify VM name")
 output_path = ARGV[1] or abort("must specify output filename")
 

@@ -2,9 +2,9 @@
 # SPDX-License-Identifier: MIT
 
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Example 1 from the README: Power on a VM.
 
@@ -29,7 +29,7 @@ Other options:
   EOS
 end
 
-Trollop.die("must specify host") unless opts[:host]
+Optimist.die("must specify host") unless opts[:host]
 vm_name = ARGV[0] or abort "must specify VM name"
 
 vim = RbVmomi::VIM.connect opts

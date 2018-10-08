@@ -3,15 +3,15 @@
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
 VIM = RbVmomi::VIM
 CMDS = %w(get set)
 BEHAVIOR = %w(fullyAutomated manual partiallyAutomated default)
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Configure VM DRS behavior.
 
@@ -41,10 +41,10 @@ Other options:
   stop_on CMDS
 end
 
-Trollop.die("must specify host") unless opts[:host]
+Optimist.die("must specify host") unless opts[:host]
 
-vm_name = ARGV[0] or Trollop.die("no VM name given")
-cmd = ARGV[1] or Trollop.die("no command given")
+vm_name = ARGV[0] or Optimist.die("no VM name given")
+cmd = ARGV[1] or Optimist.die("no command given")
 abort "invalid command" unless CMDS.member? cmd
 
 vim = VIM.connect opts
@@ -64,7 +64,7 @@ when 'get'
   end
   puts "#{vm.name} is #{behavior}"
 when 'set'
-  behavior = ARGV[2] or Trollop.die("no behavior given")
+  behavior = ARGV[2] or Optimist.die("no behavior given")
   abort "invalid behavior" unless BEHAVIOR.member? behavior
 
   if behavior == "default"

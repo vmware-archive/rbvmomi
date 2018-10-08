@@ -1,19 +1,19 @@
 # Copyright (c) 2010-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'trollop'
+require 'optimist'
 
-# Convenience methods for Trollop, Ruby's premier option parser.
-# @see http://trollop.rubyforge.org/
-# @see Trollop::Parser
-module Trollop
+# Convenience methods for Optimist, Ruby's premier option parser.
+# @see http://optimist.rubyforge.org/
+# @see Optimist::Parser
+module Optimist
 
-# Convenience methods for Trollop, Ruby's premier option parser.
+# Convenience methods for Optimist, Ruby's premier option parser.
 #
 # See the examples directory for sample code.
 # Descriptions are of the form:
 #  <key>: <options> <environment variable> (<default>)
-# @see http://trollop.rubyforge.org/
+# @see http://optimist.rubyforge.org/
 class Parser
   # Options used by VIM.connect
   #

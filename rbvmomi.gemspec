@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency('builder', '~> 3.0')
   spec.add_runtime_dependency('json', '>= 1.8')
   spec.add_runtime_dependency('nokogiri', '~> 1.5')
-  spec.add_runtime_dependency('trollop', '~> 2.1')
+  spec.add_runtime_dependency('optimist', '~> 3.0')
 
   spec.add_development_dependency('rake', '~> 10.5')
   spec.add_development_dependency('simplecov', '~> 0.12.0')

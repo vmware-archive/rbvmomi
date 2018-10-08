@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: MIT
 
 # Translation of example 2-2 from the vSphere SDK for Perl Programming Guide
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
 VIM = RbVmomi::VIM
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Follow a log file.
 
@@ -29,7 +29,7 @@ Other options:
   EOS
 end
 
-Trollop.die("must specify host") unless opts[:host]
+Optimist.die("must specify host") unless opts[:host]
 logKey = ARGV[0]
 
 vim = VIM.connect opts

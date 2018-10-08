@@ -1,14 +1,14 @@
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
 VIM = RbVmomi::VIM
 CMDS = %w(list set)
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 View and modify VM extraConfig options.
 
@@ -38,10 +38,10 @@ Other options:
   stop_on CMDS
 end
 
-vm_name = ARGV[0] or Trollop.die("no VM name given")
-cmd = ARGV[1] or Trollop.die("no command given")
+vm_name = ARGV[0] or Optimist.die("no VM name given")
+cmd = ARGV[1] or Optimist.die("no command given")
 abort "invalid command" unless CMDS.member? cmd
-Trollop.die("must specify host") unless opts[:host]
+Optimist.die("must specify host") unless opts[:host]
 
 vim = VIM.connect opts
 
