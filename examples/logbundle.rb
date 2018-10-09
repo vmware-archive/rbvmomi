@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: MIT
 
 # @todo Retrieve ESX log bundles when run against VC.
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
 VIM = RbVmomi::VIM
 DEFAULT_SERVER_PLACEHOLDER = '0.0.0.0'
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Generate and retrieve a log bundle.
 
@@ -29,7 +29,7 @@ Other options:
   EOS
 end
 
-Trollop.die("must specify host") unless opts[:host]
+Optimist.die("must specify host") unless opts[:host]
 dest = ARGV[0] or abort("must specify destination directory")
 
 abort "destination is not a directory" unless File.directory? dest

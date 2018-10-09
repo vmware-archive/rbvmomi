@@ -3,9 +3,9 @@
 # Copyright (c) 2012-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 require 'rbvmomi/utils/leases'
 require 'yaml'
 
@@ -13,7 +13,7 @@ VIM = RbVmomi::VIM
 CMDS = ['set_lease_on_leaseless_vms', 'show_expired_vms', 
         'show_soon_expired_vms', 'kill_expired_vms']
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Tool for managing leases on VMs where leases are stored in YAML on VM annotations.
 
@@ -45,9 +45,9 @@ Other options:
   stop_on CMDS
 end
 
-Trollop.die("must specify host") unless opts[:host]
-cmd = ARGV[0] or Trollop.die("no command given")
-Trollop.die("no vm folder path given") unless opts[:vm_folder_path]
+Optimist.die("must specify host") unless opts[:host]
+cmd = ARGV[0] or Optimist.die("no command given")
+Optimist.die("no vm folder path given") unless opts[:vm_folder_path]
 
 vim = VIM.connect opts
 dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"

@@ -1,14 +1,14 @@
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
 VIM = RbVmomi::VIM
 CMDS = %w(on off reset suspend destroy)
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Perform VM power operations.
 
@@ -37,9 +37,9 @@ Other options:
   stop_on CMDS
 end
 
-cmd = ARGV[0] or Trollop.die("no command given")
-vm_name = ARGV[1] or Trollop.die("no VM name given")
-Trollop.die("must specify host") unless opts[:host]
+cmd = ARGV[0] or Optimist.die("no command given")
+vm_name = ARGV[1] or Optimist.die("no VM name given")
+Optimist.die("must specify host") unless opts[:host]
 
 vim = VIM.connect opts
 

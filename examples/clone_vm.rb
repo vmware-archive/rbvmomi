@@ -3,13 +3,13 @@
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
 VIM = RbVmomi::VIM
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Clone a VM.
 
@@ -36,7 +36,7 @@ Other options:
   opt :linked_clone, "Use a linked clone instead of a full clone"
 end
 
-Trollop.die("must specify host") unless opts[:host]
+Optimist.die("must specify host") unless opts[:host]
 ARGV.size == 2 or abort "must specify VM source name and VM target name"
 vm_source = ARGV[0]
 vm_target = ARGV[1]

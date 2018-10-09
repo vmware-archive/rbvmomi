@@ -2,14 +2,14 @@
 # TODO keepalive
 # TODO rc file
 # TODO proxy support?
-require 'trollop'
+require 'optimist'
 require 'readline'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
 VIM = RbVmomi::VIM
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 vSphere API console.
 
@@ -35,7 +35,7 @@ VIM connection options:
 Other options:
   EOS
 
-  $trollop = self
+  $optimist = self
 end
 
 begin
@@ -102,7 +102,7 @@ def si
 end
 
 def help
-  $trollop.educate
+  $optimist.educate
   :no_result
 end
 

@@ -3,13 +3,13 @@
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
 VIM = RbVmomi::VIM
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Delete a disk from a VM.
 
@@ -29,7 +29,7 @@ VM location options:
     rbvmomi_datacenter_opt
 end
 
-Trollop.die("must specify host") unless opts[:host]
+Optimist.die("must specify host") unless opts[:host]
 ARGV.size == 2 or abort "must specify VM name and disk unit number"
 vm_name          = ARGV[0]
 disk_unit_number = ARGV[1].to_i

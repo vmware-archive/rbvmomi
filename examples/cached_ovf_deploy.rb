@@ -3,16 +3,16 @@
 # Copyright (c) 2012-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 require 'rbvmomi/utils/deploy'
 require 'rbvmomi/utils/admission_control'
 require 'yaml'
 
 VIM = RbVmomi::VIM
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Deploy an OVF to a cluster, using a cached template if available.
 
@@ -45,12 +45,12 @@ Other options:
   opt :lease, "Lease in days", :type => :int, :default => 3
 end
 
-Trollop.die("must specify host") unless opts[:host]
-Trollop.die("no cluster path given") unless opts[:computer_path]
+Optimist.die("must specify host") unless opts[:host]
+Optimist.die("no cluster path given") unless opts[:computer_path]
 template_folder_path = opts[:template_path]
-template_name = opts[:template_name] or Trollop.die("no template name given")
-vm_name = ARGV[0] or Trollop.die("no VM name given")
-ovf_url = ARGV[1] or Trollop.die("No OVF URL given")
+template_name = opts[:template_name] or Optimist.die("no template name given")
+vm_name = ARGV[0] or Optimist.die("no VM name given")
+ovf_url = ARGV[1] or Optimist.die("No OVF URL given")
 
 vim = VIM.connect opts
 dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"

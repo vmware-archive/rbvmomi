@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: MIT
 
 # Translation of vGhetto vdf, originally by William Lam
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
 VIM = RbVmomi::VIM
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Display utilization of each datastore in the datacenter.
 
@@ -33,7 +33,7 @@ Other options:
   EOS
 end
 
-Trollop.die("must specify host") unless opts[:host]
+Optimist.die("must specify host") unless opts[:host]
 
 vim = VIM.connect opts
 

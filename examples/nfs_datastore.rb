@@ -3,14 +3,14 @@
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'trollop'
+require 'optimist'
 require 'rbvmomi'
-require 'rbvmomi/trollop'
+require 'rbvmomi/optimist'
 
 VIM = RbVmomi::VIM
 CMDS = %w(mount unmount)
 
-opts = Trollop.options do
+opts = Optimist.options do
   banner <<-EOS
 Mount/Unmount an NFS datastore from a cluster or single host system.
 
@@ -40,12 +40,12 @@ Other options:
   stop_on CMDS
 end
 
-Trollop.die("must specify host") unless opts[:host]
+Optimist.die("must specify host") unless opts[:host]
 
-cr_path = ARGV[0] or Trollop.die("no system name given")
-cmd = ARGV[1] or Trollop.die("no command given")
+cr_path = ARGV[0] or Optimist.die("no system name given")
+cmd = ARGV[1] or Optimist.die("no command given")
 abort "invalid command" unless CMDS.member? cmd
-nfs_spec = ARGV[2] or Trollop.die("no nfs path given")
+nfs_spec = ARGV[2] or Optimist.die("no nfs path given")
 remoteHost, remotePath = nfs_spec.split(":")
 localPath = ARGV[3] || remoteHost
 mode = "readOnly" #hardcoded.

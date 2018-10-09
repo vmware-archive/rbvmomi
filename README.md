@@ -89,7 +89,7 @@ A few important points:
 *   Data object types can usually be inferred from context, so you may use a hash instead.
 *   Enumeration values are simply strings.
 *   Example code is included in the examples/ directory.
-*   A set of helper methods for Trollop is included to speed up development of
+*   A set of helper methods for Optimist is included to speed up development of
     command line apps. See the included examples for usage.
 *   If you don't have trusted SSL certificates installed on the host you're
     connecting to, you'll get an `OpenSSL::SSL::SSLError` "certificate verify
