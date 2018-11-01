@@ -6,6 +6,7 @@
 * Colin O'Byrne and Martin Marinov <cobyrne@vmware.com>
 * Colin O'Byrne and Nick Coelius <cobyrne@vmware.com>
 * Daniel Rife <daniel.rife@rightscale.com>
+* Dave Hewitt <43970119+davehewitt@users.noreply.github.com>
 * Dominic Cleal <dcleal@redhat.com>
 * Dominic Cleal <dominic@cleal.org>
 * Doug MacEachern <dougm@vmware.com>
