@@ -16,7 +16,7 @@ Gem::Specification.new do |spec|
   spec.license  = 'MIT'
 
   spec.bindir = 'exe'
-  spec.files  = `git ls-files -z`.split("\x0").reject { |f| f.match(/^test\//) }
+  spec.files  = %w{LICENSE README.md} + Dir.glob("{lib,exec}/**/*")
   spec.executables << 'rbvmomish'
 
   spec.add_runtime_dependency('builder', '~> 3.0')
