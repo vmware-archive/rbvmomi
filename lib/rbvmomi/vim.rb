@@ -64,7 +64,6 @@ class VIM < Connection
       vim.rev = [rev, opts[:rev]].min { |a, b| Gem::Version.new(a) <=> Gem::Version.new(b) }
     end
 
-    at_exit { conn.close }
     conn
   end
 
