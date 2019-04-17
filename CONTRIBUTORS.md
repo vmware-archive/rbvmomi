@@ -31,6 +31,7 @@
 * Rich Lane <rlane@club.cc.cmu.edu>
 * Rich Lane <rlane@vmware.com>
 * Scott J. Goldman <scottjg@vmware.com>
+* Sean Dilda <sean@duke.edu>
 * Shawn Hartsock <hartsock@users.noreply.github.com>
 * Shawn Hartsock <hartsocks@vmware.com>
 * Shawn Hartsock <shawn.hartsock@gmail.com>
