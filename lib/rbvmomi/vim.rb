@@ -28,6 +28,7 @@ class VIM < Connection
   # @option opts [String]  :path (/sdk) SDK endpoint path.
   # @option opts [Boolean] :debug (false) If true, print SOAP traffic to stderr.
   # @option opts [String]  :operation_id If set, use for operationID
+  # @option opts [Boolean] :close_on_exit (true) If true, will close connection with at_exit
   def self.connect opts
     fail unless opts.is_a? Hash
     fail "host option required" unless opts[:host]
@@ -64,6 +65,7 @@ class VIM < Connection
       vim.rev = [rev, opts[:rev]].min { |a, b| Gem::Version.new(a) <=> Gem::Version.new(b) }
     end
 
+    at_exit { conn.close } if opts.fetch(:close_on_exit, true)
     conn
   end
 
