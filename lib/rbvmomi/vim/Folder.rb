@@ -67,7 +67,7 @@ class RbVmomi::VIM::Folder
     propSpecs = {
       :entity => self, :inventoryPath => path
     }
-    x = _connection.searchIndex.FindByInventoryPath(propSpecs)
+    _connection.searchIndex.FindByInventoryPath(propSpecs)
   end
 
   # Alias to <tt>traverse path, type, true</tt>

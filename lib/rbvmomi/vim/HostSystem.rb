@@ -115,12 +115,12 @@ class VIM::EsxcliNamespace
     conn.type(@type_info.wsdlName).new(conn, @instance)
   end
 
-  def method_missing name, *args
+  def method_missing(name, *args)
     name = name.to_s
     if @namespaces.member? name and args.empty?
       @namespaces[name]
     elsif @commands.member? name
-      @commands[name].call *args
+      @commands[name].call(*args)
     else
       raise NoMethodError
     end

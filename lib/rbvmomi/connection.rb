@@ -23,7 +23,7 @@ class Connection < TrivialSoap
   attr_reader :profile_summary
   attr_accessor :profiling
   attr_reader :deserializer
-  
+
   def initialize opts
     @ns = opts[:ns] or fail "no namespace specified"
     @rev = opts[:rev] or fail "no revision specified"
@@ -32,7 +32,7 @@ class Connection < TrivialSoap
     @profiling = false
     super opts
   end
-  
+
   def reset_profiling
     @profile = {}
     @profile_summary = {:network_latency => 0, :request_emit => 0, :response_parse => 0, :num_calls => 0}
@@ -90,7 +90,7 @@ class Connection < TrivialSoap
 
     t3 = Time.now
     out = parse_response resp, desc['result']
-    
+
     if @profiling
       t4 = Time.now
       @profile[method] ||= []
@@ -98,8 +98,8 @@ class Connection < TrivialSoap
         :network_latency => (t3 - t2),
         :request_emit => t2 - t1,
         :response_parse => t4 - t3,
-        :params => params, 
-        :obj => this, 
+        :params => params,
+        :obj => this,
         :backtrace => caller,
         :request_size => body.length,
         :response_size => resp_size,
@@ -110,7 +110,7 @@ class Connection < TrivialSoap
       @profile_summary[:request_emit] += profile_info[:request_emit]
       @profile_summary[:num_calls] += 1
     end
-    
+
     out
   end
 
@@ -139,7 +139,7 @@ class Connection < TrivialSoap
     when BasicTypes::DataObject
       if expected and not expected >= o.class and not expected == BasicTypes::AnyType
         fail "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}"
-      end 
+      end
       xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
           if o.props.member? desc['name'].to_sym
@@ -223,7 +223,7 @@ class Connection < TrivialSoap
   def type name
     self.class.type name
   end
-  
+
   def instanceUuid
     nil
   end
