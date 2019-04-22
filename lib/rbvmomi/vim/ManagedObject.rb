@@ -52,7 +52,7 @@ class RbVmomi::VIM::ManagedObject
   # @return [Array] Property values in same order as +pathSet+, or the return
   #                 value from the block if it is given.
   def collect *pathSet
-    h = collect! *pathSet
+    h = collect!(*pathSet)
     a = pathSet.map { |k| h[k.to_s] }
     if block_given?
       yield a

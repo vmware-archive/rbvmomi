@@ -95,7 +95,7 @@ class TypeLoader
 
   def load_extension name
     @extension_dirs.map { |x| File.join(x, "#{name}.rb") }.
-                    select { |x| File.exists? x }.
+                    select { |x| File.exist? x }.
                     each { |x| load x }
   end
 
