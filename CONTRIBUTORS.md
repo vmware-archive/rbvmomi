@@ -5,6 +5,7 @@
 * Christian Dickmann <cdickmann@vmware.com>
 * Colin O'Byrne and Martin Marinov <cobyrne@vmware.com>
 * Colin O'Byrne and Nick Coelius <cobyrne@vmware.com>
+* Daniel Berger <djberg96@gmail.com>
 * Daniel Rife <daniel.rife@rightscale.com>
 * Dave Hewitt <43970119+davehewitt@users.noreply.github.com>
 * Dominic Cleal <dcleal@redhat.com>
