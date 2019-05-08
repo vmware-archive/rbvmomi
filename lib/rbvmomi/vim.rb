@@ -27,6 +27,7 @@ class VIM < Connection
   # @option opts [Boolean] :debug (false) If true, print SOAP traffic to stderr.
   # @option opts [String]  :operation_id If set, use for operationID
   # @option opts [Boolean] :close_on_exit (true) If true, will close connection with at_exit
+  # @option opts [RbVmomi::SSO] :sso (nil) Use SSO token to login if set
   def self.connect opts
     fail unless opts.is_a? Hash
     fail "host option required" unless opts[:host]
@@ -55,8 +56,10 @@ class VIM < Connection
                 vim.serviceContent.sessionManager.LoginBySSPI :base64Token => negotiation.complete_authentication(fault.base64Token)
               end
             end
+        elsif opts[:sso]
+          vim.serviceContent.sessionManager.LoginByToken
         else
-            vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
+          vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
         end
       end
       rev = vim.serviceContent.about.apiVersion
