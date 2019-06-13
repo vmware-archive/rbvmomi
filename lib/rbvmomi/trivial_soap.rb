@@ -17,6 +17,7 @@ class RbVmomi::TrivialSoap
     return unless @opts[:host] # for testcases
     @debug = @opts[:debug]
     @cookie = @opts[:cookie]
+    @sso = @opts[:sso]
     @operation_id = @opts[:operation_id]
     @lock = Mutex.new
     @http = nil
@@ -87,6 +88,11 @@ class RbVmomi::TrivialSoap
       $stderr.puts "Request:"
       $stderr.puts body
       $stderr.puts
+    end
+
+    if @cookie.nil? && @sso
+      @sso.request_token unless @sso.assertion_id
+      body = @sso.sign_request(body)
     end
 
     start_time = Time.now
