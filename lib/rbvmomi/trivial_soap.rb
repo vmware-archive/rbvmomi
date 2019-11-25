@@ -44,7 +44,10 @@ class RbVmomi::TrivialSoap
       else
         @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
       end
+      @http.cert_store = OpenSSL::X509::Store.new
+      @http.cert_store.set_default_paths
       @http.cert = OpenSSL::X509::Certificate.new(@opts[:cert]) if @opts[:cert]
+      @http.cert_store.add_cert(@http.cert)
       @http.key = OpenSSL::PKey::RSA.new(@opts[:key]) if @opts[:key]
     end
     @http.set_debug_output(STDERR) if $DEBUG
