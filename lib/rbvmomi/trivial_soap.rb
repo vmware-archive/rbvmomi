@@ -1,3 +1,4 @@
+
 # Copyright (c) 2010 VMware, Inc.  All Rights Reserved.
 require 'rubygems'
 require 'builder'
@@ -40,15 +41,14 @@ class RbVmomi::TrivialSoap
       require 'net/https'
       @http.use_ssl = true
       if @opts[:insecure]
-        @http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        @http.verify_mode = OpenSSL::SSL::VERIFY_NONE if @opts[:insecure]
       else
-        @http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+        @http.cert_store = OpenSSL::X509::Store.new
+        @http.cert_store.set_default_paths
+        @http.cert = OpenSSL::X509::Certificate.new(@opts[:cert]) if @opts[:cert]
+        @http.cert_store.add_cert(@http.cert) if @http.cert
+        @http.key = OpenSSL::PKey::RSA.new(@opts[:key]) if @opts[:key]
       end
-      @http.cert_store = OpenSSL::X509::Store.new
-      @http.cert_store.set_default_paths
-      @http.cert = OpenSSL::X509::Certificate.new(@opts[:cert]) if @opts[:cert]
-      @http.cert_store.add_cert(@http.cert)
-      @http.key = OpenSSL::PKey::RSA.new(@opts[:key]) if @opts[:key]
     end
     @http.set_debug_output(STDERR) if $DEBUG
     @http.read_timeout = 1000000

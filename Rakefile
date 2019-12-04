@@ -17,6 +17,7 @@ begin
     gem.required_ruby_version = '>= 1.8.7'
     gem.files.include 'vmodl.db'
     gem.files.include '.yardopts'
+    gem.version = '1.8.4'
   end
 rescue LoadError
   puts "Jeweler not available. Install it with: gem install jeweler"
