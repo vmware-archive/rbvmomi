@@ -41,7 +41,7 @@ class RbVmomi::TrivialSoap
       require 'net/https'
       @http.use_ssl = true
       if @opts[:insecure]
-        @http.verify_mode = OpenSSL::SSL::VERIFY_NONE if @opts[:insecure]
+        @http.verify_mode = OpenSSL::SSL::VERIFY_NONE
       else
         @http.cert_store = OpenSSL::X509::Store.new
         @http.cert_store.set_default_paths
