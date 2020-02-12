@@ -3,11 +3,11 @@
 
 require 'time'
 require 'date'
-require 'rbvmomi/trivial_soap'
-require 'rbvmomi/basic_types'
-require 'rbvmomi/fault'
-require 'rbvmomi/type_loader'
-require 'rbvmomi/deserialization'
+require_relative 'trivial_soap'
+require_relative 'basic_types'
+require_relative 'fault'
+require_relative 'type_loader'
+require_relative 'deserialization'
 
 module RbVmomi
 

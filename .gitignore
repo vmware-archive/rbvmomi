@@ -11,3 +11,4 @@ Gemfile.lock
 /pkg/
 /vendor/bundle/
 /vmodl/
+*.gem

@@ -10,7 +10,7 @@ module RbVmomi
   end
 end
 
-require 'rbvmomi/connection'
-require 'rbvmomi/sso'
-require 'rbvmomi/version'
-require 'rbvmomi/vim'
+require_relative 'rbvmomi/connection'
+require_relative 'rbvmomi/sso'
+require_relative 'rbvmomi/version'
+require_relative 'rbvmomi/vim'
