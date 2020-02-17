@@ -31,7 +31,7 @@ def parse_args(args)
   return wsdl_path, vmodl_path, opts
 end
 
-def indirectory(dir)
+def in_directory(dir)
   saved_dir = Dir.getwd
   Dir.chdir(dir)
   yield
@@ -44,7 +44,7 @@ def load_wsdl(path)
 
   # WSDL includes have to resolve in the local directory so we have to
   # change working directories to where the wsdl is
-  indirectory(path.dirname) do
+  in_directory(path.dirname) do
     WSDL::Parser.new.parse(path.read)
   end
 end
