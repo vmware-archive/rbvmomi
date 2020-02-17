@@ -66,9 +66,8 @@ def wsdl_constantize(type)
   type = "binary"        if type == "base64Binary"
   type = "ManagedObject" if type == "ManagedObjectReference"
 
-  type.camelcase.safe_constantize ||
-    "RbVmomi::BasicTypes::#{type.camelcase}".safe_constantize ||
-    "RbVmomi::VIM::#{type.camelcase}".safe_constantize
+  type = type.camelcase
+  type.safe_constantize || "RbVmomi::BasicTypes::#{type}".safe_constantize || "RbVmomi::VIM::#{type}".safe_constantize
 end
 
 wsdl_path, vmodl_path, options = parse_args(ARGV)
