@@ -57,7 +57,7 @@ def dump_vmodl(vmodl, path)
   File.write(path, Marshal.dump(vmodl))
 end
 
-# Normalize the type, some of these don't have RbVmomi equivalients such as xsd:long
+# Normalize the type, some of these don't have RbVmomi equivalents such as xsd:long
 # and RbVmomi uses ManagedObjects not ManagedObjectReferences as parameters
 def wsdl_constantize(type)
   type = type.split(":").last
@@ -91,7 +91,7 @@ vim.collect_complextypes.each do |type|
     wsdl_klass  = wsdl_constantize(wsdl_prop.type.source)
 
     unless vmodl_klass <= wsdl_klass
-      puts "#{type_name} #{wsdl_klass.wsdl_name} doesn't match #{vmodl_klass.wsdl_name}"
+      puts "#{type_name}.#{vmodl_prop["name"]} #{wsdl_klass.wsdl_name} doesn't match #{vmodl_klass.wsdl_name}"
       vmodl_prop["wsdl_type"] = wsdl_klass.wsdl_name if options[:fix]
     end
   end
