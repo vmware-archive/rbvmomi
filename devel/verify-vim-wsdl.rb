@@ -40,8 +40,6 @@ ensure
 end
 
 def load_wsdl(path)
-  workingdir = Dir.getwd
-
   # WSDL includes have to resolve in the local directory so we have to
   # change working directories to where the wsdl is
   in_directory(path.dirname) do
@@ -75,13 +73,23 @@ wsdl_path, vmodl_path, options = parse_args(ARGV)
 vim   = load_wsdl(wsdl_path)
 vmodl = load_vmodl(vmodl_path)
 
+# Loop through the ComplexTypes in the WSDL and compare their types
+# to the types which are defined in the vmodl.db
 vim.collect_complextypes.each do |type|
   type_name = type.name.name
   vmodl_data = vmodl[type_name]
 
+  # If a type exists in the WSDL but not in the vmodl.db just skip it, this
+  # can be for a few reasons including:
+  # 1. ArrayOf... types are not needed in the vmodl
+  # 2. A newer wsdl might have some types which haven't been added yet
   next if vmodl_data.nil?
 
+  # Index the properties by name to make it simpler to find later
   elements_by_name = type.elements.index_by { |e| e.name.name }
+
+  # Loop through the properties defined in the vmodl.db for this type and
+  # compare the type to that property as defined in the wsdl.
   vmodl_data["props"].each do |vmodl_prop|
     wsdl_prop = elements_by_name[vmodl_prop["name"]]
     next if wsdl_prop.nil?
@@ -89,6 +97,9 @@ vim.collect_complextypes.each do |type|
     vmodl_klass = wsdl_constantize(vmodl_prop["wsdl_type"])
     wsdl_klass  = wsdl_constantize(wsdl_prop.type.source)
 
+    # The vmodl class should be equal to or a subclass of the one in the wsdl.
+    # Example of a subclass is e.g. VirtualMachine.host is defined as a HostSystem
+    # in the vmodl.db but it is a ManagedObjectReference in the wsdl.
     unless vmodl_klass <= wsdl_klass
       puts "#{type_name}.#{vmodl_prop["name"]} #{wsdl_klass.wsdl_name} doesn't match #{vmodl_klass.wsdl_name}"
       vmodl_prop["wsdl_type"] = wsdl_klass.wsdl_name if options[:fix]
