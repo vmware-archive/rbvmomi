@@ -9,12 +9,9 @@ require "wsdl/parser"
 
 def parse_args(args)
   opts = Optimist.options do
-    banner <<~HELP
+    usage <<~HELP
       Usage:
       verify-vim-wsdl.rb [path to wsdl] [path to vmodl.db]
-
-      --fix       Fix the wsdl types
-      --help, -h  Print this message and exit
     HELP
 
     opt :fix, "Optionally fix the wsdl types in the vmodl.db", :type => :boolean, :default => false
