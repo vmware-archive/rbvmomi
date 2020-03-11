@@ -19,27 +19,19 @@ def parse_args(args)
 
   Optimist.die("You must provide a wsdl file and a vmodl file") if args.count < 2
 
-  wsdl_path = Pathname.new(args.shift)
+  wsdl_path = Pathname.new(args.shift).expand_path
   Optimist.die("You must pass a path to a wsdl file") if !wsdl_path.exist?
 
-  vmodl_path = Pathname.new(args.shift)
+  vmodl_path = Pathname.new(args.shift).expand_path
   Optimist.die("You must pass a path to the vmodl.db file") if !vmodl_path.exist?
 
   return wsdl_path, vmodl_path, opts
 end
 
-def in_directory(dir)
-  saved_dir = Dir.getwd
-  Dir.chdir(dir)
-  yield
-ensure
-  Dir.chdir(saved_dir)
-end
-
 def load_wsdl(path)
   # WSDL includes have to resolve in the local directory so we have to
   # change working directories to where the wsdl is
-  in_directory(path.dirname) do
+  Dir.chdir(path.dirname) do
     WSDL::Parser.new.parse(path.read)
   end
 end
