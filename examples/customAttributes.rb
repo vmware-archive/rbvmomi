@@ -42,7 +42,7 @@ Other options:
 end
 
 vm_name = ARGV[0] or Optimist.die("no VM name given")
-cmd     = ARGV[1] or Ofptimist.die("no command given")
+cmd     = ARGV[1] or Optimist.die("no command given")
 abort "invalid command" unless CMDS.member? cmd
 Optimist.die("must specify host") unless opts[:host]
 
