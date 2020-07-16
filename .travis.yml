@@ -5,3 +5,9 @@ rvm:
   - 2.6.6
   - 2.7.1
   - jruby-9.2.12.0
+  - ruby-head
+  - jruby-head
+matrix:
+  allow_failures:
+    - rvm: ruby-head
+    - rvm: jruby-head
