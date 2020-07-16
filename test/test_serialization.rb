@@ -240,7 +240,7 @@ class SerializationTest < Test::Unit::TestCase
     EOS
 
     obj = { 'a' => 'b', :c => 'd' }
-    check <<-EOS, obj, 'KeyValue', true unless RUBY_VERSION =~ /^1.8/
+    check <<-EOS, obj, 'KeyValue', true
 <root>
   <key>a</key>
   <value>b</value>
