@@ -3,7 +3,7 @@
 
 require 'open-uri'
 require 'nokogiri'
-require 'rbvmomi'
+require_relative '../../rbvmomi'
 
 # The cached ovf deployer is an optimization on top of regular OVF deployment
 # as it is offered by the VIM::OVFManager. Creating a VM becomes a multi-stage
