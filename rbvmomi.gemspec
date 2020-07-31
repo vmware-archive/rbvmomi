@@ -29,5 +29,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('yard', '~> 0.9.5')
   spec.add_development_dependency('test-unit', '>= 2.5')
 
-  spec.required_ruby_version = '>= 1.8.7'
+  spec.required_ruby_version = '>= 2.4.1'
 end
