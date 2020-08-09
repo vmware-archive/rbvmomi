@@ -24,9 +24,11 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency('nokogiri', '~> 1.10')
   spec.add_runtime_dependency('optimist', '~> 3.0')
 
+  spec.add_development_dependency('activesupport')
   spec.add_development_dependency('pry', '~> 0.13.1')
   spec.add_development_dependency('rake', '~> 13.0')
   spec.add_development_dependency('simplecov', '~> 0.18.5')
+  spec.add_development_dependency('soap4r-ng', '~> 2.0')
   spec.add_development_dependency('yard', '~> 0.9.25')
   spec.add_development_dependency('test-unit', '~> 3.3')
 
