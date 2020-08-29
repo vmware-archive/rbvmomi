@@ -349,15 +349,37 @@ class ::Float
   def self.wsdl_name; 'xsd:float' end
 end
 
-class Int
+# Subclassing Integer directly isn't really possible since it isn't a normal
+# Ruby object per se.
+class Int < Object
   def self.wsdl_name; 'xsd:int' end
-  
+
   def initialize x
     @val = x
   end
-  
+
   def to_s
     @val.to_s
+  end
+
+  def inspect
+    @val
+  end
+
+  def == o
+    @val.to_i == o
+  end
+
+  alias eql? ==
+
+  def respond_to? method
+    @val.respond_to? method
+  end
+
+  private
+
+  def method_missing(method, *args, &block)
+    @val.send(method, *args, &block)
   end
 end
 

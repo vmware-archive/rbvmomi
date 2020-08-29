@@ -22,7 +22,7 @@ class NewDeserializer
     'xsd:byte' => :int,
     'xsd:short' => :int,
     'xsd:int' => :int,
-    'xsd:long' => :int,
+    'xsd:long' => :long,
     'xsd:float' => :float,
     'xsd:dateTime' => :date,
     'PropertyPath' => :string,
@@ -61,6 +61,8 @@ class NewDeserializer
       when :boolean
         node.content == '1' || node.content == 'true'
       when :int
+        BasicTypes::Int.new(node.content)
+      when :long
         node.content.to_i
       when :float
         node.content.to_f
