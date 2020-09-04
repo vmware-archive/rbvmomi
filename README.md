@@ -1,7 +1,7 @@
 # RbVmomi
 
 [<img src="https://badge.fury.io/rb/rbvmomi.svg" alt="gem-version">](https://rubygems.org/gems/rbvmomi) 
-[<img src="https://travis-ci.org/vmware/rbvmomi.svg?branch=master" alt="travis-ci">](http://travis-ci.org/vmware/rbvmomi) 
+![Test](https://github.com/vmware/rbvmomi/workflows/Test/badge.svg)
 [<img src="https://badges.gitter.im/vmware/rbvmomi.svg">](https://gitter.im/vmware/rbvmomi)
 
 This is a community-supported, open source project at VMware. It is built and
@@ -11,28 +11,13 @@ maintained by programmers like you!
 
 RbVmomi is a Ruby interface to the vSphere API. Like the Perl and Java SDKs,
 you can use it to manage ESX and vCenter servers. The current release
-supports the vSphere 6.5 API. RbVmomi specific documentation is
+supports the vSphere 7.0 API. RbVmomi specific documentation is
 [online](http://rdoc.info/github/vmware/rbvmomi/master/frames) and is meant to
 be used alongside the official [documentation](http://pubs.vmware.com/vsphere-65/index.jsp#com.vmware.wssdk.apiref.doc/right-pane.html).
 
 ## Installation
 
     gem install rbvmomi
-
-### Support for older Ruby versions
-
-RbVmomi supports Ruby 1.8.7 and higher, but certain dependencies may need
-pinning to older versions to get a compatible set of gems.
-
-On Ruby 1.8.7:
-
-* use `nokogiri` 1.5.x (Gemfile: `gem 'nokogiri', '< 1.6'`)
-
-
-On both Ruby 1.9 and 1.8.7:
-
-* use `json` 1.x (Gemfile: `gem 'json', '< 2'`)
-
 
 ## Usage
 
