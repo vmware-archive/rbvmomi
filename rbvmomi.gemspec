@@ -27,10 +27,10 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency('activesupport')
   spec.add_development_dependency('pry', '~> 0.13.1')
   spec.add_development_dependency('rake', '~> 13.0')
-  spec.add_development_dependency('simplecov', '~> 0.18.5')
+  spec.add_development_dependency('simplecov', '~> 0.19.0')
   spec.add_development_dependency('soap4r-ng', '~> 2.0')
-  spec.add_development_dependency('yard', '~> 0.9.25')
   spec.add_development_dependency('test-unit', '~> 3.3')
+  spec.add_development_dependency('yard', '~> 0.9.25')
 
   spec.required_ruby_version = '>= 2.4.1'
 end
