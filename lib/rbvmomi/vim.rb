@@ -1,13 +1,6 @@
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-# Win32::SSPI is part of core on Windows
-begin
-  require 'win32/sspi'
-rescue LoadError
-end
-WIN32 = (defined? Win32::SSPI)
-
 module RbVmomi
 
 # A connection to one vSphere SDK endpoint.
@@ -44,19 +37,7 @@ class VIM < Connection
 
     conn = new(opts).tap do |vim|
       unless opts[:cookie]
-        if WIN32 && opts[:password] == ''
-            # Attempt login by SSPI if no password specified on Windows
-            negotiation = Win32::SSPI::NegotiateAuth.new opts[:user], ENV['USERDOMAIN'].dup
-            begin
-              vim.serviceContent.sessionManager.LoginBySSPI :base64Token => negotiation.get_initial_token
-            rescue RbVmomi::Fault => fault
-              if !fault.fault.is_a?(RbVmomi::VIM::SSPIChallenge)
-                raise
-              else
-                vim.serviceContent.sessionManager.LoginBySSPI :base64Token => negotiation.complete_authentication(fault.base64Token)
-              end
-            end
-        elsif opts[:sso]
+        if opts[:sso]
           vim.serviceContent.sessionManager.LoginByToken
         else
           vim.serviceContent.sessionManager.Login :userName => opts[:user], :password => opts[:password]
