@@ -160,10 +160,22 @@ class DataObject < ObjectWithProperties
     q.text ')'
   end
 
-  def to_json(*args)
-    h = self.props
-    m = h.merge({ JSON.create_id => self.class.name })
-    m.to_json(*args)
+  def as_hash(val)
+    if val.kind_of?(Array)
+      val.map { |v| as_hash(v) }
+    elsif val.respond_to?(:to_hash)
+      val.to_hash
+    else
+      val
+    end
+  end
+
+  def to_hash
+    props.transform_values { |v| as_hash(v) }
+  end
+
+  def to_json(options = nil)
+    to_hash.merge(JSON.create_id => self.class.name).to_json
   end
 
   init
@@ -217,6 +229,10 @@ class ManagedObject < ObjectWithMethods
     "#{self.class.wsdl_name}(#{@ref.inspect})"
   end
 
+  def to_hash
+    to_s
+  end
+
   def pretty_print pp
     pp.text to_s
   end
@@ -256,6 +272,10 @@ class Enum < Base
 
   def initialize value
     @value = value
+  end
+
+  def to_hash
+    value
   end
 
   init
