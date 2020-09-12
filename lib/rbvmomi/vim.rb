@@ -25,7 +25,7 @@ class VIM < Connection
     fail unless opts.is_a? Hash
     fail "host option required" unless opts[:host]
     opts[:cookie] ||= nil
-    opts[:user] ||= (WIN32 ? ENV['USERNAME'].dup : 'root')
+    opts[:user] ||= 'root'
     opts[:password] ||= ''
     opts[:ssl] = true unless opts.member? :ssl or opts[:"no-ssl"]
     opts[:insecure] ||= false
