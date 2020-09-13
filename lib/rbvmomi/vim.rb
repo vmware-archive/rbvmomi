@@ -132,7 +132,7 @@ class VIM < Connection
   add_extension_dir File.join(File.dirname(__FILE__), "vim")
   (ENV['RBVMOMI_VIM_EXTENSION_PATH']||'').split(':').each { |dir| add_extension_dir dir }
 
-  load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.db"))
+  load_vmodl(vmodl_filename)
 end
 
 end
