@@ -14,4 +14,9 @@ Rake::TestTask.new do |t|
   t.warning = true
 end
 
+desc "Run Rubocop"
+task :rubocop do
+  sh "bundle exec rubocop"
+end
+
 YARD::Rake::YardocTask.new
