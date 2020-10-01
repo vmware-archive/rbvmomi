@@ -1,37 +1,38 @@
+# frozen_string_literal: true
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'optimist'
-require 'rbvmomi'
-require 'rbvmomi/optimist'
+require "optimist"
+require "rbvmomi"
+require "rbvmomi/optimist"
 
 VIM = RbVmomi::VIM
-CMDS = %w(on off reset suspend destroy)
+CMDS = %w(on off reset suspend destroy).freeze
 
 opts = Optimist.options do
-  banner <<-EOS
-Perform VM power operations.
+  banner <<~EOS
+    Perform VM power operations.
+    
+    Usage:
+        power.rb [options] cmd VM
+    
+    Commands: #{CMDS * ' '}
+    
+    VIM connection options:
+  EOS
 
-Usage:
-    power.rb [options] cmd VM
+  rbvmomi_connection_opts
 
-Commands: #{CMDS * ' '}
+  text <<~EOS
+    
+    VM location options:
+  EOS
 
-VIM connection options:
-    EOS
+  rbvmomi_datacenter_opt
 
-    rbvmomi_connection_opts
-
-    text <<-EOS
-
-VM location options:
-    EOS
-
-    rbvmomi_datacenter_opt
-
-    text <<-EOS
-
-Other options:
+  text <<~EOS
+    
+    Other options:
   EOS
 
   stop_on CMDS
@@ -43,19 +44,19 @@ Optimist.die("must specify host") unless opts[:host]
 
 vim = VIM.connect opts
 
-dc = vim.serviceInstance.content.rootFolder.traverse(opts[:datacenter], VIM::Datacenter) or abort "datacenter not found"
+dc = vim.service_instance.content.rootFolder.traverse(opts[:datacenter], VIM::Datacenter) or abort "datacenter not found"
 vm = dc.vmFolder.traverse(vm_name, VIM::VirtualMachine) or abort "VM not found"
 
 case cmd
-when 'on'
+when "on"
   vm.PowerOnVM_Task.wait_for_completion
-when 'off'
+when "off"
   vm.PowerOffVM_Task.wait_for_completion
-when 'reset'
+when "reset"
   vm.ResetVM_Task.wait_for_completion
-when 'suspend'
+when "suspend"
   vm.SuspendVM_Task.wait_for_completion
-when 'destroy'
+when "destroy"
   vm.Destroy_Task.wait_for_completion
 else
   abort "invalid command"

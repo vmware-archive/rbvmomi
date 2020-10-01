@@ -1,7 +1,8 @@
+# frozen_string_literal: true
 # Copyright (c) 2012-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'date'
+require "date"
 
 class Time
   def to_datetime
@@ -16,98 +17,96 @@ class Time
 end
 
 RbVmomi::VIM::PerformanceManager
-class RbVmomi::VIM::PerformanceManager
-  def perfcounter_cached
-    @perfcounter ||= perfCounter
-  end
-  
-  def perfcounter_hash
-    @perfcounter_hash ||= Hash[perfcounter_cached.map{|x| [x.name, x]}]
-  end
-  
-  def perfcounter_idhash 
-    @perfcounter_idhash ||= Hash[perfcounter_cached.map{|x| [x.key, x]}]
-  end
-  
-  def provider_summary obj
-    @provider_summary ||= {}
-    @provider_summary[obj.class] ||= QueryPerfProviderSummary(:entity => obj)
-  end
+module RbVmomi
+  module VIM
+    class PerformanceManager
+      def perfcounter_cached
+        @perfcounter ||= perfCounter
+      end
 
-  def retrieve_stats objects, metrics, opts = {}
-    opts = opts.dup
-    max_samples = opts[:max_samples] || 1
-    realtime = false
-    if not opts[:interval]
-      provider = provider_summary objects.first
-      opts[:interval] = provider.refreshRate
-      realtime = true
-    else
-      provider = provider_summary objects.first
-      if opts[:interval] == provider.refreshRate
-        realtime = true
+      def perfcounter_hash
+        @perfcounter_hash ||= Hash[perfcounter_cached.map { |x| [x.name, x]}]
+      end
+
+      def perfcounter_idhash
+        @perfcounter_idhash ||= Hash[perfcounter_cached.map { |x| [x.key, x]}]
+      end
+
+      def provider_summary obj
+        @provider_summary ||= {}
+        @provider_summary[obj.class] ||= QueryPerfProviderSummary(entity: obj)
+      end
+
+      def retrieve_stats objects, metrics, opts = {}
+        opts = opts.dup
+        max_samples = opts[:max_samples] || 1
+        realtime = false
+        provider = provider_summary objects.first
+        if !(opts[:interval])
+          opts[:interval] = provider.refreshRate
+          realtime = true
+        else
+          realtime = true if opts[:interval] == provider.refreshRate
+        end
+
+        instances = opts[:instance] || "*"
+        instances = [instances] unless instances.is_a?(Array)
+        metric_ids = []
+        metrics.each do |x|
+          counter = perfcounter_hash[x]
+          unless counter
+            pp perfcounter_hash.keys
+            raise "Counter for #{x} couldn't be found"
+          end
+          instances.each do |instance|
+            metric_ids << RbVmomi::VIM::PerfMetricId(counterId: counter.key,
+                                                     instance: instance)
+          end
+        end
+        query_specs = objects.map do |obj|
+          RbVmomi::VIM::PerfQuerySpec({
+                                        maxSample: max_samples,
+            entity: obj,
+            metricId: metric_ids,
+            intervalId: opts[:interval],
+            startTime: (realtime == false ? opts[:start_time].to_datetime : nil)
+                                      })
+        end
+        stats = QueryPerf(querySpec: query_specs)
+
+        if !opts[:multi_instance]
+          Hash[stats.map do |res|
+            [
+              res.entity,
+              {
+                sampleInfo: res.sampleInfo,
+                metrics: Hash[res.value.map do |metric|
+                  metric_name = perfcounter_idhash[metric.id.counterId].name
+                  [metric_name, metric.value]
+                end]
+              }
+            ]
+          end]
+        else
+          Hash[stats.map do |res|
+            [
+              res.entity,
+              {
+                sampleInfo: res.sampleInfo,
+                metrics: Hash[res.value.map do |metric|
+                  metric_name = perfcounter_idhash[metric.id.counterId].name
+                  [[metric_name, metric.id.instance], metric.value]
+                end]
+              }
+            ]
+          end]
+        end
+      end
+
+      def active_intervals
+        intervals = historicalInterval
+        Hash[(1..4).map { |level| [level, intervals.select { |x| x.enabled && x.level >= level }] }]
       end
     end
-      
-    instances = opts[:instance] || '*'
-    if !instances.is_a?(Array)
-      instances = [instances]
-    end
-    metric_ids = []
-    metrics.each do |x| 
-      counter = perfcounter_hash[x]
-      if !counter
-        pp perfcounter_hash.keys
-        fail "Counter for #{x} couldn't be found"
-      end
-      instances.each do |instance|
-        metric_ids << RbVmomi::VIM::PerfMetricId(:counterId => counter.key, 
-                                                 :instance => instance)
-      end
-    end
-    query_specs = objects.map do |obj|
-      RbVmomi::VIM::PerfQuerySpec({
-        :maxSample => max_samples, 
-        :entity => obj, 
-        :metricId => metric_ids, 
-        :intervalId => opts[:interval],
-        :startTime => (realtime == false ? opts[:start_time].to_datetime : nil),
-      })
-    end
-    stats = QueryPerf(:querySpec => query_specs)
-    
-    if !opts[:multi_instance]
-      Hash[stats.map do |res|
-        [
-          res.entity, 
-          {
-            :sampleInfo => res.sampleInfo,
-            :metrics => Hash[res.value.map do |metric|
-              metric_name = perfcounter_idhash[metric.id.counterId].name
-              [metric_name, metric.value]
-            end]
-          }
-        ]
-      end]
-    else
-      Hash[stats.map do |res|
-        [
-          res.entity, 
-          {
-            :sampleInfo => res.sampleInfo,
-            :metrics => Hash[res.value.map do |metric|
-              metric_name = perfcounter_idhash[metric.id.counterId].name
-              [[metric_name, metric.id.instance], metric.value]
-            end]
-          }
-        ]
-      end]
-    end
-  end
-
-
-  def active_intervals
-    intervals = historicalInterval
-    Hash[(1..4).map { |level| [level, intervals.select { |x| x.enabled && x.level >= level }] }]
   end
 end

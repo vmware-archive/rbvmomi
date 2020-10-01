@@ -1,29 +1,30 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'tempfile'
+require "tempfile"
 
-if ENV['RBVMOMI_COVERAGE'] == '1'
-  require 'simplecov'
+if ENV["RBVMOMI_COVERAGE"] == "1"
+  require "simplecov"
   SimpleCov.start
 end
 
-require 'rbvmomi'
-require 'rbvmomi/deserialization'
-require 'benchmark'
-require 'libxml'
+require "rbvmomi"
+require "rbvmomi/deserialization"
+require "benchmark"
+require "libxml"
 
-NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
+NS_XSI = "http://www.w3.org/2001/XMLSchema-instance"
 
 VIM = RbVmomi::VIM
-$conn = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
+$conn = VIM.new(ns: "urn:vim25", rev: "4.0")
 raw = File.read(ARGV[0])
 
-def diff a, b
-  a_io = Tempfile.new 'rbvmomi-diff-a'
-  b_io = Tempfile.new 'rbvmomi-diff-b'
+def diff(a, b)
+  a_io = Tempfile.new "rbvmomi-diff-a"
+  b_io = Tempfile.new "rbvmomi-diff-b"
   PP.pp a, a_io
   PP.pp b, b_io
   a_io.close
@@ -37,11 +38,11 @@ begin
   deserializer = RbVmomi::OldDeserializer.new($conn)
   end_time = Time.now + 1
   n = 0
-  while n == 0 or end_time > Time.now
+  while (n == 0) || (end_time > Time.now)
     deserializer.deserialize Nokogiri::XML(raw).root
     n += 1
   end
-  N = n*10
+  N = n * 10
 end
 
 puts "iterations: #{N}"
@@ -82,19 +83,19 @@ if true
   puts "all results match"
 end
 
-Benchmark.bmbm do|b|
+Benchmark.bmbm do |b|
   GC.start
   b.report("nokogiri parsing") do
     N.times { Nokogiri::XML(raw) }
   end
-  
+
   GC.start
   b.report("libxml parsing") do
     N.times do
       LibXML::XML::Parser.string(raw).parse
     end
   end
-  
+
   GC.start
   b.report("old deserialization (nokogiri)") do
     deserializer = RbVmomi::OldDeserializer.new($conn)

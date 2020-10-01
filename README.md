@@ -27,7 +27,7 @@ A simple example of turning on a VM:
 require 'rbvmomi'
 
 vim = RbVmomi::VIM.connect(host: 'foo', user: 'bar', password: 'baz')
-dc = vim.serviceInstance.find_datacenter('my_datacenter') || fail('datacenter not found')
+dc = vim.service_instance.find_datacenter('my_datacenter') || fail('datacenter not found')
 vm = dc.find_vm('my_vm') || fail('VM not found')
 vm.PowerOnVM_Task.wait_for_completion
 ```
@@ -40,7 +40,7 @@ to users of the Java SDK:
 require 'rbvmomi'
 
 vim = RbVmomi::VIM.connect(host: 'foo', user: 'bar', password: 'baz')
-root_folder = vim.serviceInstance.content.rootFolder
+root_folder = vim.service_instance.content.rootFolder
 dc = root_folder.childEntity.grep(RbVmomi::VIM::Datacenter).find { |x| x.name == 'mydatacenter' } || fail('datacenter not found')
 vm = dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine).find { |x| x.name == 'my_vm' } || fail('VM not found')
 task = vm.PowerOnVM_Task

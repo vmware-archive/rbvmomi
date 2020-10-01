@@ -1,22 +1,24 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
 # Find collisions between VMODL property names and Ruby methods
-require 'rbvmomi'
+require "rbvmomi"
 VIM = RbVmomi::VIM
 
-conn = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
+conn = VIM.new(ns: "urn:vim25", rev: "4.0")
 
 VIM.loader.typenames.each do |name|
   klass = VIM.loader.get name
-  next unless klass.respond_to? :kind and [:managed, :data].member? klass.kind
+  next unless klass.respond_to?(:kind) && [:managed, :data].member?(klass.kind)
+
   methods = klass.kind == :managed ?
-    RbVmomi::BasicTypes::ObjectWithMethods.instance_methods : 
+    RbVmomi::BasicTypes::ObjectWithMethods.instance_methods :
     RbVmomi::BasicTypes::ObjectWithProperties.instance_methods
   klass.props_desc.each do |x|
-    name = x['name']
+    name = x["name"]
     puts "collision: #{klass}##{name}" if methods.member? name.to_sym
   end
 end

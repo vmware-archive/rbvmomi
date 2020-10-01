@@ -1,36 +1,37 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'optimist'
-require 'rbvmomi'
-require 'rbvmomi/optimist'
+require "optimist"
+require "rbvmomi"
+require "rbvmomi/optimist"
 
 VIM = RbVmomi::VIM
 
 opts = Optimist.options do
-  banner <<-EOS
-Clone a VM.
+  banner <<~EOS
+    Clone a VM.
+    
+    Usage:
+        clone_vm.rb [options] source_vm dest_vm
+    
+    VIM connection options:
+  EOS
 
-Usage:
-    clone_vm.rb [options] source_vm dest_vm
+  rbvmomi_connection_opts
 
-VIM connection options:
-    EOS
+  text <<~EOS
+    
+    VM location options:
+  EOS
 
-    rbvmomi_connection_opts
+  rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-VM location options:
-    EOS
-
-    rbvmomi_datacenter_opt
-
-    text <<-EOS
-
-Other options:
+  text <<~EOS
+    
+    Other options:
   EOS
 
   opt :linked_clone, "Use a linked clone instead of a full clone"
@@ -42,7 +43,7 @@ vm_source = ARGV[0]
 vm_target = ARGV[1]
 
 vim = VIM.connect opts
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
+dc = vim.service_instance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
 vm = dc.find_vm(vm_source) or abort "VM not found"
 
 if opts[:linked_clone]
@@ -55,34 +56,34 @@ if opts[:linked_clone]
   # Thus, this code first create a delta disk on top of the base disk for
   # the to-be-cloned VM, if delta disks aren't used already.
   disks = vm.config.hardware.device.grep(VIM::VirtualDisk)
-  disks.select { |x| x.backing.parent == nil }.each do |disk|
+  disks.select { |x| x.backing.parent.nil? }.each do |disk|
     spec = {
-      :deviceChange => [
+      deviceChange: [
         {
-          :operation => :remove,
-          :device => disk
+          operation: :remove,
+          device: disk
         },
         {
-          :operation => :add,
-          :fileOperation => :create,
-          :device => disk.dup.tap { |x|
+          operation: :add,
+          fileOperation: :create,
+          device: disk.dup.tap do |x|
             x.backing = x.backing.dup
             x.backing.fileName = "[#{disk.backing.datastore.name}]"
             x.backing.parent = disk.backing
-          },
+          end
         }
       ]
     }
-    vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+    vm.ReconfigVM_Task(spec: spec).wait_for_completion
   end
 
-  relocateSpec = VIM.VirtualMachineRelocateSpec(:diskMoveType => :moveChildMostDiskBacking)
+  relocateSpec = VIM.VirtualMachineRelocateSpec(diskMoveType: :moveChildMostDiskBacking)
 else
   relocateSpec = VIM.VirtualMachineRelocateSpec
 end
 
-spec = VIM.VirtualMachineCloneSpec(:location => relocateSpec,
-                                   :powerOn => false,
-                                   :template => false)
+spec = VIM.VirtualMachineCloneSpec(location: relocateSpec,
+                                   powerOn: false,
+                                   template: false)
 
-vm.CloneVM_Task(:folder => vm.parent, :name => vm_target, :spec => spec).wait_for_completion
+vm.CloneVM_Task(folder: vm.parent, name: vm_target, spec: spec).wait_for_completion

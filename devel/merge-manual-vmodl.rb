@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # Copyright (c) 2013-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
@@ -9,28 +10,28 @@ public_vmodl_filename = ARGV[0] or abort "public vmodl filename required"
 internal_vmodl_filename = ARGV[1] or abort "internal vmodl filename required"
 output_vmodl_filename = ARGV[2] or abort "output vmodl filename required"
 
-public_vmodl = File.open(public_vmodl_filename, 'r') { |io| Marshal.load io }
-internal_vmodl = File.open(internal_vmodl_filename, 'r') { |io| Marshal.load io }
+public_vmodl = File.open(public_vmodl_filename, "r") { |io| Marshal.load io }
+internal_vmodl = File.open(internal_vmodl_filename, "r") { |io| Marshal.load io }
 
 db = {}
 tn = {}
-public_vmodl.each do |k,v|
-  unless k == '_typenames'
-    db[k] = v
+public_vmodl.each do |k, v|
+  if k == "_typenames"
+    tn["_typenames"] = v
   else
-    tn['_typenames'] = v
+    db[k] = v
   end
 end
 
 internal_vmodl.each do |k, v|
-  unless k == '_typenames'
-    db[k] = v unless db[k]
+  if k == "_typenames"
+    tn["_typenames"] = tn["_typenames"] + v
   else
-    tn['_typenames'] = tn['_typenames'] + v
+    db[k] = v unless db[k]
   end
 end
 
-db['_typenames'] = tn
+db["_typenames"] = tn
 
 
-File.open(output_vmodl_filename, 'w') { |io| Marshal.dump db, io }
+File.open(output_vmodl_filename, "w") { |io| Marshal.dump db, io }
