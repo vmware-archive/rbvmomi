@@ -1,38 +1,39 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 # TODO keepalive
 # TODO rc file
 # TODO proxy support?
-require 'optimist'
-require 'readline'
-require 'rbvmomi'
-require 'rbvmomi/optimist'
+require "optimist"
+require "readline"
+require "rbvmomi"
+require "rbvmomi/optimist"
 
 VIM = RbVmomi::VIM
 
 opts = Optimist.options do
-  banner <<-EOS
-vSphere API console.
-
-Usage:
-       rbvmomish [options]
-
-Predefined methods:
-conn: Returns the VIM connection
-si: Returns the ServiceInstance
-help: Displays this text.
-
-Special syntax:
-Adding a '#' suffix to an expression displays information about the type of the
-result, including its properties and methods, instead of the value.
-
-VIM connection options:
+  banner <<~EOS
+    vSphere API console.
+    
+    Usage:
+           rbvmomish [options]
+    
+    Predefined methods:
+    conn: Returns the VIM connection
+    si: Returns the ServiceInstance
+    help: Displays this text.
+    
+    Special syntax:
+    Adding a '#' suffix to an expression displays information about the type of the
+    result, including its properties and methods, instead of the value.
+    
+    VIM connection options:
   EOS
 
   rbvmomi_connection_opts
 
-  text <<-EOS
-
-Other options:
+  text <<~EOS
+    
+    Other options:
   EOS
 
   $optimist = self
@@ -41,25 +42,34 @@ end
 begin
   $vim = VIM.connect opts
 rescue Errno::EHOSTUNREACH
-  abort $!.message
+  abort $ERROR_INFO.message
 end
 
 typenames = VIM.loader.typenames
 Readline.completion_append_character = " "
 Readline.completion_proc = lambda do |word|
   return unless word
+
   prefix_regex = /^#{Regexp.escape(word)}/
   candidates = typenames.sort
   candidates.find_all { |e| e.match(prefix_regex) }
 end
 
 history_fn = "#{ENV['HOME']}/.rbvmomish-history"
-IO.foreach(history_fn) { |l| Readline::HISTORY << l.chomp } rescue nil
-history = File.open(history_fn, 'a')
+begin
+  IO.foreach(history_fn) { |l| Readline::HISTORY << l.chomp }
+rescue StandardError
+  nil
+end
+history = File.open(history_fn, "a")
 
 def type name
-  klass = VIM.type(name) rescue err("invalid type #{name.inspect}")
-  q = lambda { |x| x =~ /^xsd:/ ? $' : x }
+  klass = begin
+            VIM.type(name)
+          rescue StandardError
+            err("invalid type #{name.inspect}")
+          end
+  q = ->(x) { x =~ /^xsd:/ ? $' : x }
   if klass < VIM::DataObject
     puts "Data Object #{klass}"
     klass.full_props_desc.each do |desc|
@@ -74,8 +84,8 @@ def type name
     end
     puts
     puts "Methods:"
-    klass.full_methods_desc.sort_by(&:first).each do |name,desc|
-      params = desc['params']
+    klass.full_methods_desc.sort_by(&:first).each do |name, desc|
+      params = desc["params"]
       puts " #{name}(#{params.map { |x| "#{x['name']} : #{q[x['wsdl_type'] || 'void']}#{x['is-array'] ? '[]' : ''}" } * ', '}) : #{q[desc['result']['wsdl_type'] || 'void']}"
     end
   else
@@ -86,7 +96,7 @@ end
 
 class UserError < RuntimeError; end
 def err msg
-  raise UserError.new(msg)
+  raise UserError, msg
 end
 
 def cookie str
@@ -98,7 +108,7 @@ def conn
 end
 
 def si
-  $vim.serviceInstance
+  $vim.service_instance
 end
 
 def help
@@ -109,30 +119,30 @@ end
 $binding = $vim.instance_eval { binding }
 
 loop do
-begin
-  input = Readline.readline("#{opts[:host]}> ", false) or break
-  input = input.strip
-  next if input.empty?
+  begin
+    input = Readline.readline("#{opts[:host]}> ", false) or break
+    input = input.strip
+    next if input.empty?
 
-  (history.puts input; Readline::HISTORY << input) unless input == Readline::HISTORY.to_a[-1]
+    (history.puts input; Readline::HISTORY << input) unless input == Readline::HISTORY.to_a[-1]
 
-  result = eval(input, $binding)
-  if input =~ /\#$/
-    type result.class.wsdl_name
-  else
-    pp result unless result == :no_result
+    result = eval(input, $binding)
+    if input =~ /\#$/
+      type result.class.wsdl_name
+    else
+      pp result unless result == :no_result
+    end
+  rescue SystemExit, IOError
+    raise
+  rescue RuntimeError, RbVmomi::Fault
+    puts "#{$ERROR_INFO.class}: #{$ERROR_INFO.message}"
+    puts $ERROR_INFO.backtrace * "\n"
+  rescue UserError
+    puts $ERROR_INFO.message
+  rescue Interrupt
+    puts
+  rescue Exception
+    puts "#{$ERROR_INFO.class}: #{$ERROR_INFO.message}"
+    puts $ERROR_INFO.backtrace * "\n"
   end
-rescue SystemExit, IOError
-  raise
-rescue RuntimeError, RbVmomi::Fault
-  puts "#{$!.class}: #{$!.message}"
-  puts $!.backtrace * "\n"
-rescue UserError
-  puts $!.message
-rescue Interrupt
-  puts
-rescue Exception
-  puts "#{$!.class}: #{$!.message}"
-  puts $!.backtrace * "\n"
-end
 end

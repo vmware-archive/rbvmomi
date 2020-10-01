@@ -1,0 +1,272 @@
+AllCops:
+  UseCache: true
+  DisabledByDefault: false
+  Exclude:
+    - 'exe/*'
+
+################## STYLE #################################
+
+Style/NumericPredicate:
+  Enabled: false
+
+Style/TernaryParentheses:
+  Enabled: false
+
+Naming/AccessorMethodName:
+  Description: Check the naming of accessor methods for get_/set_.
+  Enabled: false
+
+Layout/ArrayAlignment:
+  Description: >-
+    Align the elements of an array literal if they span more than
+    one line.
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#align-multiline-arrays'
+  Enabled: false
+
+Layout/HashAlignment:
+  Description: >-
+    Align the elements of a hash literal if they span more than
+    one line.
+  Enabled: false
+
+Layout/ParameterAlignment:
+  Description: >-
+    Align the parameters of a method call if they span more
+    than one line.
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-double-indent'
+  Enabled: false
+
+Style/CaseEquality:
+  Description: 'Avoid explicit use of the case equality operator(===).'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-case-equality'
+  Enabled: false
+
+Style/Documentation:
+  Description: 'Document classes and non-namespace modules.'
+  Enabled: false
+
+Layout/EmptyLines:
+  Description: "Don't use several empty lines in a row."
+  Enabled: false
+
+Layout/ExtraSpacing:
+  Description: 'Do not use unnecessary spacing.'
+  Enabled: false
+
+Naming/MethodName:
+  Enabled: false
+
+Naming/VariableName:
+  Enabled: false
+
+Naming/BlockParameterName:
+  Enabled: false
+
+Style/MultilineTernaryOperator:
+  Description: >-
+    Avoid multi-line ?: (the ternary operator);
+    use if/unless instead.
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#no-multiline-ternary'
+  Enabled: false
+
+Style/SingleLineBlockParams:
+  Description: 'Enforces the names of some block params.'
+  StyleGuide: 'https://github.com/bbatsov/ruby-style-guide#reduce-blocks'
+  Enabled: false
+
+Style/StringLiterals:
+  EnforcedStyle: double_quotes
+
+Layout/EmptyLineAfterMagicComment:
+  Enabled: false
+
+Style/PercentLiteralDelimiters:
+  PreferredDelimiters:
+    'default': '()'
+    '%i':      '()'
+    '%w':      '()'
+
+Naming/MemoizedInstanceVariableName:
+  Enabled: false
+
+Style/InverseMethods:
+  Enabled: false
+
+Layout/MultilineMethodCallIndentation:
+  Enabled: false
+
+Naming/MethodParameterName:
+  Enabled: false
+
+Style/FormatStringToken:
+  Enabled: false
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/FormatString:
+  Enabled: false
+
+Style/DateTime:
+  Enabled: false
+
+Style/AccessModifierDeclarations:
+  Enabled: false
+
+Style/ExpandPathArguments:
+  Enabled: false
+
+Naming/PredicateName:
+  Enabled: true
+
+Style/MixinUsage:
+  Enabled: true
+  Exclude:
+    - 'bin/*'
+
+Style/MultilineBlockChain:
+  Enabled: false
+
+Style/MissingRespondToMissing:
+  Enabled: false
+
+Style/ExponentialNotation:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
+
+Style/IfUnlessModifier:
+  Enabled: true
+
+Style/GuardClause:
+  Enabled: false
+
+Style/SafeNavigation:
+  Enabled: false
+
+Style/GlobalVars:
+  Enabled: false
+
+Style/IfInsideElse:
+  Enabled: false
+
+Style/MultipleComparison:
+  Enabled: false
+
+################## METRICS #################################
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockNesting:
+  Enabled: true
+  Max: 4
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/ModuleLength:
+  Enabled: true
+  Max: 150
+
+Metrics/BlockLength:
+  Enabled: false
+
+Metrics/ParameterLists:
+  Enabled: false
+
+Metrics/MethodLength:
+  Enabled: false
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+################## LAYOUT #################################
+
+Layout/LineLength:
+  Enabled: false
+
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+################## LINT #################################
+
+Lint/AmbiguousBlockAssociation:
+  Enabled: false
+
+Lint/Void:
+  Description: 'Possible use of operator/literal/variable in void context.'
+  Enabled: true
+
+Lint/SendWithMixinArgument:
+  Enabled: true
+
+Lint/Debugger:
+  Enabled: true
+
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
+Lint/ShadowingOuterLocalVariable:
+  Enabled: false
+
+Lint/LiteralAsCondition:
+  Enabled: false
+
+Lint/UriEscapeUnescape:
+  Enabled: false
+
+Lint/RescueException:
+  Enabled: false
+
+Lint/DuplicateMethods:
+  Enabled: false
+
+Lint/Void:
+  Enabled: false
+
+Lint/UselessAssignment:
+  Enabled: false
+
+Lint/AssignmentInCondition:
+  Enabled: false
+
+Lint/NestedMethodDefinition:
+  Enabled: false
+
+Naming/HeredocDelimiterNaming:
+  Enabled: false
+
+Lint/NonLocalExitFromIterator:
+  Enabled: false
+
+Naming/VariableNumber:
+  Enabled: false
+
+Naming/FileName:
+  Enabled: false
+
+Naming/BinaryOperatorParameterName:
+  Enabled: false
+
+Security/Open:
+  Enabled: false
+
+Security/MarshalLoad:
+  Enabled: false
+
+Security/JSONLoad:
+  Enabled: false

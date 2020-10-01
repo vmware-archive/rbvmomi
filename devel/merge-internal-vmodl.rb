@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
@@ -11,7 +12,7 @@ internal_vmodl_filename = ARGV[1] or abort "internal vmodl filename required"
 output_vmodl_filename = ARGV[2] or abort "output vmodl filename required"
 
 TYPES = %w(
-DVSKeyedOpaqueData
+  DVSKeyedOpaqueData
 DVSOpaqueDataConfigSpec
 DVPortgroupSelection
 DVPortSelection
@@ -37,27 +38,28 @@ ReflectManagedMethodExecuterSoapArgument
 ReflectManagedMethodExecuterSoapFault
 ReflectManagedMethodExecuterSoapResult
 SelectionSet
-)
+).freeze
 
 METHODS = %w(
-DistributedVirtualSwitchManager.UpdateDvsOpaqueData_Task
+  DistributedVirtualSwitchManager.UpdateDvsOpaqueData_Task
 HostSystem.RetrieveDynamicTypeManager
 HostSystem.RetrieveManagedMethodExecuter
-)
+).freeze
 
-public_vmodl = File.open(public_vmodl_filename, 'r') { |io| Marshal.load io }
-internal_vmodl = File.open(internal_vmodl_filename, 'r') { |io| Marshal.load io }
+public_vmodl = File.open(public_vmodl_filename, "r") { |io| Marshal.load io }
+internal_vmodl = File.open(internal_vmodl_filename, "r") { |io| Marshal.load io }
 
 TYPES.each do |k|
   puts "Merging in #{k}"
-  fail "Couldn't find type #{k} in internal VMODL" unless internal_vmodl.member? k
+  raise "Couldn't find type #{k} in internal VMODL" unless internal_vmodl.member? k
+
   public_vmodl[k] = internal_vmodl[k]
 end
 
 METHODS.each do |x|
   puts "Merging in #{x}"
-  type, method = x.split '.'
-  public_vmodl[type]['methods'][method] = internal_vmodl[type]['methods'][method] or fail
+  type, method = x.split "."
+  public_vmodl[type]["methods"][method] = internal_vmodl[type]["methods"][method] or raise
 end
 
-File.open(output_vmodl_filename, 'w') { |io| Marshal.dump public_vmodl, io }
+File.open(output_vmodl_filename, "w") { |io| Marshal.dump public_vmodl, io }

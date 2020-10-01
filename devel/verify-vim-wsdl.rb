@@ -1,7 +1,8 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-require 'active_support/core_ext/enumerable'
-require 'active_support/inflector'
+require "active_support/core_ext/enumerable"
+require "active_support/inflector"
 require "optimist"
 require "pathname"
 require "rbvmomi"
@@ -14,18 +15,18 @@ def parse_args(args)
       verify-vim-wsdl.rb [path to wsdl] [path to vmodl.db]
     HELP
 
-    opt :fix, "Optionally fix the wsdl types in the vmodl.db", :type => :boolean, :default => false
+    opt :fix, "Optionally fix the wsdl types in the vmodl.db", type: :boolean, default: false
   end
 
   Optimist.die("You must provide a wsdl file and a vmodl file") if args.count < 2
 
   wsdl_path = Pathname.new(args.shift).expand_path
-  Optimist.die("You must pass a path to a wsdl file") if !wsdl_path.exist?
+  Optimist.die("You must pass a path to a wsdl file") unless wsdl_path.exist?
 
   vmodl_path = Pathname.new(args.shift).expand_path
-  Optimist.die("You must pass a path to the vmodl.db file") if !vmodl_path.exist?
+  Optimist.die("You must pass a path to the vmodl.db file") unless vmodl_path.exist?
 
-  return wsdl_path, vmodl_path, opts
+  [wsdl_path, vmodl_path, opts]
 end
 
 def load_wsdl(path)
@@ -48,7 +49,7 @@ end
 # and RbVmomi uses ManagedObjects not ManagedObjectReferences as parameters
 def wsdl_constantize(type)
   type = type.split(":").last
-  type = "int"           if %w[long short byte].include?(type)
+  type = "int"           if %w(long short byte).include?(type)
   type = "float"         if type == "double"
   type = "binary"        if type == "base64Binary"
   type = "ManagedObject" if type == "ManagedObjectReference"
@@ -90,7 +91,7 @@ vim.collect_complextypes.each do |type|
     # Example of a subclass is e.g. VirtualMachine.host is defined as a HostSystem
     # in the vmodl.db but it is a ManagedObjectReference in the wsdl.
     unless vmodl_klass <= wsdl_klass
-      puts "#{type_name}.#{vmodl_prop["name"]} #{wsdl_klass.wsdl_name} doesn't match #{vmodl_klass.wsdl_name}"
+      puts "#{type_name}.#{vmodl_prop['name']} #{wsdl_klass.wsdl_name} doesn't match #{vmodl_klass.wsdl_name}"
       vmodl_prop["wsdl_type"] = wsdl_klass.wsdl_name if options[:fix]
     end
   end

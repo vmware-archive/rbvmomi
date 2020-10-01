@@ -1,36 +1,37 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'optimist'
-require 'rbvmomi'
-require 'rbvmomi/optimist'
+require "optimist"
+require "rbvmomi"
+require "rbvmomi/optimist"
 
 VIM = RbVmomi::VIM
 
 opts = Optimist.options do
-  banner <<-EOS
-Create a VM.
+  banner <<~EOS
+    Create a VM.
+    
+    Usage:
+        create_vm-1.9.rb [options]
+    
+    VIM connection options:
+  EOS
 
-Usage:
-    create_vm-1.9.rb [options]
+  rbvmomi_connection_opts
 
-VIM connection options:
-    EOS
+  text <<~EOS
+    
+    VM location options:
+  EOS
 
-    rbvmomi_connection_opts
+  rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-VM location options:
-    EOS
-
-    rbvmomi_datacenter_opt
-
-    text <<-EOS
-
-Other options:
+  text <<~EOS
+    
+    Other options:
   EOS
 end
 
@@ -38,15 +39,15 @@ Optimist.die("must specify host") unless opts[:host]
 vm_name = ARGV[0] or abort "must specify VM name"
 
 vim = VIM.connect opts
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
+dc = vim.service_instance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
 vmFolder = dc.vmFolder
 hosts = dc.hostFolder.children
 rp = hosts.first.resourcePool
 
 vm_cfg = {
   name: vm_name,
-  guestId: 'otherGuest',
-  files: { vmPathName: '[datastore1]' },
+  guestId: "otherGuest",
+  files: { vmPathName: "[datastore1]" },
   numCPUs: 1,
   memoryMB: 128,
   deviceChange: [
@@ -55,7 +56,7 @@ vm_cfg = {
       device: VIM.VirtualLsiLogicController(
         key: 1000,
         busNumber: 0,
-        sharedBus: :noSharing,
+        sharedBus: :noSharing
       )
     }, {
       operation: :add,
@@ -63,35 +64,35 @@ vm_cfg = {
       device: VIM.VirtualDisk(
         key: 0,
         backing: VIM.VirtualDiskFlatVer2BackingInfo(
-          fileName: '[datastore1]',
+          fileName: "[datastore1]",
           diskMode: :persistent,
-          thinProvisioned: true,
+          thinProvisioned: true
         ),
         controllerKey: 1000,
         unitNumber: 0,
-        capacityInKB: 4000000,
+        capacityInKB: 4_000_000
       )
     }, {
       operation: :add,
       device: VIM.VirtualE1000(
         key: 0,
         deviceInfo: {
-          label: 'Network Adapter 1',
-          summary: 'VM Network',
+          label: "Network Adapter 1",
+          summary: "VM Network"
         },
         backing: VIM.VirtualEthernetCardNetworkBackingInfo(
-          deviceName: 'VM Network',
+          deviceName: "VM Network"
         ),
-        addressType: 'generated'
+        addressType: "generated"
       )
     }
   ],
   extraConfig: [
     {
-      key: 'bios.bootOrder',
-      value: 'ethernet0'
+      key: "bios.bootOrder",
+      value: "ethernet0"
     }
   ]
 }
 
-vmFolder.CreateVM_Task(:config => vm_cfg, :pool => rp).wait_for_completion
+vmFolder.CreateVM_Task(config: vm_cfg, pool: rp).wait_for_completion

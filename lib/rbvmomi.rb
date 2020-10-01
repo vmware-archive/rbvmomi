@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright (c) 2010-2019 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
@@ -10,7 +11,7 @@ module RbVmomi
   end
 end
 
-require_relative 'rbvmomi/connection'
-require_relative 'rbvmomi/sso'
-require_relative 'rbvmomi/version'
-require_relative 'rbvmomi/vim'
+require_relative "rbvmomi/connection"
+require_relative "rbvmomi/sso"
+require_relative "rbvmomi/version"
+require_relative "rbvmomi/vim"

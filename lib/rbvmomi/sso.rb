@@ -1,29 +1,30 @@
-require 'base64'
-require 'net/https'
-require 'nokogiri'
-require 'openssl'
-require 'securerandom'
-require 'time'
+# frozen_string_literal: true
+require "base64"
+require "net/https"
+require "nokogiri"
+require "openssl"
+require "securerandom"
+require "time"
 
 module RbVmomi
   # Provides access to vCenter Single Sign-On
   class SSO
-    BST_PROFILE = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3'.freeze
+    BST_PROFILE = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3"
     C14N_CLASS = Nokogiri::XML::XML_C14N_EXCLUSIVE_1_0
-    C14N_METHOD = 'http://www.w3.org/2001/10/xml-exc-c14n#'.freeze
-    DIGEST_METHOD = 'http://www.w3.org/2001/04/xmlenc#sha512'.freeze
-    ENCODING_METHOD = 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary'.freeze
-    SIGNATURE_METHOD = 'http://www.w3.org/2001/04/xmldsig-more#rsa-sha512'.freeze
-    STS_PATH = '/sts/STSService'.freeze
-    TOKEN_TYPE = 'urn:oasis:names:tc:SAML:2.0:assertion'.freeze
-    TOKEN_PROFILE = 'http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0'.freeze
+    C14N_METHOD = "http://www.w3.org/2001/10/xml-exc-c14n#"
+    DIGEST_METHOD = "http://www.w3.org/2001/04/xmlenc#sha512"
+    ENCODING_METHOD = "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary"
+    SIGNATURE_METHOD = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha512"
+    STS_PATH = "/sts/STSService"
+    TOKEN_TYPE = "urn:oasis:names:tc:SAML:2.0:assertion"
+    TOKEN_PROFILE = "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0"
     NAMESPACES = {
-      :ds => 'http://www.w3.org/2000/09/xmldsig#',
-      :soap => 'http://schemas.xmlsoap.org/soap/envelope/',
-      :wsse => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
-      :wsse11 => 'http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd',
-      :wst => 'http://docs.oasis-open.org/ws-sx/ws-trust/200512',
-      :wsu => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+      ds: "http://www.w3.org/2000/09/xmldsig#",
+      soap: "http://schemas.xmlsoap.org/soap/envelope/",
+      wsse: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd",
+      wsse11: "http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd",
+      wst: "http://docs.oasis-open.org/ws-sx/ws-trust/200512",
+      wsu: "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
     }.freeze
 
     attr_reader :assertion,
@@ -64,15 +65,15 @@ module RbVmomi
       unless req.is_a?(Net::HTTPSuccess)
         resp = Nokogiri::XML(req.body)
         resp.remove_namespaces!
-        raise(resp.at_xpath('//Envelope/Body/Fault/faultstring/text()'))
+        raise(resp.at_xpath("//Envelope/Body/Fault/faultstring/text()"))
       end
 
       extract_assertion(req.body)
     end
 
     def sign_request(request)
-      raise('Need SAML2 assertion') unless @assertion
-      raise('No SAML2 assertion ID') unless @assertion_id
+      raise("Need SAML2 assertion") unless @assertion
+      raise("No SAML2 assertion ID") unless @assertion_id
 
       request_id = generate_id
       timestamp_id = generate_id
@@ -83,10 +84,10 @@ module RbVmomi
           xml[:wsse].Security do
             wsu_timestamp(xml, timestamp_id)
             ds_signature(xml, request_id, timestamp_id) do |x|
-              x[:wsse].SecurityTokenReference('wsse11:TokenType' => TOKEN_PROFILE) do
+              x[:wsse].SecurityTokenReference("wsse11:TokenType" => TOKEN_PROFILE) do
                 x[:wsse].KeyIdentifier(
                   @assertion_id,
-                  'ValueType' => 'http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID'
+                  "ValueType" => "http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLID"
                 )
               end
             end
@@ -96,36 +97,36 @@ module RbVmomi
 
       # To avoid Nokogiri mangling the token, we replace it as a string
       # later on. Figure out a way around this.
-      builder.doc.at_xpath('//soap:Header/wsse:Security/wsu:Timestamp').add_previous_sibling(Nokogiri::XML::Text.new('SAML_ASSERTION_PLACEHOLDER', builder.doc))
+      builder.doc.at_xpath("//soap:Header/wsse:Security/wsu:Timestamp").add_previous_sibling(Nokogiri::XML::Text.new("SAML_ASSERTION_PLACEHOLDER", builder.doc))
 
-      request.at_xpath('//soap:Envelope', NAMESPACES).tap do |e|
+      request.at_xpath("//soap:Envelope", NAMESPACES).tap do |e|
         NAMESPACES.each do |ns, uri|
           e.add_namespace(ns.to_s, uri)
         end
       end
-      request.xpath('//soap:Envelope/soap:Body').each do |body|
+      request.xpath("//soap:Envelope/soap:Body").each do |body|
         body.add_previous_sibling(builder.doc.root)
-        body.add_namespace('wsu', NAMESPACES[:wsu])
-        body['wsu:Id'] = request_id
+        body.add_namespace("wsu", NAMESPACES[:wsu])
+        body["wsu:Id"] = request_id
       end
 
       signed = sign(request)
-      signed.gsub!('SAML_ASSERTION_PLACEHOLDER', @assertion.to_xml(:indent => 0, :save_with => Nokogiri::XML::Node::SaveOptions::AS_XML).strip)
+      signed.gsub!("SAML_ASSERTION_PLACEHOLDER", @assertion.to_xml(indent: 0, save_with: Nokogiri::XML::Node::SaveOptions::AS_XML).strip)
 
       signed
     end
 
     # We default to Issue, since that's all we currently need.
     def sso_call(body)
-      sso_url = URI::HTTPS.build(:host => @host, :port => @port, :path => @path)
+      sso_url = URI::HTTPS.build(host: @host, port: @port, path: @path)
       http = Net::HTTP.new(sso_url.host, sso_url.port)
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE if @insecure
 
       req = Net::HTTP::Post.new(sso_url.request_uri)
-      req.add_field('Accept', 'text/xml, multipart/related')
-      req.add_field('User-Agent', "VMware/RbVmomi #{RbVmomi::VERSION}")
-      req.add_field('SOAPAction', 'http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue')
+      req.add_field("Accept", "text/xml, multipart/related")
+      req.add_field("User-Agent", "VMware/RbVmomi #{RbVmomi::VERSION}")
+      req.add_field("SOAPAction", "http://docs.oasis-open.org/ws-sx/ws-trust/200512/RST/Issue")
       req.content_type = 'text/xml; charset="UTF-8"'
       req.body = body
 
@@ -154,27 +155,27 @@ module RbVmomi
               ds_signature(xml, request_id, timestamp_id, signature_id) do |x|
                 x[:wsse].SecurityTokenReference do
                   x[:wsse].Reference(
-                    'URI' => "##{security_token_id}",
-                    'ValueType' => BST_PROFILE
+                    "URI" => "##{security_token_id}",
+                    "ValueType" => BST_PROFILE
                   )
                 end
               end
             end
           end
-          xml[:soap].Body('wsu:Id' => request_id) do
+          xml[:soap].Body("wsu:Id" => request_id) do
             xml[:wst].RequestSecurityToken do
               xml[:wst].TokenType(TOKEN_TYPE)
-              xml[:wst].RequestType('http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue')
+              xml[:wst].RequestType("http://docs.oasis-open.org/ws-sx/ws-trust/200512/Issue")
               xml[:wst].Lifetime do
                 xml[:wsu].Created(created_at)
                 xml[:wsu].Expires(token_expires_at)
               end
-              xml[:wst].Renewing('Allow' => 'false', 'OK' => 'false')
-              xml[:wst].KeyType('http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey')
+              xml[:wst].Renewing("Allow" => "false", "OK" => "false")
+              xml[:wst].KeyType("http://docs.oasis-open.org/ws-sx/ws-trust/200512/PublicKey")
               xml[:wst].SignatureAlgorithm(SIGNATURE_METHOD)
-              xml[:wst].Delegatable('false')
+              xml[:wst].Delegatable("false")
             end
-            xml[:wst].UseKey('Sig' => signature_id)
+            xml[:wst].UseKey("Sig" => signature_id)
           end
         end
       end
@@ -189,14 +190,14 @@ module RbVmomi
       # Doesn't matter that usually there's more than one NS with the same
       # URI - either will work for XPath. We just don't want to hardcode
       # xmlns:saml2.
-      token_ns = namespaces.find { |_, uri| uri == TOKEN_TYPE }.first.gsub(/^xmlns:/, '')
+      token_ns = namespaces.find { |_, uri| uri == TOKEN_TYPE }.first.gsub(/^xmlns:/, "")
 
       @assertion = sso_response.at_xpath("//#{token_ns}:Assertion", namespaces)
       @assertion_id = @assertion.at_xpath("//#{token_ns}:Assertion/@ID", namespaces).value
     end
 
     def sign(doc)
-      signature_digest_references = doc.xpath('/soap:Envelope/soap:Header/wsse:Security/ds:Signature/ds:SignedInfo/ds:Reference/@URI', doc.collect_namespaces).map { |a| a.value.sub(/^#/, '') }
+      signature_digest_references = doc.xpath("/soap:Envelope/soap:Header/wsse:Security/ds:Signature/ds:SignedInfo/ds:Reference/@URI", doc.collect_namespaces).map { |a| a.value.sub(/^#/, "") }
       signature_digest_references.each do |ref|
         data = doc.at_xpath("//*[@wsu:Id='#{ref}']", doc.collect_namespaces)
         digest = Base64.strict_encode64(Digest::SHA2.new(512).digest(data.canonicalize(C14N_CLASS)))
@@ -204,28 +205,22 @@ module RbVmomi
         digest_tag.add_child(Nokogiri::XML::Text.new(digest, doc))
       end
 
-      signed_info = doc.at_xpath('/soap:Envelope/soap:Header/wsse:Security/ds:Signature/ds:SignedInfo', doc.collect_namespaces)
+      signed_info = doc.at_xpath("/soap:Envelope/soap:Header/wsse:Security/ds:Signature/ds:SignedInfo", doc.collect_namespaces)
       signature = Base64.strict_encode64(@private_key.sign(OpenSSL::Digest::SHA512.new, signed_info.canonicalize(C14N_CLASS)))
-      signature_value_tag = doc.at_xpath('/soap:Envelope/soap:Header/wsse:Security/ds:Signature/ds:SignatureValue', doc.collect_namespaces)
+      signature_value_tag = doc.at_xpath("/soap:Envelope/soap:Header/wsse:Security/ds:Signature/ds:SignatureValue", doc.collect_namespaces)
       signature_value_tag.add_child(Nokogiri::XML::Text.new(signature, doc))
 
-      doc.to_xml(:indent => 0, :save_with => Nokogiri::XML::Node::SaveOptions::AS_XML).strip
+      doc.to_xml(indent: 0, save_with: Nokogiri::XML::Node::SaveOptions::AS_XML).strip
     end
 
     def load_x509(private_key, certificate)
-      @private_key = private_key ? private_key : OpenSSL::PKey::RSA.new(2048)
-      if @private_key.is_a? String
-        @private_key = OpenSSL::PKey::RSA.new(@private_key)
-      end
+      @private_key = private_key || OpenSSL::PKey::RSA.new(2048)
+      @private_key = OpenSSL::PKey::RSA.new(@private_key) if @private_key.is_a? String
 
       @certificate = certificate
-      if @certificate && !private_key
-        raise(ArgumentError, "Can't generate private key from a certificate")
-      end
+      raise(ArgumentError, "Can't generate private key from a certificate") if @certificate && !private_key
 
-      if @certificate.is_a? String
-        @certificate = OpenSSL::X509::Certificate.new(@certificate)
-      end
+      @certificate = OpenSSL::X509::Certificate.new(@certificate) if @certificate.is_a? String
       # If only a private key is specified, we will generate a certificate.
       unless @certificate
         timestamp = Time.now.utc
@@ -233,8 +228,8 @@ module RbVmomi
         @certificate.not_before = timestamp
         @certificate.not_after = timestamp + 3600 # 3600 is 1 hour
         @certificate.subject = OpenSSL::X509::Name.new([
-                                                         %w[O VMware],
-                                                         %w[OU RbVmomi],
+                                                         %w(O VMware),
+                                                         %w(OU RbVmomi),
                                                          %W[CN #{@user}]
                                                        ])
         @certificate.issuer = @certificate.subject
@@ -248,7 +243,7 @@ module RbVmomi
 
     def ds_signature(xml, request_id, timestamp_id, id = nil)
       signature_id = {}
-      signature_id['Id'] = id if id
+      signature_id["Id"] = id if id
       xml[:ds].Signature(signature_id) do
         ds_signed_info(xml, request_id, timestamp_id)
         xml[:ds].SignatureValue
@@ -260,20 +255,20 @@ module RbVmomi
 
     def ds_signed_info(xml, request_id, timestamp_id)
       xml[:ds].SignedInfo do
-        xml[:ds].CanonicalizationMethod('Algorithm' => C14N_METHOD)
-        xml[:ds].SignatureMethod('Algorithm' => SIGNATURE_METHOD)
-        xml[:ds].Reference('URI' => "##{request_id}") do
+        xml[:ds].CanonicalizationMethod("Algorithm" => C14N_METHOD)
+        xml[:ds].SignatureMethod("Algorithm" => SIGNATURE_METHOD)
+        xml[:ds].Reference("URI" => "##{request_id}") do
           xml[:ds].Transforms do
-            xml[:ds].Transform('Algorithm' => C14N_METHOD)
+            xml[:ds].Transform("Algorithm" => C14N_METHOD)
           end
-          xml[:ds].DigestMethod('Algorithm' => DIGEST_METHOD)
+          xml[:ds].DigestMethod("Algorithm" => DIGEST_METHOD)
           xml[:ds].DigestValue
         end
-        xml[:ds].Reference('URI' => "##{timestamp_id}") do
+        xml[:ds].Reference("URI" => "##{timestamp_id}") do
           xml[:ds].Transforms do
-            xml[:ds].Transform('Algorithm' => C14N_METHOD)
+            xml[:ds].Transform("Algorithm" => C14N_METHOD)
           end
-          xml[:ds].DigestMethod('Algorithm' => DIGEST_METHOD)
+          xml[:ds].DigestMethod("Algorithm" => DIGEST_METHOD)
           xml[:ds].DigestValue
         end
       end
@@ -284,7 +279,7 @@ module RbVmomi
       created_at = datum.iso8601
       expires_at = (datum + 600).iso8601
 
-      xml[:wsu].Timestamp('wsu:Id' => id) do
+      xml[:wsu].Timestamp("wsu:Id" => id) do
         xml[:wsu].Created(created_at)
         xml[:wsu].Expires(expires_at)
       end
@@ -300,9 +295,9 @@ module RbVmomi
     def wsse_binary_security_token(xml, id)
       xml[:wsse].BinarySecurityToken(
         Base64.strict_encode64(@certificate.to_der),
-        'EncodingType' => ENCODING_METHOD,
-        'ValueType' => BST_PROFILE,
-        'wsu:Id' => id
+        "EncodingType" => ENCODING_METHOD,
+        "ValueType" => BST_PROFILE,
+        "wsu:Id" => id
       )
     end
 

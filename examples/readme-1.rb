@@ -1,31 +1,32 @@
+# frozen_string_literal: true
 # Copyright (c) 2011-2017 VMware, Inc.  All Rights Reserved.
 # SPDX-License-Identifier: MIT
 
-require 'rbvmomi'
-require 'rbvmomi/optimist'
+require "rbvmomi"
+require "rbvmomi/optimist"
 
 opts = Optimist.options do
-  banner <<-EOS
-Example 1 from the README: Power on a VM.
+  banner <<~EOS
+    Example 1 from the README: Power on a VM.
+    
+    Usage:
+        readme-1.rb [options] VM name
+    
+    VIM connection options:
+  EOS
 
-Usage:
-    readme-1.rb [options] VM name
+  rbvmomi_connection_opts
 
-VIM connection options:
-    EOS
+  text <<~EOS
+    
+    VM location options:
+  EOS
 
-    rbvmomi_connection_opts
+  rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-VM location options:
-    EOS
-
-    rbvmomi_datacenter_opt
-
-    text <<-EOS
-
-Other options:
+  text <<~EOS
+    
+    Other options:
   EOS
 end
 
@@ -33,6 +34,6 @@ Optimist.die("must specify host") unless opts[:host]
 vm_name = ARGV[0] or abort "must specify VM name"
 
 vim = RbVmomi::VIM.connect opts
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or fail "datacenter not found"
-vm = dc.find_vm(vm_name) or fail "VM not found"
+dc = vim.service_instance.find_datacenter(opts[:datacenter]) or raise "datacenter not found"
+vm = dc.find_vm(vm_name) or raise "VM not found"
 vm.PowerOnVM_Task.wait_for_completion
