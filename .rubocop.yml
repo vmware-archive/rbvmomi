@@ -1,0 +1,5 @@
+# TODO: Enable when warnings are to be fixed.
+AllCops:
+  DisabledByDefault: true
+
+# inherit_from: .rubocop_todo.yml

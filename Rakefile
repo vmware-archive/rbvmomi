@@ -4,6 +4,7 @@
 require 'bundler/gem_tasks'
 require 'rake/testtask'
 require 'yard'
+require 'rubocop/rake_task'
 
 task(:default => :test)
 
@@ -13,5 +14,7 @@ Rake::TestTask.new do |t|
   t.verbose = true
   t.warning = true
 end
+
+RuboCop::RakeTask.new
 
 YARD::Rake::YardocTask.new
