@@ -4,6 +4,7 @@
 require 'bundler/gem_tasks'
 require 'rake/testtask'
 require 'yard'
+require 'rubocop/rake_task'
 
 task(:default => :test)
 
@@ -14,9 +15,6 @@ Rake::TestTask.new do |t|
   t.warning = true
 end
 
-desc "Run Rubocop"
-task :rubocop do
-  sh "bundle exec rubocop"
-end
+RuboCop::RakeTask.new
 
 YARD::Rake::YardocTask.new

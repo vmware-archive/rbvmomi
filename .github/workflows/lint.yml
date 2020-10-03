@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
   lint:
-    name: Run rubocop
+    name: Run RuboCop
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -16,5 +16,5 @@ jobs:
           ruby-version: '2.7'
           bundler-cache: true
 
-      - name: Run rubocop
+      - name: Run RuboCop
         run: bundle exec rubocop
