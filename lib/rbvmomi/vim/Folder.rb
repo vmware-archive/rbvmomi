@@ -89,7 +89,7 @@ class RbVmomi::VIM::Folder
     elsif path.is_a? Enumerable
       es = path
     else
-      fail "unexpected path class #{path.class}"
+      raise "unexpected path class #{path.class}"
     end
     return self if es.empty?
     final = es.pop
@@ -128,12 +128,12 @@ class RbVmomi::VIM::Folder
     propSpecs.each do |k,v|
       case k
       when Class
-        fail 'key must be a subclass of ManagedEntity' unless k < RbVmomi::VIM::ManagedEntity
+        raise 'key must be a subclass of ManagedEntity' unless k < RbVmomi::VIM::ManagedEntity
         k = k.wsdl_name
       when Symbol, String
         k = k.to_s
       else
-        fail 'invalid key'
+        raise 'invalid key'
       end
 
       h = { :type => k }
@@ -142,7 +142,7 @@ class RbVmomi::VIM::Folder
       elsif v.is_a? Array
         h[:pathSet] = v + %w(parent)
       else
-        fail 'value must be an array of property paths or :all'
+        raise 'value must be an array of property paths or :all'
       end
       propSet << h
     end

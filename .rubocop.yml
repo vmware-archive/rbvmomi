@@ -16,4 +16,8 @@ Style/FrozenStringLiteralComment:
   Enabled: true
   EnforcedStyle: always_true
 
+Style/SignalException:
+  Enabled: true
+  EnforcedStyle: only_raise
+
 # inherit_from: .rubocop_todo.yml

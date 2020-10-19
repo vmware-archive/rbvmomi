@@ -13,7 +13,7 @@ class RbVmomi::TrivialSoap
   attr_reader :http
 
   def initialize opts
-    fail unless opts.is_a? Hash
+    raise unless opts.is_a? Hash
     @opts = opts
     return unless @opts[:host] # for testcases
     @debug = @opts[:debug]

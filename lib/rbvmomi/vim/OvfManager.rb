@@ -27,7 +27,7 @@ class RbVmomi::VIM::OvfManager
              :diskProvisioning => :thin }.merge opts
 
     %w(uri vmName vmFolder host resourcePool datastore).each do |k|
-      fail "parameter #{k} required" unless opts[k.to_sym]
+      raise "parameter #{k} required" unless opts[k.to_sym]
     end
 
     ovfImportSpec = RbVmomi::VIM::OvfCreateImportSpecParams(

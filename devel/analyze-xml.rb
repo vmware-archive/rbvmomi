@@ -31,7 +31,7 @@ def print_tree tree, indent=0
   tree.select { |k,v| k.is_a? String }.sort.each do |k,v|
     attrs = v[:attributes] || []
     min, max = v[:min_occur], v[:max_occur]
-    numsym = if min == 0 and max == 0 then fail
+    numsym = if min == 0 and max == 0 then raise
              elsif min == 0 and max == 1 then '?'
              elsif min == 0 then '*'
              elsif min == 1 and max == 1 then ''

@@ -26,8 +26,8 @@ class Connection < TrivialSoap
   attr_reader :deserializer
 
   def initialize opts
-    @ns = opts[:ns] or fail 'no namespace specified'
-    @rev = opts[:rev] or fail 'no revision specified'
+    @ns = opts[:ns] or raise 'no namespace specified'
+    @rev = opts[:rev] or raise 'no revision specified'
     @deserializer = Deserializer.new self
     reset_profiling
     @profiling = false
@@ -49,7 +49,7 @@ class Connection < TrivialSoap
         if not v == nil
           obj2xml xml, d['name'], d['wsdl_type'], d['is-array'], v
         else
-          fail "missing required parameter #{d['name']}" unless d['is-optional']
+          raise "missing required parameter #{d['name']}" unless d['is-optional']
         end
       end
     end
@@ -63,7 +63,7 @@ class Connection < TrivialSoap
       if fault
         raise RbVmomi::Fault.new(msg, fault)
       else
-        fail "#{resp.at('faultcode').text}: #{msg}"
+        raise "#{resp.at('faultcode').text}: #{msg}"
       end
     else
       if desc
@@ -77,9 +77,9 @@ class Connection < TrivialSoap
   end
 
   def call method, desc, this, params
-    fail 'this is not a managed object' unless this.is_a? BasicTypes::ManagedObject
-    fail 'parameters must be passed as a hash' unless params.is_a? Hash
-    fail unless desc.is_a? Hash
+    raise 'this is not a managed object' unless this.is_a? BasicTypes::ManagedObject
+    raise 'parameters must be passed as a hash' unless params.is_a? Hash
+    raise unless desc.is_a? Hash
 
     t1 = Time.now
     body = soap_envelope do |xml|
@@ -118,28 +118,28 @@ class Connection < TrivialSoap
   # hic sunt dracones
   def obj2xml xml, name, type, is_array, o, attrs={}
     expected = type(type)
-    fail "expected array for '#{name}', got #{o.class.wsdl_name}" if is_array and not (o.is_a? Array or (o.is_a? Hash and expected == BasicTypes::KeyValue))
+    raise "expected array for '#{name}', got #{o.class.wsdl_name}" if is_array and not (o.is_a? Array or (o.is_a? Hash and expected == BasicTypes::KeyValue))
     case o
     when Array, BasicTypes::KeyValue
       if o.is_a? BasicTypes::KeyValue and expected != BasicTypes::KeyValue
-        fail "expected #{expected.wsdl_name} for '#{name}', got KeyValue"
+        raise "expected #{expected.wsdl_name} for '#{name}', got KeyValue"
       elsif expected == BasicTypes::KeyValue and not is_array
         xml.tag! name, attrs do
           xml.tag! 'key', o[0].to_s
           xml.tag! 'value', o[1].to_s
         end
       else
-        fail "expected #{expected.wsdl_name} for '#{name}', got array" unless is_array
+        raise "expected #{expected.wsdl_name} for '#{name}', got array" unless is_array
         o.each do |e|
           obj2xml xml, name, expected.wsdl_name, false, e, attrs
         end
       end
     when BasicTypes::ManagedObject
-      fail "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
+      raise "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
       xml.tag! name, o._ref, :type => o.class.wsdl_name
     when BasicTypes::DataObject
       if expected and not expected >= o.class and not expected == BasicTypes::AnyType
-        fail "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}"
+        raise "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}"
       end
       xml.tag! name, attrs.merge('xsi:type' => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
@@ -156,11 +156,11 @@ class Connection < TrivialSoap
       if expected == BasicTypes::KeyValue and is_array
         obj2xml xml, name, type, is_array, o.to_a, attrs
       else
-        fail "expected #{expected.wsdl_name} for '#{name}', got a hash" unless expected <= BasicTypes::DataObject
+        raise "expected #{expected.wsdl_name} for '#{name}', got a hash" unless expected <= BasicTypes::DataObject
         obj2xml xml, name, type, false, expected.new(o), attrs
       end
     when true, false
-      fail "expected #{expected.wsdl_name} for '#{name}', got a boolean" unless [BasicTypes::Boolean, BasicTypes::AnyType].member? expected
+      raise "expected #{expected.wsdl_name} for '#{name}', got a boolean" unless [BasicTypes::Boolean, BasicTypes::AnyType].member? expected
       attrs['xsi:type'] = 'xsd:boolean' if expected == BasicTypes::AnyType
       xml.tag! name, (o ? '1' : '0'), attrs
     when Symbol, String
@@ -186,7 +186,7 @@ class Connection < TrivialSoap
     when BasicTypes::Int
       attrs['xsi:type'] = 'xsd:int'
       xml.tag! name, o.to_s, attrs
-    else fail "unexpected object class #{o.class} for '#{name}'"
+    else raise "unexpected object class #{o.class} for '#{name}'"
     end
     xml
   rescue
@@ -196,7 +196,7 @@ class Connection < TrivialSoap
   end
 
   def self.type name
-    fail unless name and (name.is_a? String or name.is_a? Symbol)
+    raise unless name and (name.is_a? String or name.is_a? Symbol)
     name = $' if name.to_s =~ /^xsd:/
     case name.to_sym
     when :anyType then BasicTypes::AnyType
@@ -216,7 +216,7 @@ class Connection < TrivialSoap
       if @loader.has? name
         const_get(name)
       else
-        fail "no such type #{name.inspect}"
+        raise "no such type #{name.inspect}"
       end
     end
   end

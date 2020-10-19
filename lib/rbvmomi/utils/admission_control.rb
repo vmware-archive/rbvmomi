@@ -87,7 +87,7 @@ class AdmissionControlledResourceScheduler
     begin
       @vm_folder ||= datacenter.vmFolder.traverse!(@vm_folder_path, RbVmomi::VIM::Folder)
       if !@vm_folder
-        fail "VM folder #{@vm_folder_path} not found"
+        raise "VM folder #{@vm_folder_path} not found"
       end
     rescue RbVmomi::Fault => fault
       if !fault.fault.is_a?(RbVmomi::VIM::DuplicateName)
@@ -107,7 +107,7 @@ class AdmissionControlledResourceScheduler
     if !@datacenter
       @datacenter = @root_folder.traverse(@datacenter_path, RbVmomi::VIM::Datacenter)
       if !@datacenter
-        fail "datacenter #{@datacenter_path} not found"
+        raise "datacenter #{@datacenter_path} not found"
       end
     end
     @datacenter
@@ -122,7 +122,7 @@ class AdmissionControlledResourceScheduler
       @datastores = @datastore_paths.map do |path|
         ds = datacenter.datastoreFolder.traverse(path, RbVmomi::VIM::Datastore)
         if !ds
-          fail "datastore #{path} not found"
+          raise "datastore #{path} not found"
         end
         ds
       end
@@ -296,7 +296,7 @@ class AdmissionControlledResourceScheduler
       if @service_docs_url
         log "Check #{@service_docs_url} to see which other Pods you may be able to use"
       end
-      fail 'Admission denied'
+      raise 'Admission denied'
     end
     @filtered_pods
   end
@@ -325,7 +325,7 @@ class AdmissionControlledResourceScheduler
       end
 
       if !computer
-        fail 'No clusters available, should have been prevented by admission control'
+        raise 'No clusters available, should have been prevented by admission control'
       end
       @computer = computer
     end
@@ -354,7 +354,7 @@ class AdmissionControlledResourceScheduler
     end
 
     if eligible.length == 0
-      fail "Couldn't find any eligible datastore. Admission control should have prevented this"
+      raise "Couldn't find any eligible datastore. Admission control should have prevented this"
     end
 
     if placementHint && placementHint > 0
@@ -375,7 +375,7 @@ class AdmissionControlledResourceScheduler
 
     @rp = @computer.resourcePool.traverse(@rp_path)
     if !@rp
-      fail "Resource pool #{@rp_path} not found"
+      raise "Resource pool #{@rp_path} not found"
     end
     log "Resource pool: #{@rp.pretty_path}"
 

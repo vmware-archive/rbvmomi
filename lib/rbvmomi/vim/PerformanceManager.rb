@@ -59,7 +59,7 @@ class RbVmomi::VIM::PerformanceManager
       counter = perfcounter_hash[x]
       if !counter
         pp perfcounter_hash.keys
-        fail "Counter for #{x} couldn't be found"
+        raise "Counter for #{x} couldn't be found"
       end
       instances.each do |instance|
         metric_ids << RbVmomi::VIM::PerfMetricId(:counterId => counter.key,
