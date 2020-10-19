@@ -12,4 +12,8 @@ Layout/TrailingWhitespace:
 Layout/HeredocIndentation:
   Enabled: true
 
+Style/FrozenStringLiteralComment:
+  Enabled: true
+  EnforcedStyle: always_true
+
 # inherit_from: .rubocop_todo.yml
