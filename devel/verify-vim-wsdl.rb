@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
 require 'active_support/core_ext/enumerable'
 require 'active_support/inflector'

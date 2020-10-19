@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Author: Raul Mahiques - Red Hat 2020
 # Based on "annotate.rb" ( https://github.com/vmware/rbvmomi/blob/a5867550bef9535c17f7bedd947fe336151347af/examples/annotate.rb )
 # License MIT ( https://mit-license.org/ )

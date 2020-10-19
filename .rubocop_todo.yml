@@ -542,13 +542,6 @@ Style/FormatString:
 Style/FormatStringToken:
   Enabled: false
 
-# Offense count: 76
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: always, always_true, never
-Style/FrozenStringLiteralComment:
-  Enabled: false
-
 # Offense count: 17
 # Configuration parameters: AllowedVariables.
 Style/GlobalVars:
