@@ -74,14 +74,14 @@ class NewDeserializer
       end
     else
       if type =~ /:/
-        type = type.split(":", 2)[1]
+        type = type.split(':', 2)[1]
       end
       if type =~ /^ArrayOf/
         type = DEMANGLED_ARRAY_TYPES[$'] || $'
         return node.children.select(&:element?).map { |c| deserialize c, type }
       end
       if type =~ /:/
-        type = type.split(":", 2)[1]
+        type = type.split(':', 2)[1]
       end
 
       klass = @loader.get(type) or fail "no such type '#{type}'"
@@ -221,7 +221,7 @@ class OldDeserializer
     elsif t == BasicTypes::Binary
       xml.text.unpack('m')[0]
     elsif t == BasicTypes::AnyType
-      fail "attempted to deserialize an AnyType"
+      fail 'attempted to deserialize an AnyType'
     else fail "unexpected type #{t.inspect} (#{t.ancestors * '/'})"
     end
   rescue

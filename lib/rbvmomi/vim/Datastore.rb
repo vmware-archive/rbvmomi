@@ -5,7 +5,7 @@
 #       then set the +CURL+ environment variable to point to it.
 # @todo Use an HTTP library instead of executing +curl+.
 class RbVmomi::VIM::Datastore
-  CURLBIN = ENV['CURL'] || "curl" #@private
+  CURLBIN = ENV['CURL'] || 'curl' #@private
 
   # Check whether a file exists on this datastore.
   # @param path [String] Path on the datastore.
@@ -29,13 +29,13 @@ class RbVmomi::VIM::Datastore
   # @return [void]
   def download remote_path, local_path
     url = "http#{_connection.http.use_ssl? ? 's' : ''}://#{_connection.http.address}:#{_connection.http.port}#{mkuripath(remote_path)}"
-    pid = spawn CURLBIN, "-k", '--noproxy', '*', '-f',
-                "-o", local_path,
-                "-b", _connection.cookie,
+    pid = spawn CURLBIN, '-k', '--noproxy', '*', '-f',
+                '-o', local_path,
+                '-b', _connection.cookie,
                 url,
                 :out => '/dev/null'
     Process.waitpid(pid, 0)
-    fail "download failed" unless $?.success?
+    fail 'download failed' unless $?.success?
   end
 
   # Upload a file to this datastore.
@@ -44,13 +44,13 @@ class RbVmomi::VIM::Datastore
   # @return [void]
   def upload remote_path, local_path
     url = "http#{_connection.http.use_ssl? ? 's' : ''}://#{_connection.http.address}:#{_connection.http.port}#{mkuripath(remote_path)}"
-    pid = spawn CURLBIN, "-k", '--noproxy', '*', '-f',
-                "-T", local_path,
-                "-b", _connection.cookie,
+    pid = spawn CURLBIN, '-k', '--noproxy', '*', '-f',
+                '-T', local_path,
+                '-b', _connection.cookie,
                 url,
                 :out => '/dev/null'
     Process.waitpid(pid, 0)
-    fail "upload failed" unless $?.success?
+    fail 'upload failed' unless $?.success?
   end
 
   private

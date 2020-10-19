@@ -28,12 +28,12 @@ class DeserializationTest < Test::Unit::TestCase
     obj = VIM.DatastoreSummary(
       :capacity => 1000,
       :accessible => true,
-      :datastore => VIM.Datastore(nil, "foo"),
+      :datastore => VIM.Datastore(nil, 'foo'),
       :freeSpace => 31,
       :multipleHostAccess => false,
-      :name => "baz",
-      :type => "VMFS",
-      :url => "http://foo/"
+      :name => 'baz',
+      :type => 'VMFS',
+      :url => 'http://foo/'
     )
 
     check <<-EOS, obj, 'DatastoreSummary'
@@ -130,7 +130,7 @@ end
 
   def test_fault
     obj = VIM.LocalizedMethodFault(
-      :localizedMessage => "The attempted operation cannot be performed in the current state (Powered off).",
+      :localizedMessage => 'The attempted operation cannot be performed in the current state (Powered off).',
       :fault => VIM.InvalidPowerState(
         :requestedState => 'poweredOn',
         :existingState => 'poweredOff',
@@ -138,7 +138,7 @@ end
       )
     )
 
-    check <<-EOS, obj, "LocalizedMethodFault"
+    check <<-EOS, obj, 'LocalizedMethodFault'
 <error xmlns:xsi="#{VIM::NS_XSI}">
   <fault xsi:type="InvalidPowerState">
     <requestedState>poweredOn</requestedState>
@@ -154,7 +154,7 @@ end
       :version => '7',
       :filterSet => [
         VIM.PropertyFilterUpdate(
-          :filter => VIM.PropertyFilter(nil, "session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF"),
+          :filter => VIM.PropertyFilter(nil, 'session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF'),
           :missingSet => [],
           :objectSet => [
             VIM.ObjectUpdate(
@@ -174,7 +174,7 @@ end
       ]
     )
 
-    check <<-EOS, obj, "UpdateSet"
+    check <<-EOS, obj, 'UpdateSet'
 <returnval xmlns:xsi="#{VIM::NS_XSI}">
   <version>7</version>
   <filterSet>
@@ -210,7 +210,7 @@ end
       :driver => 'ata_piix',
       :pci => '00:07.1')
 
-    check <<-EOS, obj, "HostBlockHba"
+    check <<-EOS, obj, 'HostBlockHba'
 <hostBusAdapter xsi:type="HostBlockHba">
   <key>key-vim.host.BlockHba-vmhba0</key>
   <device>vmhba0</device>
@@ -242,18 +242,18 @@ end
   def test_runtime_info
     obj = VIM::VirtualMachineRuntimeInfo(
       :bootTime => Time.parse('2010-08-20 05:44:35 UTC'),
-      :connectionState => "connected",
-      :faultToleranceState => "notConfigured",
+      :connectionState => 'connected',
+      :faultToleranceState => 'notConfigured',
       :featureMask => [],
       :featureRequirement => [],
-      :host => VIM::HostSystem(nil, "host-32"),
+      :host => VIM::HostSystem(nil, 'host-32'),
       :maxCpuUsage => 5612,
       :maxMemoryUsage => 3072,
       :memoryOverhead => 128671744,
       :numMksConnections => 1,
       :offlineFeatureRequirement => [],
-      :powerState => "poweredOn",
-      :recordReplayState => "inactive",
+      :powerState => 'poweredOn',
+      :recordReplayState => 'inactive',
       :suspendInterval => 0,
       :toolsInstallerMounted => false,
       :device => []
@@ -288,17 +288,17 @@ end
   end
 
   def test_boolean
-    check "<root>1</root>", true, 'xsd:boolean'
-    check "<root>true</root>", true, 'xsd:boolean'
-    check "<root>0</root>", false, 'xsd:boolean'
-    check "<root>false</root>", false, 'xsd:boolean'
+    check '<root>1</root>', true, 'xsd:boolean'
+    check '<root>true</root>', true, 'xsd:boolean'
+    check '<root>0</root>', false, 'xsd:boolean'
+    check '<root>false</root>', false, 'xsd:boolean'
   end
 
   def test_int
-    check "<root>5</root>", 5, 'xsd:byte'
-    check "<root>5</root>", 5, 'xsd:short'
-    check "<root>5</root>", 5, 'xsd:int'
-    check "<root>5</root>", 5, 'xsd:long'
+    check '<root>5</root>', 5, 'xsd:byte'
+    check '<root>5</root>', 5, 'xsd:short'
+    check '<root>5</root>', 5, 'xsd:int'
+    check '<root>5</root>', 5, 'xsd:long'
   end
 
   def test_float
@@ -317,7 +317,7 @@ end
   end
 
   def test_array_mangling
-    obj = ["foo"]
+    obj = ['foo']
     check <<-EOS, obj, 'ArrayOfString'
 <root><e>foo</e></root>
     EOS
@@ -337,15 +337,15 @@ end
   end
 
   def test_propertypath
-    check "<root>foo</root>", "foo", 'PropertyPath'
+    check '<root>foo</root>', 'foo', 'PropertyPath'
   end
 
   def test_methodname
-    check "<root>foo</root>", "foo", 'MethodName'
+    check '<root>foo</root>', 'foo', 'MethodName'
   end
 
   def test_typename
-    check "<root>foo</root>", "foo", 'TypeName'
+    check '<root>foo</root>', 'foo', 'TypeName'
   end
 
   def test_new_fields
@@ -358,7 +358,7 @@ end
       :driver => 'ata_piix',
       :pci => '00:07.1')
 
-    check <<-EOS, obj, "HostBlockHba"
+    check <<-EOS, obj, 'HostBlockHba'
 <hostBusAdapter xsi:type="HostBlockHba">
   <key>key-vim.host.BlockHba-vmhba0</key>
   <device>vmhba0</device>

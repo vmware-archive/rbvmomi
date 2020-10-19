@@ -48,7 +48,7 @@ class LeaseTool
   # @return [Hash] Updated Virtual Machine config spec
   def set_lease_in_vm_config vmconfig, lease_minutes
     annotation = vmconfig[:annotation]
-    annotation ||= ""
+    annotation ||= ''
     note = YAML.load annotation
     if !note.is_a?(Hash)
       note = {}
@@ -87,7 +87,7 @@ class LeaseTool
   def set_lease_on_leaseless_vms vms, vmprops, opts = {}
     lease_minutes = opts[:lease_minutes]
     if !lease_minutes
-      raise "Expected lease_minutes to be specified"
+      raise 'Expected lease_minutes to be specified'
     end
     vms = find_leaseless_vms vms, vmprops
     if vms.length > 0

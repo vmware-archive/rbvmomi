@@ -33,17 +33,17 @@ VM location options:
 Other options:
   EOS
 
-  opt :linked_clone, "Use a linked clone instead of a full clone"
+  opt :linked_clone, 'Use a linked clone instead of a full clone'
 end
 
-Optimist.die("must specify host") unless opts[:host]
-ARGV.size == 2 or abort "must specify VM source name and VM target name"
+Optimist.die('must specify host') unless opts[:host]
+ARGV.size == 2 or abort 'must specify VM source name and VM target name'
 vm_source = ARGV[0]
 vm_target = ARGV[1]
 
 vim = VIM.connect opts
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
-vm = dc.find_vm(vm_source) or abort "VM not found"
+dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter not found'
+vm = dc.find_vm(vm_source) or abort 'VM not found'
 
 if opts[:linked_clone]
   # The API for linked clones is quite strange. We can't create a linked

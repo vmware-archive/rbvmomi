@@ -40,20 +40,20 @@ Other options:
   stop_on CMDS
 end
 
-Optimist.die("must specify host") unless opts[:host]
+Optimist.die('must specify host') unless opts[:host]
 
-cr_path = ARGV[0] or Optimist.die("no system name given")
-cmd = ARGV[1] or Optimist.die("no command given")
-abort "invalid command" unless CMDS.member? cmd
-nfs_spec = ARGV[2] or Optimist.die("no nfs path given")
-remoteHost, remotePath = nfs_spec.split(":")
+cr_path = ARGV[0] or Optimist.die('no system name given')
+cmd = ARGV[1] or Optimist.die('no command given')
+abort 'invalid command' unless CMDS.member? cmd
+nfs_spec = ARGV[2] or Optimist.die('no nfs path given')
+remoteHost, remotePath = nfs_spec.split(':')
 localPath = ARGV[3] || remoteHost
-mode = "readOnly" #hardcoded.
+mode = 'readOnly' #hardcoded.
 
 vim = VIM.connect opts
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
+dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter not found'
 cr = dc.find_compute_resource(cr_path) || dc.hostFolder.children.find(cr_path).first
-abort "compute resource not found" unless cr
+abort 'compute resource not found' unless cr
 
 case cr
 when VIM::ClusterComputeResource
@@ -61,7 +61,7 @@ when VIM::ClusterComputeResource
 when VIM::ComputeResource
   hosts = [cr]
 else
-  abort "invalid resource"
+  abort 'invalid resource'
 end
 
 hosts.each do |host|
@@ -94,6 +94,6 @@ hosts.each do |host|
       puts "not mounted on #{host.name}"
     end
   else
-    abort "invalid command"
+    abort 'invalid command'
   end
 end

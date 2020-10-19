@@ -29,13 +29,13 @@ Other options:
   EOS
 end
 
-Optimist.die("must specify host") unless opts[:host]
-vm_name = ARGV[0] or abort "must specify VM name"
+Optimist.die('must specify host') unless opts[:host]
+vm_name = ARGV[0] or abort 'must specify VM name'
 
 vim = RbVmomi::VIM.connect opts
 rootFolder = vim.serviceInstance.content.rootFolder
-dc = rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).find { |x| x.name == opts[:datacenter] } or fail "datacenter not found"
-vm = dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine).find { |x| x.name == vm_name } or fail "VM not found"
+dc = rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).find { |x| x.name == opts[:datacenter] } or fail 'datacenter not found'
+vm = dc.vmFolder.childEntity.grep(RbVmomi::VIM::VirtualMachine).find { |x| x.name == vm_name } or fail 'VM not found'
 task = vm.PowerOnVM_Task
 filter = vim.propertyCollector.CreateFilter(
   :spec => {

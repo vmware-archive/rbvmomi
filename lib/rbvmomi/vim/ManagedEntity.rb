@@ -17,12 +17,12 @@ class RbVmomi::VIM::ManagedEntity
           :obj => obj,
           :selectSet => [
             RbVmomi::VIM.TraversalSpec(
-              :name => "tsME",
+              :name => 'tsME',
               :type => 'ManagedEntity',
               :path => 'parent',
               :skip => false,
               :selectSet => [
-                RbVmomi::VIM.SelectionSpec(:name => "tsME")
+                RbVmomi::VIM.SelectionSpec(:name => 'tsME')
               ]
             )
           ]

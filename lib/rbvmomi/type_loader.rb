@@ -58,7 +58,7 @@ class TypeLoader
 
     first_char = name[0].chr
     if first_char.downcase == first_char
-      name = "%s%s" % [first_char.upcase, name[1..-1]]
+      name = '%s%s' % [first_char.upcase, name[1..-1]]
     end
 
     return @loaded[name] if @loaded.member? name
@@ -80,7 +80,7 @@ class TypeLoader
         end
         first_char = name[0].chr
         if first_char.downcase == first_char
-          name = "%s%s" % [first_char.upcase, name[1..-1]]
+          name = '%s%s' % [first_char.upcase, name[1..-1]]
         end
         [name, value]
       end]

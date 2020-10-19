@@ -37,23 +37,23 @@ VM location options:
 Other options:
   EOS
 
-  opt :template_name, "Name to give to the (cached) template", :type => :string
-  opt :template_path, "Path where templates are stored", :default => 'templates', :type => :string
-  opt :computer_path, "Path to the cluster to deploy into", :type => :string
-  opt :network, "Name of the network to attach template to", :type => :string
-  opt :vm_folder_path, "Path to VM folder to deploy VM into", :type => :string
-  opt :lease, "Lease in days", :type => :int, :default => 3
+  opt :template_name, 'Name to give to the (cached) template', :type => :string
+  opt :template_path, 'Path where templates are stored', :default => 'templates', :type => :string
+  opt :computer_path, 'Path to the cluster to deploy into', :type => :string
+  opt :network, 'Name of the network to attach template to', :type => :string
+  opt :vm_folder_path, 'Path to VM folder to deploy VM into', :type => :string
+  opt :lease, 'Lease in days', :type => :int, :default => 3
 end
 
-Optimist.die("must specify host") unless opts[:host]
-Optimist.die("no cluster path given") unless opts[:computer_path]
+Optimist.die('must specify host') unless opts[:host]
+Optimist.die('no cluster path given') unless opts[:computer_path]
 template_folder_path = opts[:template_path]
-template_name = opts[:template_name] or Optimist.die("no template name given")
-vm_name = ARGV[0] or Optimist.die("no VM name given")
-ovf_url = ARGV[1] or Optimist.die("No OVF URL given")
+template_name = opts[:template_name] or Optimist.die('no template name given')
+vm_name = ARGV[0] or Optimist.die('no VM name given')
+ovf_url = ARGV[1] or Optimist.die('No OVF URL given')
 
 vim = VIM.connect opts
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
+dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter not found'
 
 root_vm_folder = dc.vmFolder
 vm_folder = root_vm_folder

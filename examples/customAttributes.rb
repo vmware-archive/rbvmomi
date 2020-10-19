@@ -41,14 +41,14 @@ Other options:
   stop_on CMDS
 end
 
-vm_name = ARGV[0] or Optimist.die("no VM name given")
-cmd     = ARGV[1] or Optimist.die("no command given")
-abort "invalid command" unless CMDS.member? cmd
-Optimist.die("must specify host") unless opts[:host]
+vm_name = ARGV[0] or Optimist.die('no VM name given')
+cmd     = ARGV[1] or Optimist.die('no command given')
+abort 'invalid command' unless CMDS.member? cmd
+Optimist.die('must specify host') unless opts[:host]
 
 vim = VIM.connect opts
-dc  = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
-vm  = dc.find_vm(vm_name) or abort "VM not found"
+dc  = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter not found'
+vm  = dc.find_vm(vm_name) or abort 'VM not found'
 
 case cmd
 when 'get'
@@ -64,8 +64,8 @@ when 'get'
   end
 when 'set'
   arrayCustomAttributes = []
-  customAttribute       = ARGV[2] or Optimist.die("no Custom Attribute given")
-  customAttributeValue  = ARGV[3] or Optimist.die("no value for the Custom Attribute given")
+  customAttribute       = ARGV[2] or Optimist.die('no Custom Attribute given')
+  customAttributeValue  = ARGV[3] or Optimist.die('no value for the Custom Attribute given')
   # Verify the Custom Attribute exists
   exists = 0
   vm.availableField.each do |af|
@@ -77,5 +77,5 @@ when 'set'
     end
   end
   exists == 1 or abort "Field \"#{customAttribute}\" doesn't exists\nPlease use one of the following:\n\t#{arrayCustomAttributes.join("\n\t")}"
-  vm.setCustomValue({"key" => "#{customAttribute}", :value => "#{customAttributeValue}"})
+  vm.setCustomValue({'key' => "#{customAttribute}", :value => "#{customAttributeValue}"})
 end

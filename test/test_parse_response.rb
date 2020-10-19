@@ -54,7 +54,7 @@ class ParseResponseTest < Test::Unit::TestCase
       rescue VIM::InvalidArgument
         raise
       rescue
-        raise "wrong fault"
+        raise 'wrong fault'
       end
     end
   end

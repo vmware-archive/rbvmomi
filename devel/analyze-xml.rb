@@ -5,7 +5,7 @@ require 'nokogiri'
 
 # removes line breaks and whitespace between xml nodes.
 def prepare_xml(xml)
-  xml = xml.gsub(/\n+/, "")
+  xml = xml.gsub(/\n+/, '')
   xml = xml.gsub(/(>)\s*(<)/, '\1\2')
 end
 

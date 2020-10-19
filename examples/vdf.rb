@@ -33,11 +33,11 @@ Other options:
   EOS
 end
 
-Optimist.die("must specify host") unless opts[:host]
+Optimist.die('must specify host') unless opts[:host]
 
 vim = VIM.connect opts
 
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
+dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter not found'
 
 def si n
   ['', 'K', 'M', 'G', 'T', 'P'].each_with_index do |x,i|
@@ -47,7 +47,7 @@ def si n
 end
 
 def unit n, u, p
-  "%.*g%s%s" % [p, si(n), u].flatten
+  '%.*g%s%s' % [p, si(n), u].flatten
 end
 
 def b n
@@ -55,7 +55,7 @@ def b n
 end
 
 puts "Filesystem#{' '*53}Size     Used     Avail    Use%     Mounted on"
-fmt = "%-62s %-8s %-8s %-8s %-8s %s"
+fmt = '%-62s %-8s %-8s %-8s %-8s %s'
 
 if false
   # simple version

@@ -5,7 +5,7 @@
 #       then set the +CURL+ environment variable to point to it.
 # @todo Use an HTTP library instead of executing +curl+.
 class RbVmomi::VIM::OvfManager
-  CURLBIN = ENV['CURL'] || "curl" #@private
+  CURLBIN = ENV['CURL'] || 'curl' #@private
 
   # Deploy an OVF.
   #
@@ -31,9 +31,9 @@ class RbVmomi::VIM::OvfManager
 
     ovfImportSpec = RbVmomi::VIM::OvfCreateImportSpecParams(
       :hostSystem => opts[:host],
-      :locale => "US",
+      :locale => 'US',
       :entityName => opts[:vmName],
-      :deploymentOption => opts[:deploymentOption] || "",
+      :deploymentOption => opts[:deploymentOption] || '',
       :networkMapping => opts[:networkMappings].map{|from, to| RbVmomi::VIM::OvfNetworkMapping(:name => from, :network => to)},
       :propertyMapping => opts[:propertyMappings].to_a,
       :diskProvisioning => opts[:diskProvisioning]
@@ -65,14 +65,14 @@ class RbVmomi::VIM::OvfManager
                                               :folder => opts[:vmFolder],
                                               :host => opts[:host])
 
-    nfcLease.wait_until(:state) { nfcLease.state != "initializing" }
-    raise nfcLease.error if nfcLease.state == "error"
+    nfcLease.wait_until(:state) { nfcLease.state != 'initializing' }
+    raise nfcLease.error if nfcLease.state == 'error'
     begin
       nfcLease.HttpNfcLeaseProgress(:percent => 5)
       timeout, = nfcLease.collect 'info.leaseTimeout'
       puts "DEBUG: Timeout: #{timeout}"
       if timeout < 4 * 60
-        puts "WARNING: OVF upload NFC lease timeout less than 4 minutes"
+        puts 'WARNING: OVF upload NFC lease timeout less than 4 minutes'
       end
       progress = 5.0
       result.fileItem.each do |fileItem|
@@ -88,11 +88,11 @@ class RbVmomi::VIM::OvfManager
           leaseInfo, leaseState, leaseError = nfcLease.collect 'info', 'state', 'error'
           i += 1
         end
-        if leaseState != "ready"
+        if leaseState != 'ready'
           raise "NFC lease is no longer ready: #{leaseState}: #{leaseError}"
         end
         if leaseInfo == nil
-          raise "NFC lease disappeared?"
+          raise 'NFC lease disappeared?'
         end
         deviceUrl = leaseInfo.deviceUrl.find{|x| x.importKey == fileItem.deviceId}
         if !deviceUrl
@@ -103,14 +103,14 @@ class RbVmomi::VIM::OvfManager
         tmp = ovfFilename.split(/\//)
         tmp.pop
         tmp << fileItem.path
-        filename = tmp.join("/")
+        filename = tmp.join('/')
 
         # If filename doesn't have a URI scheme, we're considering it a local file
         if URI(filename).scheme.nil?
-          filename = "file://" + filename
+          filename = 'file://' + filename
         end
 
-        method = fileItem.create ? "PUT" : "POST"
+        method = fileItem.create ? 'PUT' : 'POST'
 
         keepAliveThread = Thread.new do
           while true
@@ -132,14 +132,14 @@ class RbVmomi::VIM::OvfManager
           i += 1
         end while i <= 5 && !ip
         raise "Couldn't get host's IP address" unless ip
-        href = deviceUrl.url.gsub("*", ip)
+        href = deviceUrl.url.gsub('*', ip)
         downloadCmd = "#{CURLBIN} -L '#{URI::escape(filename)}'"
         uploadCmd = "#{CURLBIN} -Ss -X #{method} --insecure -T - -H 'Content-Type: application/x-vnd.vmware-streamVmdk' '#{URI::escape(href)}'"
         # Previously we used to append "-H 'Content-Length: #{fileItem.size}'"
         # to the uploadCmd. It is not clear to me why, but that leads to 
         # trucation of the uploaded disk. Without this option curl can't tell
         # the progress, but who cares
-        system("#{downloadCmd} | #{uploadCmd}", :out => "/dev/null")
+        system("#{downloadCmd} | #{uploadCmd}", :out => '/dev/null')
         
         keepAliveThread.kill
         keepAliveThread.join
@@ -149,7 +149,7 @@ class RbVmomi::VIM::OvfManager
       end
 
       nfcLease.HttpNfcLeaseProgress(:percent => 100)
-      raise nfcLease.error if nfcLease.state == "error"
+      raise nfcLease.error if nfcLease.state == 'error'
       i = 1
       vm = nil
       begin
@@ -173,14 +173,14 @@ class RbVmomi::VIM::OvfManager
       i = 0
       begin
         nfcLease.HttpNfcLeaseComplete
-        puts "HttpNfcLeaseComplete succeeded"
+        puts 'HttpNfcLeaseComplete succeeded'
       rescue RbVmomi::VIM::InvalidState
-        puts "HttpNfcLeaseComplete already finished.."
+        puts 'HttpNfcLeaseComplete already finished..'
       rescue Exception => e
         puts "HttpNfcLeaseComplete failed at iteration #{i} with exception: #{e}"
         i += 1
         retry if i < 3
-        puts "Giving up HttpNfcLeaseComplete.."
+        puts 'Giving up HttpNfcLeaseComplete..'
       end
       vm
     end

@@ -12,10 +12,10 @@ class SerializationTest < Test::Unit::TestCase
     begin
       assert_equal str, xml.target!
     rescue Test::Unit::AssertionFailedError
-      puts "expected:"
+      puts 'expected:'
       puts str
       puts
-      puts "got:"
+      puts 'got:'
       puts xml.target!
       puts
       raise
@@ -23,7 +23,7 @@ class SerializationTest < Test::Unit::TestCase
   end
 
   def test_moref
-    check <<-EOS, VIM.Folder(nil, "ha-folder-host"), "Folder"
+    check <<-EOS, VIM.Folder(nil, 'ha-folder-host'), 'Folder'
 <root type="Folder">ha-folder-host</root>
     EOS
   end
@@ -79,7 +79,7 @@ class SerializationTest < Test::Unit::TestCase
         }
       ]
     )
-    check <<-EOS, cfg, "VirtualMachineConfigSpec"
+    check <<-EOS, cfg, 'VirtualMachineConfigSpec'
 <root xsi:type="VirtualMachineConfigSpec">
   <name>vm</name>
   <guestId>otherGuest64</guestId>
@@ -135,7 +135,7 @@ class SerializationTest < Test::Unit::TestCase
 
   def test_nil_field
     obj = VIM.OptionValue(:key => 'foo', :value => nil)
-    check <<-EOS, obj, "OptionValue"
+    check <<-EOS, obj, 'OptionValue'
 <root xsi:type="OptionValue">
   <key>foo</key>
 </root>
@@ -143,8 +143,8 @@ class SerializationTest < Test::Unit::TestCase
   end
 
   def test_string_array
-    obj = ["foo", "bar", "baz"]
-    check <<-EOS, obj, "xsd:string", true
+    obj = ['foo', 'bar', 'baz']
+    check <<-EOS, obj, 'xsd:string', true
 <root>foo</root>
 <root>bar</root>
 <root>baz</root>
@@ -153,7 +153,7 @@ class SerializationTest < Test::Unit::TestCase
 
   def test_int_array
     obj = [1,2,3]
-    check <<-EOS, obj, "xsd:int", true
+    check <<-EOS, obj, 'xsd:int', true
 <root>1</root>
 <root>2</root>
 <root>3</root>
@@ -162,7 +162,7 @@ class SerializationTest < Test::Unit::TestCase
 
   def test_boolean_array
     obj = [true,false,true]
-    check <<-EOS, obj, "xsd:boolean", true
+    check <<-EOS, obj, 'xsd:boolean', true
 <root>1</root>
 <root>0</root>
 <root>1</root>
@@ -171,7 +171,7 @@ class SerializationTest < Test::Unit::TestCase
 
   def test_float_array
     obj = [0.0,1.5,3.14]
-    check <<-EOS, obj, "xsd:float", true
+    check <<-EOS, obj, 'xsd:float', true
 <root>0.0</root>
 <root>1.5</root>
 <root>3.14</root>
@@ -254,10 +254,10 @@ class SerializationTest < Test::Unit::TestCase
 
   def test_ovf_import_spec_params
     obj = RbVmomi::VIM::OvfCreateImportSpecParams(
-      :hostSystem => VIM::HostSystem(nil, "myhost"),
-      :locale => "US",
-      :entityName => "myvm",
-      :deploymentOption => "",
+      :hostSystem => VIM::HostSystem(nil, 'myhost'),
+      :locale => 'US',
+      :entityName => 'myvm',
+      :deploymentOption => '',
       :networkMapping => [],
       :propertyMapping => [['a', 'b'], ['c', 'd']],
       :diskProvisioning => :thin
@@ -290,7 +290,7 @@ class SerializationTest < Test::Unit::TestCase
   end
 
   def test_time
-    obj = Time.at(DateTime.new(2011, 11, 16, 13, 36, 8, Rational(-8,24)).strftime("%s").to_i).getgm
+    obj = Time.at(DateTime.new(2011, 11, 16, 13, 36, 8, Rational(-8,24)).strftime('%s').to_i).getgm
     check <<-EOS, obj, 'xsd:dateTime', false
 <root>2011-11-16T21:36:08Z</root>
     EOS

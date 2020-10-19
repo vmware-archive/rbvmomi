@@ -41,15 +41,15 @@ Other options:
   stop_on CMDS
 end
 
-Optimist.die("must specify host") unless opts[:host]
+Optimist.die('must specify host') unless opts[:host]
 
-vm_name = ARGV[0] or Optimist.die("no VM name given")
-cmd = ARGV[1] or Optimist.die("no command given")
-abort "invalid command" unless CMDS.member? cmd
+vm_name = ARGV[0] or Optimist.die('no VM name given')
+cmd = ARGV[1] or Optimist.die('no command given')
+abort 'invalid command' unless CMDS.member? cmd
 
 vim = VIM.connect opts
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
-vm = dc.find_vm(vm_name) or abort "VM not found"
+dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter not found'
+vm = dc.find_vm(vm_name) or abort 'VM not found'
 
 cluster = vm.runtime.host.parent
 config = cluster.configurationEx.drsVmConfig.select {|c| c.key.name == vm.name }.first
@@ -64,14 +64,14 @@ when 'get'
   end
   puts "#{vm.name} is #{behavior}"
 when 'set'
-  behavior = ARGV[2] or Optimist.die("no behavior given")
-  abort "invalid behavior" unless BEHAVIOR.member? behavior
+  behavior = ARGV[2] or Optimist.die('no behavior given')
+  abort 'invalid behavior' unless BEHAVIOR.member? behavior
 
-  if behavior == "default"
+  if behavior == 'default'
     behavior = default
   end
   vm_spec =
-    VIM.ClusterDrsVmConfigSpec(:operation => VIM.ArrayUpdateOperation(config ? "edit" : "add"),
+    VIM.ClusterDrsVmConfigSpec(:operation => VIM.ArrayUpdateOperation(config ? 'edit' : 'add'),
                                :info => VIM.ClusterDrsVmConfigInfo(:key => vm,
                                                                    :behavior => VIM.DrsBehavior(behavior)))
   spec = VIM.ClusterConfigSpecEx(:drsVmConfigSpec => [vm_spec])

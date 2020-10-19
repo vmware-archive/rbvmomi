@@ -55,8 +55,8 @@ class SMS < Connection
     pp.text "SMS(#{@opts[:host]})"
   end
 
-  add_extension_dir File.join(File.dirname(__FILE__), "sms")
-  load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.db"))
+  add_extension_dir File.join(File.dirname(__FILE__), 'sms')
+  load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), '../../vmodl.db'))
 end
 
 end

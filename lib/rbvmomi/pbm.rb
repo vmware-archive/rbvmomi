@@ -61,8 +61,8 @@ class PBM < Connection
     pp.text "PBM(#{@opts[:host]})"
   end
 
-  add_extension_dir File.join(File.dirname(__FILE__), "pbm")
-  load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.db"))
+  add_extension_dir File.join(File.dirname(__FILE__), 'pbm')
+  load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), '../../vmodl.db'))
 end
 
 end

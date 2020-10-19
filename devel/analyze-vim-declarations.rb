@@ -8,8 +8,8 @@ require 'pp'
 # :usage => analyze-vim-declarations.rb vim-declarations.xml foo-declarations.xml vmodl.db
 
 XML_FNS = ARGV[0...-1]
-abort "must specify path to vim-declarations.xml" if XML_FNS.empty?
-OUT_FN = ARGV[-1] or abort "must specify path to output database"
+abort 'must specify path to vim-declarations.xml' if XML_FNS.empty?
+OUT_FN = ARGV[-1] or abort 'must specify path to output database'
 
 XML_FNS.each do |x|
   abort "XML file #{x} does not exist" unless File.exists? x
@@ -135,7 +135,7 @@ end
 XML_FNS.each do |fn|
   puts "parsing #{fn} ..."
   xml_str = File.read(fn)
-  xml_str = xml_str.gsub(/\<description-html\>(.*?)\<\/description-html\>/m, "")
+  xml_str = xml_str.gsub(/\<description-html\>(.*?)\<\/description-html\>/m, '')
   xml = Nokogiri.parse(xml_str, nil, nil, Nokogiri::XML::ParseOptions::NOBLANKS)
   xml.root.at('enums').children.each { |x| handle_enum x }
   xml.root.at('managed-objects').children.each { |x| handle_managed_object x }

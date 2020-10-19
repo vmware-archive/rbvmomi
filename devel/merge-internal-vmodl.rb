@@ -6,9 +6,9 @@
 # These types are not public and so may change between releases. Do not
 # use them directly.
 
-public_vmodl_filename = ARGV[0] or abort "public vmodl filename required"
-internal_vmodl_filename = ARGV[1] or abort "internal vmodl filename required"
-output_vmodl_filename = ARGV[2] or abort "output vmodl filename required"
+public_vmodl_filename = ARGV[0] or abort 'public vmodl filename required'
+internal_vmodl_filename = ARGV[1] or abort 'internal vmodl filename required'
+output_vmodl_filename = ARGV[2] or abort 'output vmodl filename required'
 
 TYPES = %w(
 DVSKeyedOpaqueData

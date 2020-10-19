@@ -35,14 +35,14 @@ Other options:
   EOS
 end
 
-Optimist.die("must specify host") unless opts[:host]
-vm_name = ARGV[0] or abort("must specify VM name")
-output_path = ARGV[1] or abort("must specify output filename")
+Optimist.die('must specify host') unless opts[:host]
+vm_name = ARGV[0] or abort('must specify VM name')
+output_path = ARGV[1] or abort('must specify output filename')
 
 vim = VIM.connect opts
 dc = vim.serviceInstance.find_datacenter(opts[:datacenter])
 vm = dc.find_vm vm_name
-abort "VM must be running" unless vm.runtime.powerState == 'poweredOn'
+abort 'VM must be running' unless vm.runtime.powerState == 'poweredOn'
 remote_path = vm.CreateScreenshot_Task.wait_for_completion
 remote_path =~ /^(\/vmfs\/volumes\/[^\/]+)\// or fail
 datastore_prefix = $1
