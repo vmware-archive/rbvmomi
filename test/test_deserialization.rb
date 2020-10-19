@@ -84,50 +84,50 @@ class DeserializationTest < Test::Unit::TestCase
     EOS
   end
 
-def test_array2
-  obj = VIM.DVPortStatus(
-    :linkUp => true,
-    :blocked => false,
-    :vlanIds => [
-      VIM::NumericRange(:start => 5, :end => 7),
-      VIM::NumericRange(:start => 10, :end => 20),
-    ],
-    :vmDirectPathGen2InactiveReasonNetwork => [],
-    :vmDirectPathGen2InactiveReasonOther => []
-  )
+  def test_array2
+    obj = VIM.DVPortStatus(
+      :linkUp => true,
+      :blocked => false,
+      :vlanIds => [
+        VIM::NumericRange(:start => 5, :end => 7),
+        VIM::NumericRange(:start => 10, :end => 20),
+      ],
+      :vmDirectPathGen2InactiveReasonNetwork => [],
+      :vmDirectPathGen2InactiveReasonOther => []
+    )
 
-  check <<~EOS, obj, 'DVPortStatus'
-    <root>
-      <linkUp>1</linkUp>
-      <blocked>false</blocked>
-      <vlanIds>
-        <start>5</start>
-        <end>7</end>
-      </vlanIds>
-      <vlanIds>
-        <start>10</start>
-        <end>20</end>
-      </vlanIds>
-    </root>
-  EOS
-end
+    check <<~EOS, obj, 'DVPortStatus'
+      <root>
+        <linkUp>1</linkUp>
+        <blocked>false</blocked>
+        <vlanIds>
+          <start>5</start>
+          <end>7</end>
+        </vlanIds>
+        <vlanIds>
+          <start>10</start>
+          <end>20</end>
+        </vlanIds>
+      </root>
+    EOS
+  end
 
-def test_empty_array
-  obj = VIM.DVPortStatus(
-    :linkUp => true,
-    :blocked => false,
-    :vlanIds => [],
-    :vmDirectPathGen2InactiveReasonNetwork => [],
-    :vmDirectPathGen2InactiveReasonOther => []
-  )
+  def test_empty_array
+    obj = VIM.DVPortStatus(
+      :linkUp => true,
+      :blocked => false,
+      :vlanIds => [],
+      :vmDirectPathGen2InactiveReasonNetwork => [],
+      :vmDirectPathGen2InactiveReasonOther => []
+    )
 
-  check <<~EOS, obj, 'DVPortStatus'
-    <root>
-      <linkUp>1</linkUp>
-      <blocked>false</blocked>
-    </root>
-  EOS
-end
+    check <<~EOS, obj, 'DVPortStatus'
+      <root>
+        <linkUp>1</linkUp>
+        <blocked>false</blocked>
+      </root>
+    EOS
+  end
 
   def test_fault
     obj = VIM.LocalizedMethodFault(

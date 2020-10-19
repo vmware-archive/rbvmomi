@@ -22,11 +22,11 @@ opts = Optimist.options do
     VIM connection options:
     EOS
 
-    rbvmomi_connection_opts
+  rbvmomi_connection_opts
 
-    text <<~EOS
-      
-      Other options:
+  text <<~EOS
+    
+    Other options:
     EOS
 end
 

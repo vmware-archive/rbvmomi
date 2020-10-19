@@ -132,13 +132,6 @@ Layout/FirstHashElementIndentation:
 Layout/HashAlignment:
   Enabled: false
 
-# Offense count: 70
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: normal, indented_internal_methods
-Layout/IndentationConsistency:
-  Enabled: false
-
 # Offense count: 45
 # Cop supports --auto-correct.
 # Configuration parameters: Width, IgnoredPatterns.

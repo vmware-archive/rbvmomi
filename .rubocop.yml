@@ -20,4 +20,8 @@ Style/SignalException:
   Enabled: true
   EnforcedStyle: only_raise
 
+Layout/IndentationConsistency:
+  Enabled: true
+  EnforcedStyle: normal
+
 # inherit_from: .rubocop_todo.yml
