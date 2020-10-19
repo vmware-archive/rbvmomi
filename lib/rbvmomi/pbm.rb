@@ -34,7 +34,7 @@ class PBM < Connection
       pbm.vcSessionCookie = vim.cookie.split('"')[1]
     end
   end
-  
+
   def vcSessionCookie= cookie
     @vcSessionCookie = cookie
   end

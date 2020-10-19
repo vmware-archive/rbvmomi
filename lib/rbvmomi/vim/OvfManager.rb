@@ -60,7 +60,7 @@ class RbVmomi::VIM::OvfManager
         end
       end
     end
-    
+
     nfcLease = opts[:resourcePool].ImportVApp(:spec => importSpec,
                                               :folder => opts[:vmFolder],
                                               :host => opts[:host])
@@ -136,14 +136,14 @@ class RbVmomi::VIM::OvfManager
         downloadCmd = "#{CURLBIN} -L '#{URI::escape(filename)}'"
         uploadCmd = "#{CURLBIN} -Ss -X #{method} --insecure -T - -H 'Content-Type: application/x-vnd.vmware-streamVmdk' '#{URI::escape(href)}'"
         # Previously we used to append "-H 'Content-Length: #{fileItem.size}'"
-        # to the uploadCmd. It is not clear to me why, but that leads to 
+        # to the uploadCmd. It is not clear to me why, but that leads to
         # trucation of the uploaded disk. Without this option curl can't tell
         # the progress, but who cares
         system("#{downloadCmd} | #{uploadCmd}", :out => '/dev/null')
-        
+
         keepAliveThread.kill
         keepAliveThread.join
-        
+
         progress += (90.0 / result.fileItem.length)
         nfcLease.HttpNfcLeaseProgress(:percent => progress.to_i)
       end
@@ -188,7 +188,7 @@ class RbVmomi::VIM::OvfManager
     (nfcLease.HttpNfcLeaseAbort rescue nil) if nfcLease
     raise
   end
-  
+
   def _handle_ost ost, opts = {}
     ost = Nokogiri::XML(ost)
     if opts[:vservice] == ['com.vmware.vim.vsm:extension_vservice']

@@ -92,7 +92,7 @@ template = deployer.lookup_template template_name
 
 if !template
   puts "#{Time.now}: Uploading/Preparing OVF template ..."
-  
+
   template = deployer.upload_ovf_as_template(
     ovf_url, template_name,
     :run_without_interruptions => true,

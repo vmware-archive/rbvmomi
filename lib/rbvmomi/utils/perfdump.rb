@@ -7,28 +7,28 @@ require 'yaml'
 # PerfAggregator is a class that, given connections to a list of vCenter
 # Servers, will fetch the entire VM folder and ResourcePool hierarchies,
 # including all VIM::VirtualMachine objects and aggregate VM stats along
-# the tree hierarchies. The PerfAggregator class allows for users to 
+# the tree hierarchies. The PerfAggregator class allows for users to
 # perform post processing on the data returned by vCenter, e.g. to augment
-# it with addtional data that was obtained using a combination of 
+# it with addtional data that was obtained using a combination of
 # VM annotations (or custom values) and an external DB. Post processing
-# can also define additional tree structures that may be completely 
+# can also define additional tree structures that may be completely
 # independent of the VM folder and ResourcePool hirarchies provided by
 # vCenter, e.g. one based on VMs used for testing of a set of source code
-# branches. 
+# branches.
 class PerfAggregator
   attr_accessor :path_types
-  
+
   def initialize logger = nil
     @logger = logger
-    @path_types = Set.new 
+    @path_types = Set.new
     @path_types << 'rp'
     @path_types << 'vmfolder'
-    
+
     # XXX: Rename this variable
     @perf_metrics = {
-      'virtualDisk.read' => :sum, 
+      'virtualDisk.read' => :sum,
       'virtualDisk.write' => :sum,
-      'virtualDisk.numberReadAveraged' => :sum, 
+      'virtualDisk.numberReadAveraged' => :sum,
       'virtualDisk.numberWriteAveraged' => :sum,
       'virtualDisk.totalReadLatency.avg' => :avg_ignore_zero,
       'virtualDisk.totalWriteLatency.avg' => :avg_ignore_zero,
@@ -46,28 +46,28 @@ class PerfAggregator
       'storage.space.unshared' => :sum,
     }
   end
-  
+
   def log text
     if @logger
-      @logger.info text 
+      @logger.info text
     else
       puts "#{Time.now}: #{text}"
     end
   end
-  
+
   def set_vm_processing_callback &block
     @vm_processing_callback = block
   end
-  
+
   def add_node_unless_exists inventory, id, props
     if !inventory[id]
       inventory[id] = props.merge({'children' => []})
     end
   end
-  
+
   # Method that extracts the entire VM folder and ResourcePool hierarchy
-  # from vCenter with a single API call. It generates a flat list of 
-  # VIM objects which will include VIM::Folder, VIM::Datacenter, 
+  # from vCenter with a single API call. It generates a flat list of
+  # VIM objects which will include VIM::Folder, VIM::Datacenter,
   # VIM::ClusterComputeResource, VIM::ResourcePool and VIM::VirtualMachine.
   #
   # Post processing is done (using helper methods) to populate full paths,
@@ -82,7 +82,7 @@ class PerfAggregator
   def all_inventory_flat rootFolder, vm_prop_names = ['name']
     conn = rootFolder._connection
     pc = conn.propertyCollector
-  
+
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
       :objectSet => [
         :obj => rootFolder,
@@ -148,21 +148,21 @@ class PerfAggregator
       :propSet => [
         { :type => 'Folder', :pathSet => ['name', 'parent'] },
         { :type => 'Datacenter', :pathSet => ['name', 'parent'] },
-        { :type => 'ClusterComputeResource', 
-          :pathSet => ['name', 'parent', 'summary.effectiveCpu', 'summary.effectiveMemory'] 
+        { :type => 'ClusterComputeResource',
+          :pathSet => ['name', 'parent', 'summary.effectiveCpu', 'summary.effectiveMemory']
         },
         { :type => 'ResourcePool', :pathSet => ['name', 'parent'] },
         { :type => 'HostSystem', :pathSet => ['name', 'parent', 'runtime.connectionState'] },
         { :type => 'VirtualMachine', :pathSet => vm_prop_names },
       ]
     )
-  
+
     result = pc.RetrieveProperties(:specSet => [filterSpec])
     inventory = {}
     vms = {}
-    result.each do |r| 
+    result.each do |r|
       if r.obj.is_a?(RbVmomi::VIM::VirtualMachine)
-        vms[r.obj] = r.to_hash 
+        vms[r.obj] = r.to_hash
       else
         inventory[r.obj] = r.to_hash
       end
@@ -179,12 +179,12 @@ class PerfAggregator
       'parent' => 'root',
       'parents' => ['root'],
     }
-    _compute_vmfolders_and_rp_paths conn.host, inventory 
+    _compute_vmfolders_and_rp_paths conn.host, inventory
     _compute_parents_and_children inventory
     [vms, inventory]
   end
-  
-  # Helper method that computes full paths and parent lists out of a 
+
+  # Helper method that computes full paths and parent lists out of a
   # flat list of objects. Operates recursively and doesn't yet split
   # the paths into different tree types.
   # @param obj [Hash] Property hash of current element
@@ -205,16 +205,16 @@ class PerfAggregator
     obj['parents'] = [obj['parent']] + parent['parents']
     nil
   end
-  
-  # Helper method that computes full paths and parent lists out of a 
+
+  # Helper method that computes full paths and parent lists out of a
   # flat list of objects. Full paths are tracked seperately per type
   # of tree, i.e. seperately for the ResourcePool tree and the VM folder
-  # tree. 
+  # tree.
   # @param objs [Array] Flat list of tree elements
   def _compute_vmfolders_and_rp_paths vc, objs
-    objs.each do |obj, props| 
+    objs.each do |obj, props|
       _compute_vmfolder_and_rp_path_and_parents(vc, props, objs)
-      
+
       props['paths'] = {}
       obj_with_parents = [obj] + props['parents']
       dc = obj_with_parents.find{|x| x.is_a?(RbVmomi::VIM::Datacenter)}
@@ -234,11 +234,11 @@ class PerfAggregator
           props['paths']['vmfolder'] = props['path']
         end
       end
-      
+
       props['children'] = []
     end
   end
-  
+
   # Helper method that computes children references and parent paths on
   # all objects, if not computed yet. Assumes that full paths of each
   # object have been calculated already.
@@ -259,11 +259,11 @@ class PerfAggregator
       parent['children'] << obj
     end
   end
-  
+
   def _aggregate_metrics vms_stats, perf_metrics
     out = Hash[perf_metrics.keys.map{|x| [x, 0]}]
     avg_counter = Hash[perf_metrics.keys.map{|x| [x, 0]}]
-  
+
     vms_stats.each do |vm_stats|
       perf_metrics.each do |key, type|
         values = vm_stats[key]
@@ -287,7 +287,7 @@ class PerfAggregator
         end
       end
     end
-  
+
     perf_metrics.each do |key, type|
       if type == :avg_ignore_zero || type == :avg
         if avg_counter[key] > 0
@@ -295,17 +295,17 @@ class PerfAggregator
         end
       end
     end
-    
+
     out
   end
-  
+
   def _collect_info_on_all_vms_single root_folder, opts = {}
     prop_names = opts[:prop_names]
     if !prop_names
       prop_names = [
         'name',
         'config.template',
-        'runtime.powerState', 'datastore', 'config.annotation', 
+        'runtime.powerState', 'datastore', 'config.annotation',
         'parent', 'resourcePool', 'storage.perDatastoreUsage',
         'summary.config.memorySizeMB',
         'summary.config.numCpu',
@@ -320,9 +320,9 @@ class PerfAggregator
     perf_metrics = opts[:perf_metrics]
     if !perf_metrics
       perf_metrics = {
-        'virtualDisk.read' => :avg, 
+        'virtualDisk.read' => :avg,
         'virtualDisk.write' => :avg,
-        'virtualDisk.numberReadAveraged' => :avg, 
+        'virtualDisk.numberReadAveraged' => :avg,
         'virtualDisk.numberWriteAveraged' => :avg,
         'virtualDisk.totalReadLatency' => :avg_ignore_zero,
         'virtualDisk.totalWriteLatency' => :avg_ignore_zero,
@@ -331,14 +331,14 @@ class PerfAggregator
     host_perf_metrics = opts[:host_perf_metrics]
     if !host_perf_metrics
       host_perf_metrics = {
-        'cpu.usage' => :avg, 
+        'cpu.usage' => :avg,
         'mem.usage' => :avg,
       }
     end
 
     vms_props, inventory = all_inventory_flat root_folder, prop_names
     vms = vms_props.keys
-    
+
     hosts_props = inventory.select{|k, v| k.is_a?(RbVmomi::VIM::HostSystem)}
 
     conn = root_folder._connection
@@ -346,20 +346,20 @@ class PerfAggregator
     pc = sc.propertyCollector
     pm = sc.perfManager
     vc_uuid = conn.instanceUuid
-  
-    connected_vms = vms_props.select do |vm, props| 
+
+    connected_vms = vms_props.select do |vm, props|
       is_connected = props['runtime.connectionState'] != 'disconnected'
       is_template = props['config.template']
       is_connected && !is_template
     end.keys
-    
+
     begin
       # XXX: Need to find a good way to get the "right" samples
       if connected_vms.length == 0
         {}
       else
         vms_stats = pm.retrieve_stats(
-          connected_vms, perf_metrics.keys, 
+          connected_vms, perf_metrics.keys,
           :max_samples => 3
         )
       end
@@ -371,12 +371,12 @@ class PerfAggregator
       raise
     end
 
-    connected_hosts = hosts_props.select do |k,v| 
+    connected_hosts = hosts_props.select do |k,v|
       v['runtime.connectionState'] != 'disconnected'
     end
     if connected_hosts.length > 0
       hosts_stats = pm.retrieve_stats(
-        connected_hosts.keys, host_perf_metrics.keys, 
+        connected_hosts.keys, host_perf_metrics.keys,
         :max_samples => 3
       )
     end
@@ -384,13 +384,13 @@ class PerfAggregator
       if !connected_hosts[host]
         next
       end
-      
+
       stats = hosts_stats[host] || {}
       stats = stats[:metrics] || {}
       stats = _aggregate_metrics [stats], host_perf_metrics
       props.merge!(stats)
     end
-    
+
     vms_props.each do |vm, props|
       if !connected_vms.member?(vm)
         next
@@ -398,7 +398,7 @@ class PerfAggregator
       props['num.vm'] = 1
       powered_on = (props['runtime.powerState'] == 'poweredOn')
       props['num.poweredonvm'] = powered_on ? 1 : 0
-      
+
       stats = vms_stats[vm] || {}
       stats = stats[:metrics] || {}
       stats = _aggregate_metrics [stats], perf_metrics
@@ -423,35 +423,35 @@ class PerfAggregator
         rp_props = inventory[props['resourcePool']]
         props['parent_paths']['rp'] = rp_props['path']
       end
-      
+
       props['annotation_yaml'] = YAML.load(props['config.annotation'] || '')
       if !props['annotation_yaml'].is_a?(Hash)
         props['annotation_yaml'] = {}
       end
-      
+
       props['customValue'] = Hash[props['customValue'].map do |x|
         [x.key, x.value]
       end]
-      
+
       props['vc_uuid'] = vc_uuid
     end
-    
-    [vms_props, inventory, hosts_props]    
+
+    [vms_props, inventory, hosts_props]
   end
-  
+
   def collect_info_on_all_vms root_folders, opts = {}
-    log 'Fetching information from all VCs ...' 
+    log 'Fetching information from all VCs ...'
     vms_props = {}
     hosts_props = {}
     inventory = {}
     lock = Mutex.new
     root_folders.map do |root_folder|
-      Thread.new do 
+      Thread.new do
         begin
-          single_vms_props, single_inventory, single_hosts_props = 
+          single_vms_props, single_inventory, single_hosts_props =
             _collect_info_on_all_vms_single(root_folder, opts)
-          
-          lock.synchronize do 
+
+          lock.synchronize do
             vms_props.merge!(single_vms_props)
             if inventory['root']
               single_inventory['root']['children'] += inventory['root']['children']
@@ -469,41 +469,41 @@ class PerfAggregator
       end
     end.each{|t| t.join}
 
-    log 'Make data marshal friendly ...' 
+    log 'Make data marshal friendly ...'
     inventory = _make_marshal_friendly(inventory)
     vms_props = _make_marshal_friendly(vms_props)
     hosts_props = _make_marshal_friendly(hosts_props)
 
-    log 'Perform external post processing ...' 
+    log 'Perform external post processing ...'
     if @vm_processing_callback
       @vm_processing_callback.call(self, vms_props, inventory)
     end
-    
-    log 'Perform data aggregation ...' 
-    # Processing the annotations may have added new nodes to the 
+
+    log 'Perform data aggregation ...'
+    # Processing the annotations may have added new nodes to the
     # inventory list, hence we need to run _compute_parents_and_children
     # again to calculate the parents and children for the newly
     # added nodes.
     _compute_parents_and_children inventory
 
     # Now that we have all VMs and a proper inventory tree built, we can
-    # aggregate the VM stats along all trees and tree nodes. This 
+    # aggregate the VM stats along all trees and tree nodes. This
     # de-normalizes the data heavily, but thats fine
     path_types = opts[:path_types] || @path_types
     inventory = _aggregate_vms path_types, vms_props, inventory
-    
+
     log 'Done collecting and aggregating stats'
 
     @inventory = inventory
     @vms_props = vms_props
-    
+
     {
-      'inventory' => inventory, 
-      'vms_props' => vms_props, 
+      'inventory' => inventory,
+      'vms_props' => vms_props,
       'hosts_props' => hosts_props,
     }
   end
-  
+
   def _make_marshal_friendly hash
     hash = Hash[hash.map do |k, v|
       if v['parent']
@@ -523,13 +523,13 @@ class PerfAggregator
       end
       v['type'] = k.class.name
       [_mo2str(k), v]
-    end]    
-    # Marhsal hash to JSON and back. This is just debug code to ensure 
-    # that all further processing can be done on a serialized dump of 
+    end]
+    # Marhsal hash to JSON and back. This is just debug code to ensure
+    # that all further processing can be done on a serialized dump of
     # the data.
     hash = JSON.load(JSON.dump(hash))
   end
-  
+
   def _mo2str mo
     if !mo.is_a?(RbVmomi::VIM::ManagedObject)
       mo
@@ -537,8 +537,8 @@ class PerfAggregator
       "vim-#{mo._connection.instanceUuid}-#{mo._ref}"
     end
   end
-  
-  # Helper method that aggregates the VM stats along all trees and 
+
+  # Helper method that aggregates the VM stats along all trees and
   # tree nodes. This de-normalizes the data heavily, but thats fine.
   def _aggregate_vms path_types, vms_props, inventory
     # XXX: Opimtization:
@@ -555,9 +555,9 @@ class PerfAggregator
           reverse_index[path] = k
         end
       end
-      
+
       paths_vms = {}
-      
+
       vms_props.each do |vm, props|
         if !props['parent_paths'] || !props['parent_paths'][path_type]
           next
@@ -577,7 +577,7 @@ class PerfAggregator
           parent_path = parent['parent_paths'][path_type]
         end
       end
-      
+
       paths_vms.each do |k, vms|
         inventory[reverse_index[k]]['vms'] ||= {}
         inventory[reverse_index[k]]['vms'][path_type] = vms
@@ -586,13 +586,13 @@ class PerfAggregator
         inventory[reverse_index[k]]['stats'] ||= {}
         inventory[reverse_index[k]]['stats'][path_type] = stats
       end
-      
+
       #pp paths_vms.map{|k, v| [k, reverse_index[k], v.length, index[k]['stats'][path_type].length]}
     end
-    
+
     inventory
   end
-  
+
   def visualize_vm_props
     path_types_rows = construct_tree_rows_from_vm_props
     path_types_rows.each do |path_type, rows|
@@ -621,7 +621,7 @@ class PerfAggregator
       end
       rows
     end
-    
+
     Hash[path_types.map do |path_type|
       key, root = @inventory.find{|k, v| v['paths'][path_type] == 'root'}
       rows = visualize_node path_type, root, @inventory

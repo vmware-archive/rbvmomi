@@ -10,7 +10,7 @@ require 'rbvmomi/utils/leases'
 require 'yaml'
 
 VIM = RbVmomi::VIM
-CMDS = ['set_lease_on_leaseless_vms', 'show_expired_vms', 
+CMDS = ['set_lease_on_leaseless_vms', 'show_expired_vms',
         'show_soon_expired_vms', 'kill_expired_vms']
 
 opts = Optimist.options do
@@ -57,7 +57,7 @@ vm_folder = root_vm_folder.traverse(opts[:vm_folder_path], VIM::Folder)
 
 lease_tool = LeaseTool.new
 vms_props_list = (['runtime.powerState'] + lease_tool.vms_props_list).uniq
-inventory = vm_folder.inventory_flat('VirtualMachine' => vms_props_list) 
+inventory = vm_folder.inventory_flat('VirtualMachine' => vms_props_list)
 inventory = inventory.select{|obj, props| obj.is_a?(VIM::VirtualMachine)}
 case cmd
 when 'set_lease_on_leaseless_vms'
@@ -69,7 +69,7 @@ when 'show_expired_vms'
   vms = lease_tool.filter_expired_vms inventory.keys, inventory
   vms.each do |vm, time_to_expiration|
     puts "VM '#{inventory[vm]['name']}' is expired"
-  end  
+  end
 when 'kill_expired_vms'
   vms = lease_tool.filter_expired_vms inventory.keys, inventory
   vms.each do |vm, time_to_expiration|
@@ -85,22 +85,22 @@ when 'kill_expired_vms'
       end
       vm.Destroy_Task.wait_for_completion
     end
-  end  
+  end
 when 'show_soon_expired_vms'
   vms = lease_tool.filter_expired_vms(
-    inventory.keys, inventory, 
-    :time_delta => 3.5 * 24 * 60 * 60, # 3.5 days 
+    inventory.keys, inventory,
+    :time_delta => 3.5 * 24 * 60 * 60, # 3.5 days
   )
   # We could send the user emails here, but for this example, just print the
   # VMs that will expire within the next 3.5 days
   vms.each do |vm, time_to_expiration|
     if time_to_expiration > 0
-      hours_to_expiration = time_to_expiration / (60.0 * 60.0) 
+      hours_to_expiration = time_to_expiration / (60.0 * 60.0)
       puts "VM '%s' expires in %.2fh" % [inventory[vm]['name'], hours_to_expiration]
     else
       puts "VM '#{inventory[vm]['name']}' is expired"
     end
-  end  
+  end
 else
   abort 'invalid command'
 end

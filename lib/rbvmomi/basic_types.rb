@@ -108,10 +108,10 @@ class DataObject < ObjectWithProperties
     end
   end
 
-  def initialize_copy(source)  
-    super  
-    @props = @props.dup  
-  end 
+  def initialize_copy(source)
+    super
+    @props = @props.dup
+  end
 
   def _get_property sym
     @props[sym]
@@ -242,7 +242,7 @@ class ManagedObject < ObjectWithMethods
   end
 
   def == x
-    out = (x.class == self.class && x._ref == @ref) 
+    out = (x.class == self.class && x._ref == @ref)
     out = (x._connection.instanceUuid == self._connection.instanceUuid) if out && x._connection.host
     out
   end
@@ -371,11 +371,11 @@ end
 
 class Int
   def self.wsdl_name; 'xsd:int' end
-  
+
   def initialize x
     @val = x
   end
-  
+
   def to_s
     @val.to_s
   end

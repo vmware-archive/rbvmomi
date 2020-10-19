@@ -14,7 +14,7 @@ class RbVmomi::VIM::Task
       raise info.error
     end
   end
-  
+
   # Wait for all child tasks to finish. If any one child task failed,
   # the exception of the first failing task is thrown.
   # @return [Hash] Map of tasks to their +info.result+ on success.
@@ -51,7 +51,7 @@ class RbVmomi::VIM::Task
       raise info.error
     end
   end
-  
+
   # Get child tasks of this task.
   # @return [Array] List of VIM::Task objects
   def child_tasks

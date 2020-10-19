@@ -13,7 +13,7 @@ VIM.loader.typenames.each do |name|
   klass = VIM.loader.get name
   next unless klass.respond_to? :kind and [:managed, :data].member? klass.kind
   methods = klass.kind == :managed ?
-    RbVmomi::BasicTypes::ObjectWithMethods.instance_methods : 
+    RbVmomi::BasicTypes::ObjectWithMethods.instance_methods :
     RbVmomi::BasicTypes::ObjectWithProperties.instance_methods
   klass.props_desc.each do |x|
     name = x['name']

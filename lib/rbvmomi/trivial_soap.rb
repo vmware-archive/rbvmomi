@@ -33,7 +33,7 @@ class RbVmomi::TrivialSoap
   end
 
   def restart_http
-    begin 
+    begin
       @http.finish if @http
     rescue Exception => ex
       puts "WARNING: Ignoring exception: #{ex.message}"
@@ -102,7 +102,7 @@ class RbVmomi::TrivialSoap
       end
     end
     end_time = Time.now
-    
+
     if response.is_a? Net::HTTPServiceUnavailable
       raise 'Got HTTP 503: Service unavailable'
     end

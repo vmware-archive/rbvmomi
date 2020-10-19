@@ -22,7 +22,7 @@ class RbVmomi::VIM::ResourcePool
   def resourcePoolSubTree fields = []
     self.class.resourcePoolSubTree [self], fields
   end
-  
+
   def self.resourcePoolSubTree objs, fields = []
     fields = (fields + ['name', 'resourcePool']).uniq
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
@@ -47,10 +47,10 @@ class RbVmomi::VIM::ResourcePool
         :type => 'ResourcePool'
       }]
     )
-  
+
     propCollector = objs.first._connection.propertyCollector
     result = propCollector.RetrieveProperties(:specSet => [filterSpec])
-    
+
     Hash[result.map do |x|
       [x.obj, x.to_hash]
     end]

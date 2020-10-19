@@ -7,7 +7,7 @@ class RbVmomi::VIM::ManagedEntity
   def path
     self.class.paths([self])[self]
   end
-  
+
   # Retrieve the ancestors of a list of entries.
   # @return [Hash] Object-indexed hash of ancestors of entities, starting with the root.
   def self.paths objs

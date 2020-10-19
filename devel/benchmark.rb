@@ -87,14 +87,14 @@ Benchmark.bmbm do|b|
   b.report('nokogiri parsing') do
     N.times { Nokogiri::XML(raw) }
   end
-  
+
   GC.start
   b.report('libxml parsing') do
     N.times do
       LibXML::XML::Parser.string(raw).parse
     end
   end
-  
+
   GC.start
   b.report('old deserialization (nokogiri)') do
     deserializer = RbVmomi::OldDeserializer.new($conn)

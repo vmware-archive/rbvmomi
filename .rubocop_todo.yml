@@ -263,12 +263,6 @@ Layout/SpaceInsideStringInterpolation:
 Layout/TrailingEmptyLines:
   Enabled: false
 
-# Offense count: 281
-# Cop supports --auto-correct.
-# Configuration parameters: AllowInHeredoc.
-Layout/TrailingWhitespace:
-  Enabled: false
-
 # Offense count: 9
 # Configuration parameters: AllowSafeAssignment.
 Lint/AssignmentInCondition:
@@ -829,13 +823,6 @@ Style/SpecialGlobalVars:
 # Offense count: 8
 # Cop supports --auto-correct.
 Style/StderrPuts:
-  Enabled: false
-
-# Offense count: 342
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ConsistentQuotesInMultiline.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiterals:
   Enabled: false
 
 # Offense count: 1

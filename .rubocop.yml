@@ -6,4 +6,7 @@ Style/StringLiterals:
   EnforcedStyle: single_quotes
   Enabled: true
 
+Layout/TrailingWhitespace:
+  Enabled: true
+
 # inherit_from: .rubocop_todo.yml
