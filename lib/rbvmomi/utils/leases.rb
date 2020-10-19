@@ -51,9 +51,7 @@ class LeaseTool
     annotation = vmconfig[:annotation]
     annotation ||= ''
     note = YAML.load annotation
-    if !note.is_a?(Hash)
-      note = {}
-    end
+    note = {} if !note.is_a?(Hash)
     lease = current_time + lease_minutes * 60
     note['lease'] = lease
     vmconfig[:annotation] = YAML.dump(note)
@@ -68,9 +66,7 @@ class LeaseTool
   # @param annotation [String] 'config.annotation' property of the VM. Optional.
   # @return [VIM::Task] VM reconfiguration task
   def set_lease_on_vm_task vm, lease_minutes, annotation = nil
-    if !annotation
-      annotation = vm.collect 'config.annotation'
-    end
+    annotation = vm.collect 'config.annotation' if !annotation
     vmconfig = {:annotation => annotation}
     vmconfig = set_lease_in_vm_config vmconfig, lease_minutes
     # XXX: It may be a good idea to cite the VM version here to avoid
@@ -87,9 +83,7 @@ class LeaseTool
   # @return [Array] List of previously leaseless VMs that now have a lease
   def set_lease_on_leaseless_vms vms, vmprops, opts = {}
     lease_minutes = opts[:lease_minutes]
-    if !lease_minutes
-      raise 'Expected lease_minutes to be specified'
-    end
+    raise 'Expected lease_minutes to be specified' if !lease_minutes
     vms = find_leaseless_vms vms, vmprops
     if vms.length > 0
       tasks = vms.map do |vm|

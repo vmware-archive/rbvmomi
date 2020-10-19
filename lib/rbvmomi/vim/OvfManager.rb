@@ -49,9 +49,7 @@ class RbVmomi::VIM::OvfManager
 
     raise result.error[0].localizedMessage if result.error && !result.error.empty?
 
-    if result.warning
-      result.warning.each{|x| puts "OVF Warning: #{x.localizedMessage.chomp}" }
-    end
+    result.warning.each{|x| puts "OVF Warning: #{x.localizedMessage.chomp}" } if result.warning
 
     importSpec = result.importSpec
     if importSpec && importSpec.instantiationOst && importSpec.instantiationOst.child
@@ -72,9 +70,7 @@ class RbVmomi::VIM::OvfManager
       nfcLease.HttpNfcLeaseProgress(:percent => 5)
       timeout, = nfcLease.collect 'info.leaseTimeout'
       puts "DEBUG: Timeout: #{timeout}"
-      if timeout < 4 * 60
-        puts 'WARNING: OVF upload NFC lease timeout less than 4 minutes'
-      end
+      puts 'WARNING: OVF upload NFC lease timeout less than 4 minutes' if timeout < 4 * 60
       progress = 5.0
       result.fileItem.each do |fileItem|
         leaseInfo, leaseState, leaseError = nfcLease.collect 'info', 'state', 'error'
@@ -89,16 +85,10 @@ class RbVmomi::VIM::OvfManager
           leaseInfo, leaseState, leaseError = nfcLease.collect 'info', 'state', 'error'
           i += 1
         end
-        if leaseState != 'ready'
-          raise "NFC lease is no longer ready: #{leaseState}: #{leaseError}"
-        end
-        if leaseInfo == nil
-          raise 'NFC lease disappeared?'
-        end
+        raise "NFC lease is no longer ready: #{leaseState}: #{leaseError}" if leaseState != 'ready'
+        raise 'NFC lease disappeared?' if leaseInfo == nil
         deviceUrl = leaseInfo.deviceUrl.find{|x| x.importKey == fileItem.deviceId}
-        if !deviceUrl
-          raise "Couldn't find deviceURL for device '#{fileItem.deviceId}'"
-        end
+        raise "Couldn't find deviceURL for device '#{fileItem.deviceId}'" if !deviceUrl
 
         ovfFilename = opts[:uri].to_s
         tmp = ovfFilename.split(/\//)
@@ -107,9 +97,7 @@ class RbVmomi::VIM::OvfManager
         filename = tmp.join('/')
 
         # If filename doesn't have a URI scheme, we're considering it a local file
-        if URI(filename).scheme.nil?
-          filename = 'file://' + filename
-        end
+        filename = 'file://' + filename if URI(filename).scheme.nil?
 
         method = fileItem.create ? 'PUT' : 'POST'
 

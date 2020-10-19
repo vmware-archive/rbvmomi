@@ -138,9 +138,7 @@ class Connection < TrivialSoap
       raise "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
       xml.tag! name, o._ref, :type => o.class.wsdl_name
     when BasicTypes::DataObject
-      if expected and not expected >= o.class and not expected == BasicTypes::AnyType
-        raise "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}"
-      end
+      raise "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
       xml.tag! name, attrs.merge('xsi:type' => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
           if o.props.member? desc['name'].to_sym
@@ -209,9 +207,7 @@ class Connection < TrivialSoap
     when :KeyValue then BasicTypes::KeyValue
     else
       first_char = name[0].chr
-      if first_char.downcase == first_char
-        name = '%s%s' % [first_char.upcase, name[1..-1]]
-      end
+      name = '%s%s' % [first_char.upcase, name[1..-1]] if first_char.downcase == first_char
 
       if @loader.has? name
         const_get(name)

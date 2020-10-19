@@ -68,9 +68,7 @@ when 'set'
   behavior = ARGV[2] or Optimist.die('no behavior given')
   abort 'invalid behavior' unless BEHAVIOR.member? behavior
 
-  if behavior == 'default'
-    behavior = default
-  end
+  behavior = default if behavior == 'default'
   vm_spec =
     VIM.ClusterDrsVmConfigSpec(:operation => VIM.ArrayUpdateOperation(config ? 'edit' : 'add'),
                                :info => VIM.ClusterDrsVmConfigInfo(:key => vm,

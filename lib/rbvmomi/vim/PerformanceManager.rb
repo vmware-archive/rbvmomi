@@ -45,15 +45,11 @@ class RbVmomi::VIM::PerformanceManager
       realtime = true
     else
       provider = provider_summary objects.first
-      if opts[:interval] == provider.refreshRate
-        realtime = true
-      end
+      realtime = true if opts[:interval] == provider.refreshRate
     end
 
     instances = opts[:instance] || '*'
-    if !instances.is_a?(Array)
-      instances = [instances]
-    end
+    instances = [instances] if !instances.is_a?(Array)
     metric_ids = []
     metrics.each do |x|
       counter = perfcounter_hash[x]

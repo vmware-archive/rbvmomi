@@ -81,9 +81,7 @@ when 'kill_expired_vms'
       puts "Killing expired VM '#{inventory[vm]['name']}'"
       # Destroying VMs is very stressful for vCenter, and we aren't in a rush
       # so do one VM at a time
-      if inventory[vm]['runtime.powerState'] == 'poweredOn'
-        vm.PowerOffVM_Task.wait_for_completion
-      end
+      vm.PowerOffVM_Task.wait_for_completion if inventory[vm]['runtime.powerState'] == 'poweredOn'
       vm.Destroy_Task.wait_for_completion
     end
   end

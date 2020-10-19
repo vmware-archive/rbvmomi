@@ -61,9 +61,7 @@ class PerfAggregator
   end
 
   def add_node_unless_exists inventory, id, props
-    if !inventory[id]
-      inventory[id] = props.merge({'children' => []})
-    end
+    inventory[id] = props.merge({'children' => []}) if !inventory[id]
   end
 
   # Method that extracts the entire VM folder and ResourcePool hierarchy
@@ -191,9 +189,7 @@ class PerfAggregator
   # @param obj [Hash] Property hash of current element
   # @param objs [Array] Flat list of tree elements
   def _compute_vmfolder_and_rp_path_and_parents vc, obj, objs
-    if obj['path']
-      return
-    end
+    return if obj['path']
     if !obj['parent']
       obj['parent'] = vc
       obj['path'] = "root/#{vc}/#{obj['name']}"
@@ -246,13 +242,9 @@ class PerfAggregator
   # @param objs [Array] Flat list of tree elements
   def _compute_parents_and_children objs
     objs.each do |obj, props|
-      if props['parent_paths']
-        next
-      end
+      next if props['parent_paths']
       props['parent_paths'] = {}
-      if !props['parent']
-        next
-      end
+      next if !props['parent']
       parent = objs[props['parent']]
       props['paths'].keys.each do |type|
         props['parent_paths'][type] = parent['paths'][type]
@@ -268,9 +260,7 @@ class PerfAggregator
     vms_stats.each do |vm_stats|
       perf_metrics.each do |key, type|
         values = vm_stats[key]
-        if !values.is_a?(Array)
-          values = [values]
-        end
+        values = [values] if !values.is_a?(Array)
         values.compact.each do |val|
           if type == :sum
             out[key] += val
@@ -291,9 +281,7 @@ class PerfAggregator
 
     perf_metrics.each do |key, type|
       if type == :avg_ignore_zero || type == :avg
-        if avg_counter[key] > 0
-          out[key] = out[key] / avg_counter[key]
-        end
+        out[key] = out[key] / avg_counter[key] if avg_counter[key] > 0
       end
     end
 
@@ -382,9 +370,7 @@ class PerfAggregator
       )
     end
     hosts_props.each do |host, props|
-      if !connected_hosts[host]
-        next
-      end
+      next if !connected_hosts[host]
 
       stats = hosts_stats[host] || {}
       stats = stats[:metrics] || {}
@@ -393,9 +379,7 @@ class PerfAggregator
     end
 
     vms_props.each do |vm, props|
-      if !connected_vms.member?(vm)
-        next
-      end
+      next if !connected_vms.member?(vm)
       props['num.vm'] = 1
       powered_on = (props['runtime.powerState'] == 'poweredOn')
       props['num.poweredonvm'] = powered_on ? 1 : 0
@@ -417,18 +401,14 @@ class PerfAggregator
       props['storage.space.unshared'] = per_ds_usage.map{|x| x.unshared}.inject(0, &:+)
 
       props['parent_paths'] = {}
-      if inventory[props['parent']]
-        props['parent_paths']['vmfolder'] = inventory[props['parent']]['path']
-      end
+      props['parent_paths']['vmfolder'] = inventory[props['parent']]['path'] if inventory[props['parent']]
       if !props['config.template']
         rp_props = inventory[props['resourcePool']]
         props['parent_paths']['rp'] = rp_props['path']
       end
 
       props['annotation_yaml'] = YAML.load(props['config.annotation'] || '')
-      if !props['annotation_yaml'].is_a?(Hash)
-        props['annotation_yaml'] = {}
-      end
+      props['annotation_yaml'] = {} if !props['annotation_yaml'].is_a?(Hash)
 
       props['customValue'] = Hash[props['customValue'].map do |x|
         [x.key, x.value]
@@ -454,9 +434,7 @@ class PerfAggregator
 
           lock.synchronize do
             vms_props.merge!(single_vms_props)
-            if inventory['root']
-              single_inventory['root']['children'] += inventory['root']['children']
-            end
+            single_inventory['root']['children'] += inventory['root']['children'] if inventory['root']
             inventory.merge!(single_inventory)
             hosts_props.merge!(single_hosts_props)
           end
@@ -476,9 +454,7 @@ class PerfAggregator
     hosts_props = _make_marshal_friendly(hosts_props)
 
     log 'Perform external post processing ...'
-    if @vm_processing_callback
-      @vm_processing_callback.call(self, vms_props, inventory)
-    end
+    @vm_processing_callback.call(self, vms_props, inventory) if @vm_processing_callback
 
     log 'Perform data aggregation ...'
     # Processing the annotations may have added new nodes to the
@@ -507,21 +483,11 @@ class PerfAggregator
 
   def _make_marshal_friendly hash
     hash = Hash[hash.map do |k, v|
-      if v['parent']
-        v['parent'] = _mo2str(v['parent'])
-      end
-      if v['resourcePool']
-        v['resourcePool'] = _mo2str(v['resourcePool'])
-      end
-      if v['children']
-        v['children'] = v['children'].map{|x| _mo2str(x)}
-      end
-      if v['parents']
-        v['parents'] = v['parents'].map{|x| _mo2str(x)}
-      end
-      if v['datastore']
-        v['datastore'] = v['datastore'].map{|x| _mo2str(x)}
-      end
+      v['parent'] = _mo2str(v['parent']) if v['parent']
+      v['resourcePool'] = _mo2str(v['resourcePool']) if v['resourcePool']
+      v['children'] = v['children'].map{|x| _mo2str(x)} if v['children']
+      v['parents'] = v['parents'].map{|x| _mo2str(x)} if v['parents']
+      v['datastore'] = v['datastore'].map{|x| _mo2str(x)} if v['datastore']
       v['type'] = k.class.name
       [_mo2str(k), v]
     end]
@@ -560,9 +526,7 @@ class PerfAggregator
       paths_vms = {}
 
       vms_props.each do |vm, props|
-        if !props['parent_paths'] || !props['parent_paths'][path_type]
-          next
-        end
+        next if !props['parent_paths'] || !props['parent_paths'][path_type]
         parent_path = props['parent_paths'][path_type]
         while parent_path
           parent = index[parent_path]

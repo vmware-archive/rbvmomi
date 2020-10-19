@@ -24,4 +24,7 @@ Layout/IndentationConsistency:
   Enabled: true
   EnforcedStyle: normal
 
+Style/IfUnlessModifier:
+  Enabled: true
+
 # inherit_from: .rubocop_todo.yml

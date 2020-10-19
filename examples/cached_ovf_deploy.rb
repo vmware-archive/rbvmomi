@@ -58,9 +58,7 @@ dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter
 
 root_vm_folder = dc.vmFolder
 vm_folder = root_vm_folder
-if opts[:vm_folder_path]
-  vm_folder = root_vm_folder.traverse(opts[:vm_folder_path], VIM::Folder)
-end
+vm_folder = root_vm_folder.traverse(opts[:vm_folder_path], VIM::Folder) if opts[:vm_folder_path]
 template_folder = root_vm_folder.traverse!(template_folder_path, VIM::Folder)
 
 scheduler = AdmissionControlledResourceScheduler.new(
