@@ -71,7 +71,7 @@ class NewDeserializer
         leaf_binary node
       when :keyvalue
         leaf_keyvalue node
-      else fail
+      else raise
       end
     else
       if type =~ /:/
@@ -85,7 +85,7 @@ class NewDeserializer
         type = type.split(':', 2)[1]
       end
 
-      klass = @loader.get(type) or fail "no such type '#{type}'"
+      klass = @loader.get(type) or raise "no such type '#{type}'"
       case klass.kind
       when :data
         traverse_data node, klass
@@ -93,7 +93,7 @@ class NewDeserializer
         node.content
       when :managed
         leaf_managed node, klass
-      else fail
+      else raise
       end
     end
   end
@@ -222,8 +222,8 @@ class OldDeserializer
     elsif t == BasicTypes::Binary
       xml.text.unpack('m')[0]
     elsif t == BasicTypes::AnyType
-      fail 'attempted to deserialize an AnyType'
-    else fail "unexpected type #{t.inspect} (#{t.ancestors * '/'})"
+      raise 'attempted to deserialize an AnyType'
+    else raise "unexpected type #{t.inspect} (#{t.ancestors * '/'})"
     end
   rescue
     $stderr.puts "#{$!.class} while deserializing #{xml.name} (#{typename}):"

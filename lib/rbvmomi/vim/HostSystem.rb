@@ -84,7 +84,7 @@ class VIM::EsxcliNamespace
   end
 
   def realize type, instance, type_info
-    fail if @type or @instance
+    raise if @type or @instance
     @type = type
     @instance = instance
     @type_info = type_info

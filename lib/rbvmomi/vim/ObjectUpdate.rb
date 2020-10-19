@@ -19,7 +19,7 @@ class RbVmomi::VIM::ObjectUpdate
   def to_hash_uncached
     h = {}
     changeSet.each do |x|
-      fail if h.member? x.name
+      raise if h.member? x.name
       h[x.name] = x.val
     end
     h

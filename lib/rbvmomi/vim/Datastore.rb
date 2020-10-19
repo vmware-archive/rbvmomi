@@ -20,7 +20,7 @@ class RbVmomi::VIM::Datastore
     when Net::HTTPNotFound
       false
     else
-      fail resp.inspect
+      raise resp.inspect
     end
   end
 
@@ -36,7 +36,7 @@ class RbVmomi::VIM::Datastore
                 url,
                 :out => '/dev/null'
     Process.waitpid(pid, 0)
-    fail 'download failed' unless $?.success?
+    raise 'download failed' unless $?.success?
   end
 
   # Upload a file to this datastore.
@@ -51,7 +51,7 @@ class RbVmomi::VIM::Datastore
                 url,
                 :out => '/dev/null'
     Process.waitpid(pid, 0)
-    fail 'upload failed' unless $?.success?
+    raise 'upload failed' unless $?.success?
   end
 
   private
@@ -62,7 +62,7 @@ class RbVmomi::VIM::Datastore
     while not x.is_a? RbVmomi::VIM::Datacenter
       x = x.parent
     end
-    fail unless x.is_a? RbVmomi::VIM::Datacenter
+    raise unless x.is_a? RbVmomi::VIM::Datacenter
     @datacenter = x
   end
 

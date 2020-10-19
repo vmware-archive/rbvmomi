@@ -54,11 +54,11 @@ class ObjectWithProperties < Base
   end
 
   def _get_property sym
-    fail 'unimplemented'
+    raise 'unimplemented'
   end
 
   def _set_property sym, val
-    fail 'unimplemented'
+    raise 'unimplemented'
   end
 
   init
@@ -105,7 +105,7 @@ class DataObject < ObjectWithProperties
       #fail "missing required property #{desc['name'].inspect} of #{self.class.wsdl_name}" if @props[desc['name'].to_sym].nil? and not desc['is-optional']
     #end
     @props.each do |k,v|
-      fail "unexpected property name #{k}" unless self.class.find_prop_desc(k)
+      raise "unexpected property name #{k}" unless self.class.find_prop_desc(k)
     end
   end
 
@@ -217,12 +217,12 @@ class ManagedObject < ObjectWithMethods
   end
 
   def _set_property sym, val
-    fail 'unimplemented'
+    raise 'unimplemented'
   end
 
   def _call method, o={}
-    fail 'parameters must be passed as a hash' unless o.is_a? Hash
-    desc = self.class.full_methods_desc[method.to_s] or fail 'unknown method'
+    raise 'parameters must be passed as a hash' unless o.is_a? Hash
+    desc = self.class.full_methods_desc[method.to_s] or raise 'unknown method'
     @connection.call method, desc, self, o
   end
 
@@ -394,7 +394,7 @@ class KeyValue
   def [] i
     if i == 0 then @key
     elsif i == 1 then @value
-    else fail "invalid index #{i.inspect}"
+    else raise "invalid index #{i.inspect}"
     end
   end
 end

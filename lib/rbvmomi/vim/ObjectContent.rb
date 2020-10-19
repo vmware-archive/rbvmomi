@@ -19,7 +19,7 @@ class RbVmomi::VIM::ObjectContent
   def to_hash_uncached
     h = {}
     propSet.each do |x|
-      fail if h.member? x.name
+      raise if h.member? x.name
       h[x.name] = x.val
     end
     h

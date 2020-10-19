@@ -19,7 +19,7 @@ class SMS < Connection
   # @option opts [String]  :path (/sms/sdk) SDK endpoint path.
   # @option opts [Boolean] :debug (false) If true, print SOAP traffic to stderr.
   def self.connect vim, opts = {}
-    fail unless opts.is_a? Hash
+    raise unless opts.is_a? Hash
     opts[:host] = vim.host
     opts[:ssl] = true unless opts.member? :ssl or opts[:"no-ssl"]
     opts[:insecure] ||= true

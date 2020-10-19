@@ -69,7 +69,7 @@ class RbVmomi::VIM::DynamicTypeMgrAllTypeInfo
           end
         end
       when 'enum'
-      else fail
+      else raise
       end
       [k, t]
     end]

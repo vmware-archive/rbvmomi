@@ -23,8 +23,8 @@ class VIM < Connection
   # @option opts [Boolean] :close_on_exit (true) If true, will close connection with at_exit
   # @option opts [RbVmomi::SSO] :sso (nil) Use SSO token to login if set
   def self.connect opts
-    fail unless opts.is_a? Hash
-    fail 'host option required' unless opts[:host]
+    raise unless opts.is_a? Hash
+    raise 'host option required' unless opts[:host]
     opts[:cookie] ||= nil
     opts[:user] ||= 'root'
     opts[:password] ||= ''

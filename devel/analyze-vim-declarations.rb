@@ -19,7 +19,7 @@ end
 TYPES = {}
 VERSIONS = []
 
-ID2NAME = Hash.new { |h,k| fail "unknown type-id #{k.inspect}" }
+ID2NAME = Hash.new { |h,k| raise "unknown type-id #{k.inspect}" }
 
 ID2NAME.merge!({
   'java.lang.String' => 'xsd:string',
@@ -188,7 +188,7 @@ TYPES.each do |k,t|
       end
     end
   when 'enum'
-  else fail
+  else raise
   end
 end
 
@@ -209,7 +209,7 @@ if filename = ENV['VERSION_GRAPH']
     VERSIONS.each do |h|
       io.puts "\"#{h['vmodl-name']}\" [label=\"#{h['vmodl-name']} (#{h['version-id']})\"]"
       h['compatible'].each do |x|
-        x =~ /^interface / or fail x
+        x =~ /^interface / or raise x
         io.puts "\"#{h['vmodl-name']}\" -> \"#{$'}\""
       end
     end

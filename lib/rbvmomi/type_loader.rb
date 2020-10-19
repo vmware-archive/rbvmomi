@@ -49,13 +49,13 @@ class TypeLoader
   end
 
   def has? name
-    fail unless name.is_a? String
+    raise unless name.is_a? String
 
     @db.member?(name) or BasicTypes::BUILTIN.member?(name)
   end
 
   def get name
-    fail "name '#{name}' is #{name.class} expecting String" unless name.is_a? String
+    raise "name '#{name}' is #{name.class} expecting String" unless name.is_a? String
 
     first_char = name[0].chr
     if first_char.downcase == first_char
@@ -103,12 +103,12 @@ class TypeLoader
   def make_type name
     name = name.to_s
     return BasicTypes.const_get(name) if BasicTypes::BUILTIN.member? name
-    desc = @db[name] or fail "unknown VMODL type #{name}"
+    desc = @db[name] or raise "unknown VMODL type #{name}"
     case desc['kind']
     when 'data' then make_data_type name, desc
     when 'managed' then make_managed_type name, desc
     when 'enum' then make_enum_type name, desc
-    else fail desc.inspect
+    else raise desc.inspect
     end
   end
 
