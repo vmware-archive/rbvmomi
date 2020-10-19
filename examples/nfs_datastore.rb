@@ -11,31 +11,31 @@ VIM = RbVmomi::VIM
 CMDS = %w(mount unmount)
 
 opts = Optimist.options do
-  banner <<-EOS
-Mount/Unmount an NFS datastore from a cluster or single host system.
-
-Usage:
-    nfs_datastore.rb [options] resource mount nfs-hostname:/remote/path [name]
-    nfs_datastore.rb [options] resource unmount nfs-hostname:/remote/path [name]
-
-Commands: #{CMDS * ' '}
-
-VIM connection options:
+  banner <<~EOS
+    Mount/Unmount an NFS datastore from a cluster or single host system.
+    
+    Usage:
+        nfs_datastore.rb [options] resource mount nfs-hostname:/remote/path [name]
+        nfs_datastore.rb [options] resource unmount nfs-hostname:/remote/path [name]
+    
+    Commands: #{CMDS * ' '}
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-VM location options:
+    text <<~EOS
+      
+      VM location options:
     EOS
 
     rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 
   stop_on CMDS
 end

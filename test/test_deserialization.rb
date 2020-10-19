@@ -15,12 +15,12 @@ class DeserializationTest < Test::Unit::TestCase
   end
 
   def test_moref
-    check <<-EOS, VIM.Folder(nil, 'ha-folder-root'), 'Folder'
-<root type="Folder">ha-folder-root</root>
+    check <<~EOS, VIM.Folder(nil, 'ha-folder-root'), 'Folder'
+      <root type="Folder">ha-folder-root</root>
     EOS
 
-    check <<-EOS, VIM.Datacenter(nil, 'ha-datacenter'), 'ManagedObjectReference'
-<ManagedObjectReference type="Datacenter" xsi:type="ManagedObjectReference">ha-datacenter</ManagedObjectReference>
+    check <<~EOS, VIM.Datacenter(nil, 'ha-datacenter'), 'ManagedObjectReference'
+      <ManagedObjectReference type="Datacenter" xsi:type="ManagedObjectReference">ha-datacenter</ManagedObjectReference>
     EOS
   end
 
@@ -36,23 +36,23 @@ class DeserializationTest < Test::Unit::TestCase
       :url => 'http://foo/'
     )
 
-    check <<-EOS, obj, 'DatastoreSummary'
-<root>
-  <datastore type="Datastore">foo</datastore>
-  <name>baz</name>
-  <url>http://foo/</url>
-  <capacity>1000</capacity>
-  <freeSpace>31</freeSpace>
-  <accessible>1</accessible>
-  <multipleHostAccess>false</multipleHostAccess>
-  <type>VMFS</type>
-</root>
+    check <<~EOS, obj, 'DatastoreSummary'
+      <root>
+        <datastore type="Datastore">foo</datastore>
+        <name>baz</name>
+        <url>http://foo/</url>
+        <capacity>1000</capacity>
+        <freeSpace>31</freeSpace>
+        <accessible>1</accessible>
+        <multipleHostAccess>false</multipleHostAccess>
+        <type>VMFS</type>
+      </root>
     EOS
   end
 
   def test_enum
-    check <<-EOS, 'add', 'ConfigSpecOperation'
-<root>add</root>
+    check <<~EOS, 'add', 'ConfigSpecOperation'
+      <root>add</root>
     EOS
   end
 
@@ -70,16 +70,16 @@ class DeserializationTest < Test::Unit::TestCase
       ]
     )
 
-    check <<-EOS, obj, 'ObjectContent'
-<root xmlns:xsi="#{VIM::NS_XSI}">
-   <obj type="Folder">ha-folder-root</obj>
-   <propSet>
-      <name>childEntity</name>
-      <val xsi:type="ArrayOfManagedObjectReference">
-         <ManagedObjectReference type="Datacenter" xsi:type="ManagedObjectReference">ha-datacenter</ManagedObjectReference>
-      </val>
-   </propSet>
-</root>
+    check <<~EOS, obj, 'ObjectContent'
+      <root xmlns:xsi="#{VIM::NS_XSI}">
+         <obj type="Folder">ha-folder-root</obj>
+         <propSet>
+            <name>childEntity</name>
+            <val xsi:type="ArrayOfManagedObjectReference">
+               <ManagedObjectReference type="Datacenter" xsi:type="ManagedObjectReference">ha-datacenter</ManagedObjectReference>
+            </val>
+         </propSet>
+      </root>
     EOS
   end
 
@@ -95,19 +95,19 @@ def test_array2
     :vmDirectPathGen2InactiveReasonOther => []
   )
 
-  check <<-EOS, obj, 'DVPortStatus'
-<root>
-  <linkUp>1</linkUp>
-  <blocked>false</blocked>
-  <vlanIds>
-    <start>5</start>
-    <end>7</end>
-  </vlanIds>
-  <vlanIds>
-    <start>10</start>
-    <end>20</end>
-  </vlanIds>
-</root>
+  check <<~EOS, obj, 'DVPortStatus'
+    <root>
+      <linkUp>1</linkUp>
+      <blocked>false</blocked>
+      <vlanIds>
+        <start>5</start>
+        <end>7</end>
+      </vlanIds>
+      <vlanIds>
+        <start>10</start>
+        <end>20</end>
+      </vlanIds>
+    </root>
   EOS
 end
 
@@ -120,11 +120,11 @@ def test_empty_array
     :vmDirectPathGen2InactiveReasonOther => []
   )
 
-  check <<-EOS, obj, 'DVPortStatus'
-<root>
-  <linkUp>1</linkUp>
-  <blocked>false</blocked>
-</root>
+  check <<~EOS, obj, 'DVPortStatus'
+    <root>
+      <linkUp>1</linkUp>
+      <blocked>false</blocked>
+    </root>
   EOS
 end
 
@@ -138,14 +138,14 @@ end
       )
     )
 
-    check <<-EOS, obj, 'LocalizedMethodFault'
-<error xmlns:xsi="#{VIM::NS_XSI}">
-  <fault xsi:type="InvalidPowerState">
-    <requestedState>poweredOn</requestedState>
-    <existingState>poweredOff</existingState>
-  </fault>
-  <localizedMessage>The attempted operation cannot be performed in the current state (Powered off).</localizedMessage>
-</error>
+    check <<~EOS, obj, 'LocalizedMethodFault'
+      <error xmlns:xsi="#{VIM::NS_XSI}">
+        <fault xsi:type="InvalidPowerState">
+          <requestedState>poweredOn</requestedState>
+          <existingState>poweredOff</existingState>
+        </fault>
+        <localizedMessage>The attempted operation cannot be performed in the current state (Powered off).</localizedMessage>
+      </error>
     EOS
   end
 
@@ -174,29 +174,29 @@ end
       ]
     )
 
-    check <<-EOS, obj, 'UpdateSet'
-<returnval xmlns:xsi="#{VIM::NS_XSI}">
-  <version>7</version>
-  <filterSet>
-    <filter type="PropertyFilter">session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF</filter>
-    <objectSet>
-      <kind>enter</kind>
-      <obj type="VirtualMachine">vm-1106</obj>
-      <changeSet>
-        <name>runtime.powerState</name>
-        <op>assign</op>
-        <val xsi:type="VirtualMachinePowerState">poweredOn</val>
-      </changeSet>
-    </objectSet>
-  </filterSet>
-</returnval>
+    check <<~EOS, obj, 'UpdateSet'
+      <returnval xmlns:xsi="#{VIM::NS_XSI}">
+        <version>7</version>
+        <filterSet>
+          <filter type="PropertyFilter">session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF</filter>
+          <objectSet>
+            <kind>enter</kind>
+            <obj type="VirtualMachine">vm-1106</obj>
+            <changeSet>
+              <name>runtime.powerState</name>
+              <op>assign</op>
+              <val xsi:type="VirtualMachinePowerState">poweredOn</val>
+            </changeSet>
+          </objectSet>
+        </filterSet>
+      </returnval>
     EOS
   end
 
   def test_binary
     obj = "\x00foo\x01bar\x02baz"
-    check <<-EOS, obj, 'xsd:base64Binary'
-<root>AGZvbwFiYXICYmF6</root>
+    check <<~EOS, obj, 'xsd:base64Binary'
+      <root>AGZvbwFiYXICYmF6</root>
     EOS
   end
 
@@ -210,16 +210,16 @@ end
       :driver => 'ata_piix',
       :pci => '00:07.1')
 
-    check <<-EOS, obj, 'HostBlockHba'
-<hostBusAdapter xsi:type="HostBlockHba">
-  <key>key-vim.host.BlockHba-vmhba0</key>
-  <device>vmhba0</device>
-  <bus>0</bus>
-  <status>unknown</status>
-  <model>Virtual Machine Chipset</model>
-  <driver>ata_piix</driver>
-  <pci>00:07.1</pci>
-</hostBusAdapter>
+    check <<~EOS, obj, 'HostBlockHba'
+      <hostBusAdapter xsi:type="HostBlockHba">
+        <key>key-vim.host.BlockHba-vmhba0</key>
+        <device>vmhba0</device>
+        <bus>0</bus>
+        <status>unknown</status>
+        <model>Virtual Machine Chipset</model>
+        <driver>ata_piix</driver>
+        <pci>00:07.1</pci>
+      </hostBusAdapter>
     EOS
   end
 
@@ -259,31 +259,31 @@ end
       :device => []
     )
 
-    check <<-EOS, obj, 'VirtualMachineRuntimeInfo'
-<val xsi:type="VirtualMachineRuntimeInfo" xmlns:xsi="#{VIM::NS_XSI}">
-  <host type="HostSystem">host-32</host>
-  <connectionState>connected</connectionState>
-  <powerState>poweredOn</powerState>
-  <faultToleranceState>notConfigured</faultToleranceState>
-  <toolsInstallerMounted>false</toolsInstallerMounted>
-  <bootTime>2010-08-20T05:44:35.0Z</bootTime>
-  <suspendInterval>0</suspendInterval>
-  <memoryOverhead>128671744</memoryOverhead>
-  <maxCpuUsage>5612</maxCpuUsage>
-  <maxMemoryUsage>3072</maxMemoryUsage>
-  <numMksConnections>1</numMksConnections>
-  <recordReplayState>inactive</recordReplayState>
-</val>
+    check <<~EOS, obj, 'VirtualMachineRuntimeInfo'
+      <val xsi:type="VirtualMachineRuntimeInfo" xmlns:xsi="#{VIM::NS_XSI}">
+        <host type="HostSystem">host-32</host>
+        <connectionState>connected</connectionState>
+        <powerState>poweredOn</powerState>
+        <faultToleranceState>notConfigured</faultToleranceState>
+        <toolsInstallerMounted>false</toolsInstallerMounted>
+        <bootTime>2010-08-20T05:44:35.0Z</bootTime>
+        <suspendInterval>0</suspendInterval>
+        <memoryOverhead>128671744</memoryOverhead>
+        <maxCpuUsage>5612</maxCpuUsage>
+        <maxMemoryUsage>3072</maxMemoryUsage>
+        <numMksConnections>1</numMksConnections>
+        <recordReplayState>inactive</recordReplayState>
+      </val>
     EOS
   end
 
   def test_keyvalue
     obj = ['a', 'b']
-    check <<-EOS, obj, 'KeyValue'
-<root>
-  <key>a</key>
-  <value>b</value>
-</root>
+    check <<~EOS, obj, 'KeyValue'
+      <root>
+        <key>a</key>
+        <value>b</value>
+      </root>
     EOS
   end
 
@@ -303,36 +303,36 @@ end
 
   def test_float
     obj = 1.2
-    check <<-EOS, obj, 'xsd:float'
-<root>1.2</root>
+    check <<~EOS, obj, 'xsd:float'
+      <root>1.2</root>
     EOS
   end
 
   def test_date
     time_str = '2010-08-20T05:44:35.0Z'
     obj = Time.parse(time_str)
-    check <<-EOS, obj, 'xsd:dateTime'
-<root>#{time_str}</root>
+    check <<~EOS, obj, 'xsd:dateTime'
+      <root>#{time_str}</root>
     EOS
   end
 
   def test_array_mangling
     obj = ['foo']
-    check <<-EOS, obj, 'ArrayOfString'
-<root><e>foo</e></root>
+    check <<~EOS, obj, 'ArrayOfString'
+      <root><e>foo</e></root>
     EOS
 
     time_str = '2010-08-20T05:44:35.0Z'
     obj = [Time.parse(time_str)]
-    check <<-EOS, obj, 'ArrayOfDateTime'
-<root><e>#{time_str}</e></root>
+    check <<~EOS, obj, 'ArrayOfDateTime'
+      <root><e>#{time_str}</e></root>
     EOS
 
     obj = [1]
-    check <<-EOS, obj, 'ArrayOfAnyType'
-<root xmlns:xsi="#{VIM::NS_XSI}">
-  <e xsi:type="xsd:int">1</e>
-</root>
+    check <<~EOS, obj, 'ArrayOfAnyType'
+      <root xmlns:xsi="#{VIM::NS_XSI}">
+        <e xsi:type="xsd:int">1</e>
+      </root>
     EOS
   end
 
@@ -358,17 +358,17 @@ end
       :driver => 'ata_piix',
       :pci => '00:07.1')
 
-    check <<-EOS, obj, 'HostBlockHba'
-<hostBusAdapter xsi:type="HostBlockHba">
-  <key>key-vim.host.BlockHba-vmhba0</key>
-  <device>vmhba0</device>
-  <bus>0</bus>
-  <status>unknown</status>
-  <foo>bar</foo>
-  <model>Virtual Machine Chipset</model>
-  <driver>ata_piix</driver>
-  <pci>00:07.1</pci>
-</hostBusAdapter>
+    check <<~EOS, obj, 'HostBlockHba'
+      <hostBusAdapter xsi:type="HostBlockHba">
+        <key>key-vim.host.BlockHba-vmhba0</key>
+        <device>vmhba0</device>
+        <bus>0</bus>
+        <status>unknown</status>
+        <foo>bar</foo>
+        <model>Virtual Machine Chipset</model>
+        <driver>ata_piix</driver>
+        <pci>00:07.1</pci>
+      </hostBusAdapter>
     EOS
   end
 end

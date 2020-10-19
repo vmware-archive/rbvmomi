@@ -12,31 +12,31 @@ VIM  = RbVmomi::VIM
 CMDS = %w(get set)
 
 opts = Optimist.options do
-  banner <<-EOS
-Set a custom value for a VM.
-
-Usage:
-    customAttributes.rb [options] <VM nane> get
-    customAttributes.rb [options] <VM name> set <"Custom Attribute"> <"Custom Attribute value">
-
-Commands: #{CMDS * ' '}
-
-VIM connection options:
+  banner <<~EOS
+    Set a custom value for a VM.
+    
+    Usage:
+        customAttributes.rb [options] <VM nane> get
+        customAttributes.rb [options] <VM name> set <"Custom Attribute"> <"Custom Attribute value">
+    
+    Commands: #{CMDS * ' '}
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-VM location options:
+    text <<~EOS
+      
+      VM location options:
     EOS
 
     rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 
   stop_on CMDS
 end

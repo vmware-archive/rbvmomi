@@ -10,28 +10,28 @@ require 'rbvmomi/optimist'
 VIM = RbVmomi::VIM
 
 opts = Optimist.options do
-  banner <<-EOS
-Clone a VM.
-
-Usage:
-    clone_vm.rb [options] source_vm dest_vm
-
-VIM connection options:
+  banner <<~EOS
+    Clone a VM.
+    
+    Usage:
+        clone_vm.rb [options] source_vm dest_vm
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-VM location options:
+    text <<~EOS
+      
+      VM location options:
     EOS
 
     rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 
   opt :linked_clone, 'Use a linked clone instead of a full clone'
 end

@@ -9,28 +9,28 @@ require 'rbvmomi/optimist'
 VIM = RbVmomi::VIM
 
 opts = Optimist.options do
-  banner <<-EOS
-Display utilization of each datastore in the datacenter.
-
-Usage:
-    vdf.rb [options]
-
-VIM connection options:
+  banner <<~EOS
+    Display utilization of each datastore in the datacenter.
+    
+    Usage:
+        vdf.rb [options]
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-Datacenter selection:
+    text <<~EOS
+      
+      Datacenter selection:
     EOS
 
     rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 end
 
 Optimist.die('must specify host') unless opts[:host]

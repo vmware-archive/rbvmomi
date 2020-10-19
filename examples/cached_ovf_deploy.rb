@@ -13,29 +13,29 @@ require 'yaml'
 VIM = RbVmomi::VIM
 
 opts = Optimist.options do
-  banner <<-EOS
-Deploy an OVF to a cluster, using a cached template if available.
-
-Usage:
-    cached_ovf_deploy.rb [options] <vmname> <ovfurl>
-
-VIM connection options:
+  banner <<~EOS
+    Deploy an OVF to a cluster, using a cached template if available.
+    
+    Usage:
+        cached_ovf_deploy.rb [options] <vmname> <ovfurl>
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-VM location options:
+    text <<~EOS
+      
+      VM location options:
     EOS
 
     rbvmomi_datacenter_opt
     rbvmomi_datastore_opt
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 
   opt :template_name, 'Name to give to the (cached) template', :type => :string
   opt :template_path, 'Path where templates are stored', :default => 'templates', :type => :string

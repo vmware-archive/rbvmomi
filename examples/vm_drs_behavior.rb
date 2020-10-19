@@ -12,31 +12,31 @@ CMDS = %w(get set)
 BEHAVIOR = %w(fullyAutomated manual partiallyAutomated default)
 
 opts = Optimist.options do
-  banner <<-EOS
-Configure VM DRS behavior.
-
-Usage:
-    vm_drs_behavior.rb [options] VM get
-    vm_drs_behavior.rb [options] VM set #{BEHAVIOR.join('|')}
-
-Commands: #{CMDS * ' '}
-
-VIM connection options:
+  banner <<~EOS
+    Configure VM DRS behavior.
+    
+    Usage:
+        vm_drs_behavior.rb [options] VM get
+        vm_drs_behavior.rb [options] VM set #{BEHAVIOR.join('|')}
+    
+    Commands: #{CMDS * ' '}
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-VM location options:
+    text <<~EOS
+      
+      VM location options:
     EOS
 
     rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 
   stop_on CMDS
 end
