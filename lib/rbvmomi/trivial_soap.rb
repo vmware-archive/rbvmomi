@@ -82,7 +82,7 @@ class RbVmomi::TrivialSoap
     headers['cookie'] = @cookie if @cookie
 
     if @debug
-      $stderr.puts "Request:"
+      $stderr.puts 'Request:'
       $stderr.puts body
       $stderr.puts
     end
@@ -104,7 +104,7 @@ class RbVmomi::TrivialSoap
     end_time = Time.now
     
     if response.is_a? Net::HTTPServiceUnavailable
-      raise "Got HTTP 503: Service unavailable"
+      raise 'Got HTTP 503: Service unavailable'
     end
 
     self.cookie = response['set-cookie'] if response.key? 'set-cookie'

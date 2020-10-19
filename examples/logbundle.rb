@@ -29,10 +29,10 @@ Other options:
   EOS
 end
 
-Optimist.die("must specify host") unless opts[:host]
-dest = ARGV[0] or abort("must specify destination directory")
+Optimist.die('must specify host') unless opts[:host]
+dest = ARGV[0] or abort('must specify destination directory')
 
-abort "destination is not a directory" unless File.directory? dest
+abort 'destination is not a directory' unless File.directory? dest
 
 vim = VIM.connect opts
 is_vc = vim.serviceContent.about.apiType == 'VirtualCenter'

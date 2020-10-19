@@ -220,8 +220,8 @@ class ManagedObject < ObjectWithMethods
   end
 
   def _call method, o={}
-    fail "parameters must be passed as a hash" unless o.is_a? Hash
-    desc = self.class.full_methods_desc[method.to_s] or fail "unknown method"
+    fail 'parameters must be passed as a hash' unless o.is_a? Hash
+    desc = self.class.full_methods_desc[method.to_s] or fail 'unknown method'
     @connection.call method, desc, self, o
   end
 

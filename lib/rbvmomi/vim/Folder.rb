@@ -127,12 +127,12 @@ class RbVmomi::VIM::Folder
     propSpecs.each do |k,v|
       case k
       when Class
-        fail "key must be a subclass of ManagedEntity" unless k < RbVmomi::VIM::ManagedEntity
+        fail 'key must be a subclass of ManagedEntity' unless k < RbVmomi::VIM::ManagedEntity
         k = k.wsdl_name
       when Symbol, String
         k = k.to_s
       else
-        fail "invalid key"
+        fail 'invalid key'
       end
 
       h = { :type => k }
@@ -141,7 +141,7 @@ class RbVmomi::VIM::Folder
       elsif v.is_a? Array
         h[:pathSet] = v + %w(parent)
       else
-        fail "value must be an array of property paths or :all"
+        fail 'value must be an array of property paths or :all'
       end
       propSet << h
     end

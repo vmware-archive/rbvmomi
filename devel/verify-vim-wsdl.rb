@@ -2,10 +2,10 @@
 
 require 'active_support/core_ext/enumerable'
 require 'active_support/inflector'
-require "optimist"
-require "pathname"
-require "rbvmomi"
-require "wsdl/parser"
+require 'optimist'
+require 'pathname'
+require 'rbvmomi'
+require 'wsdl/parser'
 
 def parse_args(args)
   opts = Optimist.options do
@@ -14,16 +14,16 @@ def parse_args(args)
       verify-vim-wsdl.rb [path to wsdl] [path to vmodl.db]
     HELP
 
-    opt :fix, "Optionally fix the wsdl types in the vmodl.db", :type => :boolean, :default => false
+    opt :fix, 'Optionally fix the wsdl types in the vmodl.db', :type => :boolean, :default => false
   end
 
-  Optimist.die("You must provide a wsdl file and a vmodl file") if args.count < 2
+  Optimist.die('You must provide a wsdl file and a vmodl file') if args.count < 2
 
   wsdl_path = Pathname.new(args.shift).expand_path
-  Optimist.die("You must pass a path to a wsdl file") if !wsdl_path.exist?
+  Optimist.die('You must pass a path to a wsdl file') if !wsdl_path.exist?
 
   vmodl_path = Pathname.new(args.shift).expand_path
-  Optimist.die("You must pass a path to the vmodl.db file") if !vmodl_path.exist?
+  Optimist.die('You must pass a path to the vmodl.db file') if !vmodl_path.exist?
 
   return wsdl_path, vmodl_path, opts
 end
@@ -47,11 +47,11 @@ end
 # Normalize the type, some of these don't have RbVmomi equivalents such as xsd:long
 # and RbVmomi uses ManagedObjects not ManagedObjectReferences as parameters
 def wsdl_constantize(type)
-  type = type.split(":").last
-  type = "int"           if %w[long short byte].include?(type)
-  type = "float"         if type == "double"
-  type = "binary"        if type == "base64Binary"
-  type = "ManagedObject" if type == "ManagedObjectReference"
+  type = type.split(':').last
+  type = 'int'           if %w[long short byte].include?(type)
+  type = 'float'         if type == 'double'
+  type = 'binary'        if type == 'base64Binary'
+  type = 'ManagedObject' if type == 'ManagedObjectReference'
 
   type = type.camelcase
   type.safe_constantize || "RbVmomi::BasicTypes::#{type}".safe_constantize || "RbVmomi::VIM::#{type}".safe_constantize
@@ -79,11 +79,11 @@ vim.collect_complextypes.each do |type|
 
   # Loop through the properties defined in the vmodl.db for this type and
   # compare the type to that property as defined in the wsdl.
-  vmodl_data["props"].each do |vmodl_prop|
-    wsdl_prop = elements_by_name[vmodl_prop["name"]]
+  vmodl_data['props'].each do |vmodl_prop|
+    wsdl_prop = elements_by_name[vmodl_prop['name']]
     next if wsdl_prop.nil?
 
-    vmodl_klass = wsdl_constantize(vmodl_prop["wsdl_type"])
+    vmodl_klass = wsdl_constantize(vmodl_prop['wsdl_type'])
     wsdl_klass  = wsdl_constantize(wsdl_prop.type.source)
 
     # The vmodl class should be equal to or a subclass of the one in the wsdl.
@@ -91,7 +91,7 @@ vim.collect_complextypes.each do |type|
     # in the vmodl.db but it is a ManagedObjectReference in the wsdl.
     unless vmodl_klass <= wsdl_klass
       puts "#{type_name}.#{vmodl_prop["name"]} #{wsdl_klass.wsdl_name} doesn't match #{vmodl_klass.wsdl_name}"
-      vmodl_prop["wsdl_type"] = wsdl_klass.wsdl_name if options[:fix]
+      vmodl_prop['wsdl_type'] = wsdl_klass.wsdl_name if options[:fix]
     end
   end
 end

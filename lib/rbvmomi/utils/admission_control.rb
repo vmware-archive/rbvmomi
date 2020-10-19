@@ -223,7 +223,7 @@ class AdmissionControlledResourceScheduler
     # passed admission control. An exception is thrown if access was denied to 
     # all pods.
     if !@filtered_pods
-      log "Performing admission control:"
+      log 'Performing admission control:'
       @filtered_pods = self.pods.select do |pod|
         # Gather some statistics about the pod ...
         on_vms = pod_vms(pod).select{|k,v| v['runtime.powerState'] == 'poweredOn'}
@@ -240,7 +240,7 @@ class AdmissionControlledResourceScheduler
           ds_name = ds_props['name']
           free = ds_props['free_percent']
           free_gb = ds_props['summary'].freeSpace.to_f / 1024**3
-          free_str = "%.2f GB (%.2f%%)" % [free_gb, free]
+          free_str = '%.2f GB (%.2f%%)' % [free_gb, free]
           log "   Datastore #{ds_name}: #{free_str} free"
         end
         
@@ -263,7 +263,7 @@ class AdmissionControlledResourceScheduler
           end
           
           if low_list.length == pod_datastores.length
-            dsNames = low_list.map{|ds| @datastore_props[ds]['name']}.join(", ")
+            dsNames = low_list.map{|ds| @datastore_props[ds]['name']}.join(', ')
             err = "Datastores #{dsNames} below minimum free disk space (#{min_ds_free}%)"
             denied = true
           end
@@ -276,7 +276,7 @@ class AdmissionControlledResourceScheduler
             stats[:totalCPU] > 0 && stats[:totalMem] > 0
           end
           if !hosts_available
-            err = "No hosts are current available in this pod"
+            err = 'No hosts are current available in this pod'
             denied = true
           end
         end
@@ -284,7 +284,7 @@ class AdmissionControlledResourceScheduler
         if denied    
           log "   Admission DENIED: #{err}"
         else
-          log "   Admission granted"
+          log '   Admission granted'
         end
         
         !denied
@@ -295,7 +295,7 @@ class AdmissionControlledResourceScheduler
       if @service_docs_url
         log "Check #{@service_docs_url} to see which other Pods you may be able to use"
       end
-      fail "Admission denied"
+      fail 'Admission denied'
     end
     @filtered_pods
   end
@@ -324,7 +324,7 @@ class AdmissionControlledResourceScheduler
       end
     
       if !computer 
-        fail "No clusters available, should have been prevented by admission control"
+        fail 'No clusters available, should have been prevented by admission control'
       end
       @computer = computer
     end

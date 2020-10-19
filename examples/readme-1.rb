@@ -29,10 +29,10 @@ Other options:
   EOS
 end
 
-Optimist.die("must specify host") unless opts[:host]
-vm_name = ARGV[0] or abort "must specify VM name"
+Optimist.die('must specify host') unless opts[:host]
+vm_name = ARGV[0] or abort 'must specify VM name'
 
 vim = RbVmomi::VIM.connect opts
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or fail "datacenter not found"
-vm = dc.find_vm(vm_name) or fail "VM not found"
+dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or fail 'datacenter not found'
+vm = dc.find_vm(vm_name) or fail 'VM not found'
 vm.PowerOnVM_Task.wait_for_completion

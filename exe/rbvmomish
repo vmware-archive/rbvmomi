@@ -45,7 +45,7 @@ rescue Errno::EHOSTUNREACH
 end
 
 typenames = VIM.loader.typenames
-Readline.completion_append_character = " "
+Readline.completion_append_character = ' '
 Readline.completion_proc = lambda do |word|
   return unless word
   prefix_regex = /^#{Regexp.escape(word)}/
@@ -68,12 +68,12 @@ def type name
   elsif klass < VIM::ManagedObject
     puts "Managed Object #{klass}"
     puts
-    puts "Properties:"
+    puts 'Properties:'
     klass.full_props_desc.each do |desc|
       puts " #{desc['name']}: #{q[desc['wsdl_type']]}#{desc['is-array'] ? '[]' : ''}"
     end
     puts
-    puts "Methods:"
+    puts 'Methods:'
     klass.full_methods_desc.sort_by(&:first).each do |name,desc|
       params = desc['params']
       puts " #{name}(#{params.map { |x| "#{x['name']} : #{q[x['wsdl_type'] || 'void']}#{x['is-array'] ? '[]' : ''}" } * ', '}) : #{q[desc['result']['wsdl_type'] || 'void']}"

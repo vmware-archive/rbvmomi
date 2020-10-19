@@ -29,14 +29,14 @@ VM location options:
     rbvmomi_datacenter_opt
 end
 
-Optimist.die("must specify host") unless opts[:host]
-ARGV.size == 2 or abort "must specify VM name and disk unit number"
+Optimist.die('must specify host') unless opts[:host]
+ARGV.size == 2 or abort 'must specify VM name and disk unit number'
 vm_name          = ARGV[0]
 disk_unit_number = ARGV[1].to_i
 
 vim = VIM.connect opts
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
-vm = dc.find_vm(vm_name) or abort "VM not found"
+dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter not found'
+vm = dc.find_vm(vm_name) or abort 'VM not found'
 
 disk = vm.config.hardware.device.detect do |device|
   device.kind_of?(VIM::VirtualDisk) && device.unitNumber == disk_unit_number

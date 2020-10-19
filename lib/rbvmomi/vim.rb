@@ -23,7 +23,7 @@ class VIM < Connection
   # @option opts [RbVmomi::SSO] :sso (nil) Use SSO token to login if set
   def self.connect opts
     fail unless opts.is_a? Hash
-    fail "host option required" unless opts[:host]
+    fail 'host option required' unless opts[:host]
     opts[:cookie] ||= nil
     opts[:user] ||= 'root'
     opts[:password] ||= ''
@@ -129,10 +129,10 @@ class VIM < Connection
     keys
   end
 
-  add_extension_dir File.join(File.dirname(__FILE__), "vim")
+  add_extension_dir File.join(File.dirname(__FILE__), 'vim')
   (ENV['RBVMOMI_VIM_EXTENSION_PATH']||'').split(':').each { |dir| add_extension_dir dir }
 
-  load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), "../../vmodl.db"))
+  load_vmodl(ENV['VMODL'] || File.join(File.dirname(__FILE__), '../../vmodl.db'))
 end
 
 end

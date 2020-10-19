@@ -4,7 +4,7 @@
 require 'test_helper'
 
 class EmitRequestTest < Test::Unit::TestCase
-  MO = VIM::VirtualMachine(nil, "foo")
+  MO = VIM::VirtualMachine(nil, 'foo')
 
   def check desc, str, this, params
     soap = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
@@ -14,10 +14,10 @@ class EmitRequestTest < Test::Unit::TestCase
     begin
       assert_equal str, xml.target!
     rescue Test::Unit::AssertionFailedError
-      puts "expected:"
+      puts 'expected:'
       puts str
       puts
-      puts "got:"
+      puts 'got:'
       puts xml.target!
       puts
       raise

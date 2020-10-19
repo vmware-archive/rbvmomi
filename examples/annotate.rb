@@ -38,20 +38,20 @@ Other options:
   stop_on CMDS
 end
 
-vm_name = ARGV[0] or Optimist.die("no VM name given")
-cmd = ARGV[1] or Optimist.die("no command given")
-abort "invalid command" unless CMDS.member? cmd
-Optimist.die("must specify host") unless opts[:host]
+vm_name = ARGV[0] or Optimist.die('no VM name given')
+cmd = ARGV[1] or Optimist.die('no command given')
+abort 'invalid command' unless CMDS.member? cmd
+Optimist.die('must specify host') unless opts[:host]
 
 vim = VIM.connect opts
 
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
-vm = dc.find_vm(vm_name) or abort "VM not found"
+dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter not found'
+vm = dc.find_vm(vm_name) or abort 'VM not found'
 
 case cmd
 when 'get'
   puts vm.config.annotation
 when 'set'
-  value = ARGV[2] or Optimist.die("no annotation given")
+  value = ARGV[2] or Optimist.die('no annotation given')
   vm.ReconfigVM_Task(:spec => VIM.VirtualMachineConfigSpec(:annotation => value)).wait_for_completion
 end

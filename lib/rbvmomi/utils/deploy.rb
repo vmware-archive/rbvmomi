@@ -62,15 +62,15 @@ class CachedOvfDeployer
   # @param enabled [Boolean] If false, this function is a no-op
   def _run_without_interruptions enabled
     if enabled
-      int_handler = Signal.trap("SIGINT", 'IGNORE')
-      term_handler = Signal.trap("SIGTERM", 'IGNORE')
+      int_handler = Signal.trap('SIGINT', 'IGNORE')
+      term_handler = Signal.trap('SIGTERM', 'IGNORE')
     end
     
     yield
     
     if enabled
-      Signal.trap("SIGINT", int_handler)
-      Signal.trap("SIGTERM", term_handler)
+      Signal.trap('SIGINT', int_handler)
+      Signal.trap('SIGTERM', term_handler)
     end
   end
   
@@ -107,7 +107,7 @@ class CachedOvfDeployer
 
     # If we're handling a file:// URI we need to strip the scheme as open-uri
     # can't handle them.
-    if URI(ovf_url).scheme == "file" && URI(ovf_url).host.nil?
+    if URI(ovf_url).scheme == 'file' && URI(ovf_url).host.nil?
       ovf_url = URI(ovf_url).path
     end
 
@@ -138,7 +138,7 @@ class CachedOvfDeployer
       is_connected && is_ds_accessible && !host_props['runtime.inMaintenanceMode']
     end
     if !host
-      fail "No host in the cluster available to upload OVF to"
+      fail 'No host in the cluster available to upload OVF to'
     end
     
     log "Uploading OVF to #{hosts_props[host]['name']}..."
@@ -200,9 +200,9 @@ class CachedOvfDeployer
     # The losing thread now needs to wait for the winning thread to finish
     # uploading and preparing the template
     if wait_for_template
-      log "Template already exists, waiting for it to be ready"
+      log 'Template already exists, waiting for it to be ready'
       vm = _wait_for_template_ready @template_folder, vm_name
-      log "Template fully prepared and ready to be cloned"
+      log 'Template fully prepared and ready to be cloned'
     end
     
     vm
@@ -301,11 +301,11 @@ class CachedOvfDeployer
       # XXX: Optimize this
       vm = vm_folder.children.find{|x| x.name == vm_name}
     end
-    log "Template VM found"
+    log 'Template VM found'
     sleep 2
     while true
       runtime, template = vm.collect 'runtime', 'config.template'
-      ready = runtime && runtime.host && runtime.powerState == "poweredOff"
+      ready = runtime && runtime.host && runtime.powerState == 'poweredOff'
       ready = ready && template
       if ready
         break

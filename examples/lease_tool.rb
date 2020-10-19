@@ -39,18 +39,18 @@ VM location options:
 Other options:
   EOS
 
-  opt :vm_folder_path, "Path to VM folder to deploy VM into", :type => :string
-  opt :force, "Really perform VMs. Used with kill_expired_vms"
+  opt :vm_folder_path, 'Path to VM folder to deploy VM into', :type => :string
+  opt :force, 'Really perform VMs. Used with kill_expired_vms'
 
   stop_on CMDS
 end
 
-Optimist.die("must specify host") unless opts[:host]
-cmd = ARGV[0] or Optimist.die("no command given")
-Optimist.die("no vm folder path given") unless opts[:vm_folder_path]
+Optimist.die('must specify host') unless opts[:host]
+cmd = ARGV[0] or Optimist.die('no command given')
+Optimist.die('no vm folder path given') unless opts[:vm_folder_path]
 
 vim = VIM.connect opts
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
+dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter not found'
 
 root_vm_folder = dc.vmFolder
 vm_folder = root_vm_folder.traverse(opts[:vm_folder_path], VIM::Folder)
@@ -102,5 +102,5 @@ when 'show_soon_expired_vms'
     end
   end  
 else
-  abort "invalid command"
+  abort 'invalid command'
 end

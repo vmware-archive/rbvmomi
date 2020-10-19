@@ -201,7 +201,7 @@ class PerfAggregator
     end
     parent = objs[obj['parent']]
     _compute_vmfolder_and_rp_path_and_parents(vc, parent, objs)
-    obj['path'] = "%s/%s" % [parent['path'], obj['name']]
+    obj['path'] = '%s/%s' % [parent['path'], obj['name']]
     obj['parents'] = [obj['parent']] + parent['parents']
     nil
   end
@@ -348,7 +348,7 @@ class PerfAggregator
     vc_uuid = conn.instanceUuid
   
     connected_vms = vms_props.select do |vm, props| 
-      is_connected = props['runtime.connectionState'] != "disconnected"
+      is_connected = props['runtime.connectionState'] != 'disconnected'
       is_template = props['config.template']
       is_connected && !is_template
     end.keys
@@ -372,7 +372,7 @@ class PerfAggregator
     end
 
     connected_hosts = hosts_props.select do |k,v| 
-      v['runtime.connectionState'] != "disconnected"
+      v['runtime.connectionState'] != 'disconnected'
     end
     if connected_hosts.length > 0
       hosts_stats = pm.retrieve_stats(
@@ -440,7 +440,7 @@ class PerfAggregator
   end
   
   def collect_info_on_all_vms root_folders, opts = {}
-    log "Fetching information from all VCs ..." 
+    log 'Fetching information from all VCs ...' 
     vms_props = {}
     hosts_props = {}
     inventory = {}
@@ -469,17 +469,17 @@ class PerfAggregator
       end
     end.each{|t| t.join}
 
-    log "Make data marshal friendly ..." 
+    log 'Make data marshal friendly ...' 
     inventory = _make_marshal_friendly(inventory)
     vms_props = _make_marshal_friendly(vms_props)
     hosts_props = _make_marshal_friendly(hosts_props)
 
-    log "Perform external post processing ..." 
+    log 'Perform external post processing ...' 
     if @vm_processing_callback
       @vm_processing_callback.call(self, vms_props, inventory)
     end
     
-    log "Perform data aggregation ..." 
+    log 'Perform data aggregation ...' 
     # Processing the annotations may have added new nodes to the 
     # inventory list, hence we need to run _compute_parents_and_children
     # again to calculate the parents and children for the newly
@@ -492,7 +492,7 @@ class PerfAggregator
     path_types = opts[:path_types] || @path_types
     inventory = _aggregate_vms path_types, vms_props, inventory
     
-    log "Done collecting and aggregating stats"
+    log 'Done collecting and aggregating stats'
 
     @inventory = inventory
     @vms_props = vms_props
@@ -566,7 +566,7 @@ class PerfAggregator
         while parent_path
           parent = index[parent_path]
           if !parent
-            puts "Parent is nil, so dumping some stuff"
+            puts 'Parent is nil, so dumping some stuff'
             puts path_type
             puts "parent path: #{parent_path}"
             pp index.keys
@@ -601,7 +601,7 @@ class PerfAggregator
         indent, name, stats = row
         puts "#{'  ' * indent}#{name}: #{stats['num.vm']}"
       end
-      puts ""
+      puts ''
     end
   end
 

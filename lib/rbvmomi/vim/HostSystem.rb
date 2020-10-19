@@ -16,10 +16,10 @@ class VIM::HostSystem
           if summary.config.product.version < '5.0.0' and direct?
             VIM::InternalDynamicTypeManager(_connection, 'ha-dynamic-type-manager')
           else
-            raise "esxcli not supported through VC before 5.0.0"
+            raise 'esxcli not supported through VC before 5.0.0'
           end
         else
-          raise "esxcli not supported before 4.1.0"
+          raise 'esxcli not supported before 4.1.0'
         end
       end
   end
@@ -106,7 +106,7 @@ class VIM::EsxcliNamespace
         @host.cli_info_fetcher.VimCLIInfoFetchCLIInfo(:typeName => type_name)
       else
         @host.mme.execute(@host.cli_info_fetcher._ref,
-                          "vim.CLIInfo.FetchCLIInfo", :typeName => type_name)
+                          'vim.CLIInfo.FetchCLIInfo', :typeName => type_name)
       end
   end
 

@@ -58,45 +58,45 @@ if true
   new_libxml_result = RbVmomi::NewDeserializer.new($conn).deserialize libxml_xml
 
   if new_nokogiri_result != old_nokogiri_result
-    puts "new_nokogiri_result doesnt match old_nokogiri_result"
-    puts "old_nokogiri_result:"
+    puts 'new_nokogiri_result doesnt match old_nokogiri_result'
+    puts 'old_nokogiri_result:'
     pp old_nokogiri_result
-    puts "new_nokogiri_result:"
+    puts 'new_nokogiri_result:'
     pp new_nokogiri_result
-    puts "diff:"
+    puts 'diff:'
     diff old_nokogiri_result, new_nokogiri_result
     exit 1
   end
 
   if new_libxml_result != old_nokogiri_result
-    puts "new_libxml_result doesnt match old_nokogiri_result"
-    puts "old_nokogiri_result:"
+    puts 'new_libxml_result doesnt match old_nokogiri_result'
+    puts 'old_nokogiri_result:'
     pp old_nokogiri_result
-    puts "new_libxml_result:"
+    puts 'new_libxml_result:'
     pp new_libxml_result
-    puts "diff:"
+    puts 'diff:'
     diff old_nokogiri_result, new_libxml_result
     exit 1
   end
 
-  puts "all results match"
+  puts 'all results match'
 end
 
 Benchmark.bmbm do|b|
   GC.start
-  b.report("nokogiri parsing") do
+  b.report('nokogiri parsing') do
     N.times { Nokogiri::XML(raw) }
   end
   
   GC.start
-  b.report("libxml parsing") do
+  b.report('libxml parsing') do
     N.times do
       LibXML::XML::Parser.string(raw).parse
     end
   end
   
   GC.start
-  b.report("old deserialization (nokogiri)") do
+  b.report('old deserialization (nokogiri)') do
     deserializer = RbVmomi::OldDeserializer.new($conn)
     N.times do
       deserializer.deserialize Nokogiri::XML(raw).root
@@ -104,7 +104,7 @@ Benchmark.bmbm do|b|
   end
 
   GC.start
-  b.report("new deserialization (nokogiri)") do
+  b.report('new deserialization (nokogiri)') do
     deserializer = RbVmomi::NewDeserializer.new($conn)
     N.times do
       deserializer.deserialize Nokogiri::XML(raw).root
@@ -112,7 +112,7 @@ Benchmark.bmbm do|b|
   end
 
   GC.start
-  b.report("new deserialization (libxml)") do
+  b.report('new deserialization (libxml)') do
     deserializer = RbVmomi::NewDeserializer.new($conn)
     N.times do
       deserializer.deserialize LibXML::XML::Parser.string(raw).parse.root

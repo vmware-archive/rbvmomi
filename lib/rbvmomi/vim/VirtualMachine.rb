@@ -18,7 +18,7 @@ class RbVmomi::VIM::VirtualMachine
   # @return [String] Current IP reported (as per VMware Tools) or nil
   def guest_ip
     g = self.guest
-    if g.ipAddress && (g.toolsStatus == "toolsOk" || g.toolsStatus == "toolsOld")
+    if g.ipAddress && (g.toolsStatus == 'toolsOk' || g.toolsStatus == 'toolsOld')
       g.ipAddress
     else
       nil

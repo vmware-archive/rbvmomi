@@ -25,8 +25,8 @@ class Connection < TrivialSoap
   attr_reader :deserializer
 
   def initialize opts
-    @ns = opts[:ns] or fail "no namespace specified"
-    @rev = opts[:rev] or fail "no revision specified"
+    @ns = opts[:ns] or fail 'no namespace specified'
+    @rev = opts[:rev] or fail 'no revision specified'
     @deserializer = Deserializer.new self
     reset_profiling
     @profiling = false
@@ -76,8 +76,8 @@ class Connection < TrivialSoap
   end
 
   def call method, desc, this, params
-    fail "this is not a managed object" unless this.is_a? BasicTypes::ManagedObject
-    fail "parameters must be passed as a hash" unless params.is_a? Hash
+    fail 'this is not a managed object' unless this.is_a? BasicTypes::ManagedObject
+    fail 'parameters must be passed as a hash' unless params.is_a? Hash
     fail unless desc.is_a? Hash
 
     t1 = Time.now
@@ -140,7 +140,7 @@ class Connection < TrivialSoap
       if expected and not expected >= o.class and not expected == BasicTypes::AnyType
         fail "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}"
       end
-      xml.tag! name, attrs.merge("xsi:type" => o.class.wsdl_name) do
+      xml.tag! name, attrs.merge('xsi:type' => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
           if o.props.member? desc['name'].to_sym
             v = o.props[desc['name'].to_sym]
@@ -165,7 +165,7 @@ class Connection < TrivialSoap
     when Symbol, String
       if expected == BasicTypes::Binary
         attrs['xsi:type'] = 'xsd:base64Binary' if expected == BasicTypes::AnyType
-        xml.tag! name, [o].pack('m').chomp.gsub("\n", ""), attrs
+        xml.tag! name, [o].pack('m').chomp.gsub("\n", ''), attrs
       else
         attrs['xsi:type'] = 'xsd:string' if expected == BasicTypes::AnyType
         xml.tag! name, o.to_s, attrs
@@ -209,7 +209,7 @@ class Connection < TrivialSoap
     else
       first_char = name[0].chr
       if first_char.downcase == first_char
-        name = "%s%s" % [first_char.upcase, name[1..-1]]
+        name = '%s%s' % [first_char.upcase, name[1..-1]]
       end
 
       if @loader.has? name

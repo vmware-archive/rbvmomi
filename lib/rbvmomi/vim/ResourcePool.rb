@@ -31,12 +31,12 @@ class RbVmomi::VIM::ResourcePool
           :obj => obj,
           :selectSet => [
             RbVmomi::VIM.TraversalSpec(
-              :name => "tsRP",
+              :name => 'tsRP',
               :type => 'ResourcePool',
               :path => 'resourcePool',
               :skip => false,
               :selectSet => [
-                RbVmomi::VIM.SelectionSpec(:name => "tsRP")
+                RbVmomi::VIM.SelectionSpec(:name => 'tsRP')
               ]
             )
           ]

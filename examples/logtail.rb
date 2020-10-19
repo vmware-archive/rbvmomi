@@ -29,14 +29,14 @@ Other options:
   EOS
 end
 
-Optimist.die("must specify host") unless opts[:host]
+Optimist.die('must specify host') unless opts[:host]
 logKey = ARGV[0]
 
 vim = VIM.connect opts
 diagMgr = vim.serviceContent.diagnosticManager
 
 if not logKey
-  puts "Available logs:"
+  puts 'Available logs:'
   diagMgr.QueryDescriptions.each do |desc|
     puts "#{desc.key}: #{desc.info.label}"
   end

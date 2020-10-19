@@ -2,4 +2,8 @@
 AllCops:
   DisabledByDefault: true
 
+Style/StringLiterals:
+  EnforcedStyle: single_quotes
+  Enabled: true
+
 # inherit_from: .rubocop_todo.yml

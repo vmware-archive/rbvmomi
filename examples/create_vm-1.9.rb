@@ -34,11 +34,11 @@ Other options:
   EOS
 end
 
-Optimist.die("must specify host") unless opts[:host]
-vm_name = ARGV[0] or abort "must specify VM name"
+Optimist.die('must specify host') unless opts[:host]
+vm_name = ARGV[0] or abort 'must specify VM name'
 
 vim = VIM.connect opts
-dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort "datacenter not found"
+dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter not found'
 vmFolder = dc.vmFolder
 hosts = dc.hostFolder.children
 rp = hosts.first.resourcePool
