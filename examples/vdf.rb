@@ -19,18 +19,18 @@ opts = Optimist.options do
     VIM connection options:
     EOS
 
-    rbvmomi_connection_opts
+  rbvmomi_connection_opts
 
-    text <<~EOS
-      
-      Datacenter selection:
+  text <<~EOS
+    
+    Datacenter selection:
     EOS
 
-    rbvmomi_datacenter_opt
+  rbvmomi_datacenter_opt
 
-    text <<~EOS
-      
-      Other options:
+  text <<~EOS
+    
+    Other options:
     EOS
 end
 
