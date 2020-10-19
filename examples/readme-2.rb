@@ -5,28 +5,28 @@ require 'rbvmomi'
 require 'rbvmomi/optimist'
 
 opts = Optimist.options do
-  banner <<-EOS
-Example 2 from the README: Power on a VM the hard way.
-
-Usage:
-    readme-2.rb [options] VM name
-
-VIM connection options:
+  banner <<~EOS
+    Example 2 from the README: Power on a VM the hard way.
+    
+    Usage:
+        readme-2.rb [options] VM name
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-VM location options:
+    text <<~EOS
+      
+      VM location options:
     EOS
 
     rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 end
 
 Optimist.die('must specify host') unless opts[:host]

@@ -132,11 +132,6 @@ Layout/FirstHashElementIndentation:
 Layout/HashAlignment:
   Enabled: false
 
-# Offense count: 100
-# Cop supports --auto-correct.
-Layout/HeredocIndentation:
-  Enabled: false
-
 # Offense count: 70
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle.

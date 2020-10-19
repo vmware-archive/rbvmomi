@@ -14,30 +14,30 @@ CMDS = ['set_lease_on_leaseless_vms', 'show_expired_vms',
         'show_soon_expired_vms', 'kill_expired_vms']
 
 opts = Optimist.options do
-  banner <<-EOS
-Tool for managing leases on VMs where leases are stored in YAML on VM annotations.
-
-Usage:
-    lease_tool.rb [options] <cmd>
-
-Commands: #{CMDS * ' '}
-
-VIM connection options:
+  banner <<~EOS
+    Tool for managing leases on VMs where leases are stored in YAML on VM annotations.
+    
+    Usage:
+        lease_tool.rb [options] <cmd>
+    
+    Commands: #{CMDS * ' '}
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-VM location options:
+    text <<~EOS
+      
+      VM location options:
     EOS
 
     rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 
   opt :vm_folder_path, 'Path to VM folder to deploy VM into', :type => :string
   opt :force, 'Really perform VMs. Used with kill_expired_vms'

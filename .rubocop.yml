@@ -9,4 +9,7 @@ Style/StringLiterals:
 Layout/TrailingWhitespace:
   Enabled: true
 
+Layout/HeredocIndentation:
+  Enabled: true
+
 # inherit_from: .rubocop_todo.yml

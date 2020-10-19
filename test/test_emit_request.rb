@@ -34,13 +34,13 @@ class EmitRequestTest < Test::Unit::TestCase
       }
     ]
 
-    check desc, <<-EOS, MO, :blah => ['a', 'b', 'c']
-<root xmlns="urn:vim25">
-  <_this type="VirtualMachine">foo</_this>
-  <blah>a</blah>
-  <blah>b</blah>
-  <blah>c</blah>
-</root>
+    check desc, <<~EOS, MO, :blah => ['a', 'b', 'c']
+      <root xmlns="urn:vim25">
+        <_this type="VirtualMachine">foo</_this>
+        <blah>a</blah>
+        <blah>b</blah>
+        <blah>c</blah>
+      </root>
     EOS
   end
 
@@ -54,18 +54,18 @@ class EmitRequestTest < Test::Unit::TestCase
       }
     ]
 
-    check desc, <<-EOS, MO, :blah => 'a'
-<root xmlns="urn:vim25">
-  <_this type="VirtualMachine">foo</_this>
-  <blah>a</blah>
-</root>
+    check desc, <<~EOS, MO, :blah => 'a'
+      <root xmlns="urn:vim25">
+        <_this type="VirtualMachine">foo</_this>
+        <blah>a</blah>
+      </root>
     EOS
 
     assert_raise RuntimeError do
-      check desc, <<-EOS, MO, {}
-<root xmlns="urn:vim25">
-  <_this type="VirtualMachine">foo</_this>
-</root>
+      check desc, <<~EOS, MO, {}
+        <root xmlns="urn:vim25">
+          <_this type="VirtualMachine">foo</_this>
+        </root>
       EOS
     end
   end
@@ -80,10 +80,10 @@ class EmitRequestTest < Test::Unit::TestCase
       }
     ]
 
-    check desc, <<-EOS, MO, {}
-<root xmlns="urn:vim25">
-  <_this type="VirtualMachine">foo</_this>
-</root>
+    check desc, <<~EOS, MO, {}
+      <root xmlns="urn:vim25">
+        <_this type="VirtualMachine">foo</_this>
+      </root>
     EOS
   end
 
@@ -97,10 +97,10 @@ class EmitRequestTest < Test::Unit::TestCase
       }
     ]
 
-    check desc, <<-EOS, MO, :blah => nil
-<root xmlns="urn:vim25">
-  <_this type="VirtualMachine">foo</_this>
-</root>
+    check desc, <<~EOS, MO, :blah => nil
+      <root xmlns="urn:vim25">
+        <_this type="VirtualMachine">foo</_this>
+      </root>
     EOS
   end
 
@@ -114,11 +114,11 @@ class EmitRequestTest < Test::Unit::TestCase
       }
     ]
 
-    check desc, <<-EOS, MO, 'blah' => 'a'
-<root xmlns="urn:vim25">
-  <_this type="VirtualMachine">foo</_this>
-  <blah>a</blah>
-</root>
+    check desc, <<~EOS, MO, 'blah' => 'a'
+      <root xmlns="urn:vim25">
+        <_this type="VirtualMachine">foo</_this>
+        <blah>a</blah>
+      </root>
     EOS
   end
 

@@ -9,31 +9,31 @@ VIM = RbVmomi::VIM
 CMDS = %w(get set)
 
 opts = Optimist.options do
-  banner <<-EOS
-Annotate a VM.
-
-Usage:
-    annotate.rb [options] VM get
-    annotate.rb [options] VM set annotation
-
-Commands: #{CMDS * ' '}
-
-VIM connection options:
+  banner <<~EOS
+    Annotate a VM.
+    
+    Usage:
+        annotate.rb [options] VM get
+        annotate.rb [options] VM set annotation
+    
+    Commands: #{CMDS * ' '}
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-VM location options:
+    text <<~EOS
+      
+      VM location options:
     EOS
 
     rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 
   stop_on CMDS
 end

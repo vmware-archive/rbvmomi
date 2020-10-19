@@ -10,23 +10,23 @@ VIM = RbVmomi::VIM
 DEFAULT_SERVER_PLACEHOLDER = '0.0.0.0'
 
 opts = Optimist.options do
-  banner <<-EOS
-Generate and retrieve a log bundle.
-
-Usage:
-    logbundle.rb [options] dest
-
-dest must be a directory.
-
-VIM connection options:
+  banner <<~EOS
+    Generate and retrieve a log bundle.
+    
+    Usage:
+        logbundle.rb [options] dest
+    
+    dest must be a directory.
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 end
 
 Optimist.die('must specify host') unless opts[:host]

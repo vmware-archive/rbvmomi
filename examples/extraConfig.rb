@@ -9,31 +9,31 @@ VIM = RbVmomi::VIM
 CMDS = %w(list set)
 
 opts = Optimist.options do
-  banner <<-EOS
-View and modify VM extraConfig options.
-
-Usage:
-    extraConfig.rb [options] VM list
-    extraConfig.rb [options] VM set key=value [key=value...]
-
-Commands: #{CMDS * ' '}
-
-VIM connection options:
+  banner <<~EOS
+    View and modify VM extraConfig options.
+    
+    Usage:
+        extraConfig.rb [options] VM list
+        extraConfig.rb [options] VM set key=value [key=value...]
+    
+    Commands: #{CMDS * ' '}
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-VM location options:
+    text <<~EOS
+      
+      VM location options:
     EOS
 
     rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 
   stop_on CMDS
 end

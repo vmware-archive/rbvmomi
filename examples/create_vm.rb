@@ -10,28 +10,28 @@ require 'rbvmomi/optimist'
 VIM = RbVmomi::VIM
 
 opts = Optimist.options do
-  banner <<-EOS
-Create a VM.
-
-Usage:
-    create_vm.rb [options]
-
-VIM connection options:
+  banner <<~EOS
+    Create a VM.
+    
+    Usage:
+        create_vm.rb [options]
+    
+    VIM connection options:
     EOS
 
     rbvmomi_connection_opts
 
-    text <<-EOS
-
-VM location options:
+    text <<~EOS
+      
+      VM location options:
     EOS
 
     rbvmomi_datacenter_opt
 
-    text <<-EOS
-
-Other options:
-  EOS
+    text <<~EOS
+      
+      Other options:
+    EOS
 end
 
 Optimist.die('must specify host') unless opts[:host]
