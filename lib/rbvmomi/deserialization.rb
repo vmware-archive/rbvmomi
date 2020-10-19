@@ -34,9 +34,7 @@ class NewDeserializer
   }
 
   BUILTIN_TYPE_ACTIONS.dup.each do |k,v|
-    if k =~ /^xsd:/
-      BUILTIN_TYPE_ACTIONS[$'] = v
-    end
+    BUILTIN_TYPE_ACTIONS[$'] = v if k =~ /^xsd:/
   end
 
   def initialize conn
@@ -49,9 +47,7 @@ class NewDeserializer
 
     # Work around for 1.5.x which doesn't populate node['type']
     # XXX what changed
-    if node.attributes['type'] and not type_attr
-      type_attr = node.attributes['type'].value
-    end
+    type_attr = node.attributes['type'].value if node.attributes['type'] and not type_attr
 
     type = type_attr if type_attr
 
@@ -74,16 +70,12 @@ class NewDeserializer
       else raise
       end
     else
-      if type =~ /:/
-        type = type.split(':', 2)[1]
-      end
+      type = type.split(':', 2)[1] if type =~ /:/
       if type =~ /^ArrayOf/
         type = DEMANGLED_ARRAY_TYPES[$'] || $'
         return node.children.select(&:element?).map { |c| deserialize c, type }
       end
-      if type =~ /:/
-        type = type.split(':', 2)[1]
-      end
+      type = type.split(':', 2)[1] if type =~ /:/
 
       klass = @loader.get(type) or raise "no such type '#{type}'"
       case klass.kind

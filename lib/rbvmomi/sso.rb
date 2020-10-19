@@ -215,18 +215,12 @@ module RbVmomi
 
     def load_x509(private_key, certificate)
       @private_key = private_key ? private_key : OpenSSL::PKey::RSA.new(2048)
-      if @private_key.is_a? String
-        @private_key = OpenSSL::PKey::RSA.new(@private_key)
-      end
+      @private_key = OpenSSL::PKey::RSA.new(@private_key) if @private_key.is_a? String
 
       @certificate = certificate
-      if @certificate && !private_key
-        raise(ArgumentError, "Can't generate private key from a certificate")
-      end
+      raise(ArgumentError, "Can't generate private key from a certificate") if @certificate && !private_key
 
-      if @certificate.is_a? String
-        @certificate = OpenSSL::X509::Certificate.new(@certificate)
-      end
+      @certificate = OpenSSL::X509::Certificate.new(@certificate) if @certificate.is_a? String
       # If only a private key is specified, we will generate a certificate.
       unless @certificate
         timestamp = Time.now.utc

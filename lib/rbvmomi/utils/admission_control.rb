@@ -86,9 +86,7 @@ class AdmissionControlledResourceScheduler
     retries = 1
     begin
       @vm_folder ||= datacenter.vmFolder.traverse!(@vm_folder_path, RbVmomi::VIM::Folder)
-      if !@vm_folder
-        raise "VM folder #{@vm_folder_path} not found"
-      end
+      raise "VM folder #{@vm_folder_path} not found" if !@vm_folder
     rescue RbVmomi::Fault => fault
       if !fault.fault.is_a?(RbVmomi::VIM::DuplicateName)
         raise
@@ -106,9 +104,7 @@ class AdmissionControlledResourceScheduler
   def datacenter
     if !@datacenter
       @datacenter = @root_folder.traverse(@datacenter_path, RbVmomi::VIM::Datacenter)
-      if !@datacenter
-        raise "datacenter #{@datacenter_path} not found"
-      end
+      raise "datacenter #{@datacenter_path} not found" if !@datacenter
     end
     @datacenter
   end
@@ -121,15 +117,11 @@ class AdmissionControlledResourceScheduler
     if !@datastores
       @datastores = @datastore_paths.map do |path|
         ds = datacenter.datastoreFolder.traverse(path, RbVmomi::VIM::Datastore)
-        if !ds
-          raise "datastore #{path} not found"
-        end
+        raise "datastore #{path} not found" if !ds
         ds
       end
     end
-    if !@datastore_props
-      @datastore_props = @pc.collectMultiple(@datastores, 'summary', 'name')
-    end
+    @datastore_props = @pc.collectMultiple(@datastores, 'summary', 'name') if !@datastore_props
     @datastores
   end
 
@@ -293,9 +285,7 @@ class AdmissionControlledResourceScheduler
     end
     if @filtered_pods.length == 0
       log "Couldn't find any Pod with enough resources."
-      if @service_docs_url
-        log "Check #{@service_docs_url} to see which other Pods you may be able to use"
-      end
+      log "Check #{@service_docs_url} to see which other Pods you may be able to use" if @service_docs_url
       raise 'Admission denied'
     end
     @filtered_pods
@@ -315,18 +305,14 @@ class AdmissionControlledResourceScheduler
       end
       computer = nil
       if placementhint
-        if eligible.length > 0
-          computer = eligible.map{|x| x[0]}[placementhint % eligible.length]
-        end
+        computer = eligible.map{|x| x[0]}[placementhint % eligible.length] if eligible.length > 0
       else
         computer, = eligible.min_by do |computer,stats|
           2**(stats[:usedCPU].to_f/stats[:totalCPU]) + (stats[:usedMem].to_f/stats[:totalMem])
         end
       end
 
-      if !computer
-        raise 'No clusters available, should have been prevented by admission control'
-      end
+      raise 'No clusters available, should have been prevented by admission control' if !computer
       @computer = computer
     end
     @computer
@@ -336,9 +322,7 @@ class AdmissionControlledResourceScheduler
   # datastore without much intelligence, as long as it passes admission control.
   # @return [RbVmomi::VIM::Datastore] Chosen datastore
   def datastore placementHint = nil
-    if @datastore
-      return @datastore
-    end
+    return @datastore if @datastore
 
     pod_datastores = pick_computer.datastore & datastores
 
@@ -353,9 +337,7 @@ class AdmissionControlledResourceScheduler
       end
     end
 
-    if eligible.length == 0
-      raise "Couldn't find any eligible datastore. Admission control should have prevented this"
-    end
+    raise "Couldn't find any eligible datastore. Admission control should have prevented this" if eligible.length == 0
 
     if placementHint && placementHint > 0
       @datastore = eligible[placementHint % eligible.length]
@@ -374,9 +356,7 @@ class AdmissionControlledResourceScheduler
     log "Selected compute resource: #{@computer.name}"
 
     @rp = @computer.resourcePool.traverse(@rp_path)
-    if !@rp
-      raise "Resource pool #{@rp_path} not found"
-    end
+    raise "Resource pool #{@rp_path} not found" if !@rp
     log "Resource pool: #{@rp.pretty_path}"
 
     stats = @computer.stats

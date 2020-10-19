@@ -58,9 +58,7 @@ class TypeLoader
     raise "name '#{name}' is #{name.class} expecting String" unless name.is_a? String
 
     first_char = name[0].chr
-    if first_char.downcase == first_char
-      name = '%s%s' % [first_char.upcase, name[1..-1]]
-    end
+    name = '%s%s' % [first_char.upcase, name[1..-1]] if first_char.downcase == first_char
 
     return @loaded[name] if @loaded.member? name
     @lock.synchronize do
@@ -76,13 +74,9 @@ class TypeLoader
     @lock.synchronize do
       @db.merge! types
       @db = Hash[@db.map do |name, value|
-        if value
-          value['wsdl_name'] ||= name
-        end
+        value['wsdl_name'] ||= name if value
         first_char = name[0].chr
-        if first_char.downcase == first_char
-          name = '%s%s' % [first_char.upcase, name[1..-1]]
-        end
+        name = '%s%s' % [first_char.upcase, name[1..-1]] if first_char.downcase == first_char
         [name, value]
       end]
     end

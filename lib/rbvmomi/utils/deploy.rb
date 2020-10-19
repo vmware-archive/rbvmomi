@@ -96,9 +96,7 @@ class CachedOvfDeployer
     # Optimization: If there happens to be a fully prepared template, then
     # there is no need to do the complicated OVF upload dance
     template = lookup_template template_name
-    if template
-      return template
-    end
+    return template if template
 
     # The OVFManager expects us to know the names of the networks mentioned
     # in the OVF file so we can map them to VIM::Network objects. For
@@ -108,9 +106,7 @@ class CachedOvfDeployer
 
     # If we're handling a file:// URI we need to strip the scheme as open-uri
     # can't handle them.
-    if URI(ovf_url).scheme == 'file' && URI(ovf_url).host.nil?
-      ovf_url = URI(ovf_url).path
-    end
+    ovf_url = URI(ovf_url).path if URI(ovf_url).scheme == 'file' && URI(ovf_url).host.nil?
 
     ovf = open(ovf_url, 'r'){|io| Nokogiri::XML(io.read)}
     ovf.remove_namespaces!
@@ -138,9 +134,7 @@ class CachedOvfDeployer
       is_ds_accessible = host_props['datastore'].member?(@datastore)
       is_connected && is_ds_accessible && !host_props['runtime.inMaintenanceMode']
     end
-    if !host
-      raise 'No host in the cluster available to upload OVF to'
-    end
+    raise 'No host in the cluster available to upload OVF to' if !host
 
     log "Uploading OVF to #{hosts_props[host]['name']}..."
     property_mappings = {}
@@ -222,9 +216,7 @@ class CachedOvfDeployer
     if template
       config = template.config
       is_template = config && config.template
-      if !is_template
-        template = nil
-      end
+      template = nil if !is_template
     end
     template
   end
@@ -308,9 +300,7 @@ class CachedOvfDeployer
       runtime, template = vm.collect 'runtime', 'config.template'
       ready = runtime && runtime.host && runtime.powerState == 'poweredOff'
       ready = ready && template
-      if ready
-        break
-      end
+      break if ready
       sleep 5
     end
 

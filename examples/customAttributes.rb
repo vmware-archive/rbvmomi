@@ -57,9 +57,7 @@ when 'get'
   vm.value.each do |val|
     fname = 'unknown_field'
     vm.availableField.each do |af|
-      if af.key == val.key
-        fname = af.name
-      end
+      fname = af.name if af.key == val.key
     end
     puts "\t#{fname}: \"#{val.value}\""
   end
