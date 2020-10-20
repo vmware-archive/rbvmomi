@@ -36,11 +36,11 @@ class Connection < TrivialSoap
 
   def reset_profiling
     @profile = {}
-    @profile_summary = {:network_latency => 0, :request_emit => 0, :response_parse => 0, :num_calls => 0}
+    @profile_summary = {network_latency: 0, request_emit: 0, response_parse: 0, num_calls: 0}
   end
 
   def emit_request xml, method, descs, this, params
-    xml.tag! method, :xmlns => @ns do
+    xml.tag! method, xmlns: @ns do
       obj2xml xml, '_this', 'ManagedObject', false, this
       descs.each do |d|
         k = d['name']
@@ -96,14 +96,14 @@ class Connection < TrivialSoap
       t4 = Time.now
       @profile[method] ||= []
       profile_info = {
-        :network_latency => (t3 - t2),
-        :request_emit => t2 - t1,
-        :response_parse => t4 - t3,
-        :params => params,
-        :obj => this,
-        :backtrace => caller,
-        :request_size => body.length,
-        :response_size => resp_size,
+        network_latency: (t3 - t2),
+        request_emit: t2 - t1,
+        response_parse: t4 - t3,
+        params: params,
+        obj: this,
+        backtrace: caller,
+        request_size: body.length,
+        response_size: resp_size,
       }
       @profile[method] << profile_info
       @profile_summary[:network_latency] += profile_info[:network_latency]
@@ -136,7 +136,7 @@ class Connection < TrivialSoap
       end
     when BasicTypes::ManagedObject
       raise "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
-      xml.tag! name, o._ref, :type => o.class.wsdl_name
+      xml.tag! name, o._ref, type: o.class.wsdl_name
     when BasicTypes::DataObject
       raise "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
       xml.tag! name, attrs.merge('xsi:type' => o.class.wsdl_name) do

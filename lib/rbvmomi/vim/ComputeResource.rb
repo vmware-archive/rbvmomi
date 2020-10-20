@@ -13,33 +13,33 @@ class RbVmomi::VIM::ComputeResource
   # @return [MB]  usedMem:  Used RAM.
   def stats
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
-      :objectSet => [{
-        :obj => self,
-        :selectSet => [
+      objectSet: [{
+        obj: self,
+        selectSet: [
           RbVmomi::VIM.TraversalSpec(
-            :name => 'tsHosts',
-            :type => 'ComputeResource',
-            :path => 'host',
-            :skip => false
+            name: 'tsHosts',
+            type: 'ComputeResource',
+            path: 'host',
+            skip: false
           )
         ]
       }],
-      :propSet => [{
-        :pathSet => %w(name overallStatus summary.hardware.cpuMhz
+      propSet: [{
+        pathSet: %w(name overallStatus summary.hardware.cpuMhz
                     summary.hardware.numCpuCores summary.hardware.memorySize
                     summary.quickStats.overallCpuUsage
                     summary.quickStats.overallMemoryUsage),
-        :type => 'HostSystem'
+        type: 'HostSystem'
       }]
     )
 
-    result = _connection.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
+    result = _connection.propertyCollector.RetrieveProperties(specSet: [filterSpec])
 
     stats = {
-      :totalCPU => 0,
-      :totalMem => 0,
-      :usedCPU => 0,
-      :usedMem => 0,
+      totalCPU: 0,
+      totalMem: 0,
+      usedCPU: 0,
+      usedMem: 0,
     }
 
     result.each do |x|

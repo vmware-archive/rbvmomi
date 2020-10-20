@@ -67,11 +67,11 @@ class LeaseTool
   # @return [VIM::Task] VM reconfiguration task
   def set_lease_on_vm_task vm, lease_minutes, annotation = nil
     annotation = vm.collect 'config.annotation' if !annotation
-    vmconfig = {:annotation => annotation}
+    vmconfig = {annotation: annotation}
     vmconfig = set_lease_in_vm_config vmconfig, lease_minutes
     # XXX: It may be a good idea to cite the VM version here to avoid
     #      concurrent writes to the annotation stepping on each others toes
-    vm.ReconfigVM_Task(:spec => vmconfig)
+    vm.ReconfigVM_Task(spec: vmconfig)
   end
 
   # Issue ReconfigVM_Task to set the lease on all VMs that currently do not

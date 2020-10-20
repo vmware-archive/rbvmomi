@@ -57,8 +57,8 @@ class RbVmomi::VIM::Task
   # @return [Array] List of VIM::Task objects
   def child_tasks
     tm = _connection.serviceContent.taskManager
-    col = tm.CreateCollectorForTasks(:filter => {
-      :rootTaskKey => [self.info.key],
+    col = tm.CreateCollectorForTasks(filter: {
+      rootTaskKey: [self.info.key],
     })
     # XXX: Likely this is not enough and we need to collect pages other
     #      than the latest.

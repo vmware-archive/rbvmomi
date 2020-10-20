@@ -16,17 +16,17 @@ VIM = RbVmomi::VIM
 opts = Optimist.options do
   banner <<~EOS
     Deploy an OVF to a cluster, using a cached template if available.
-    
+
     Usage:
         cached_ovf_deploy.rb [options] <vmname> <ovfurl>
-    
+
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+
     VM location options:
     EOS
 
@@ -34,16 +34,16 @@ opts = Optimist.options do
   rbvmomi_datastore_opt
 
   text <<~EOS
-    
+
     Other options:
     EOS
 
-  opt :template_name, 'Name to give to the (cached) template', :type => :string
-  opt :template_path, 'Path where templates are stored', :default => 'templates', :type => :string
-  opt :computer_path, 'Path to the cluster to deploy into', :type => :string
-  opt :network, 'Name of the network to attach template to', :type => :string
-  opt :vm_folder_path, 'Path to VM folder to deploy VM into', :type => :string
-  opt :lease, 'Lease in days', :type => :int, :default => 3
+  opt :template_name, 'Name to give to the (cached) template', type: :string
+  opt :template_path, 'Path where templates are stored', default: 'templates', type: :string
+  opt :computer_path, 'Path to the cluster to deploy into', type: :string
+  opt :network, 'Name of the network to attach template to', type: :string
+  opt :vm_folder_path, 'Path to VM folder to deploy VM into', type: :string
+  opt :lease, 'Lease in days', type: :int, default: 3
 end
 
 Optimist.die('must specify host') unless opts[:host]
@@ -63,13 +63,13 @@ template_folder = root_vm_folder.traverse!(template_folder_path, VIM::Folder)
 
 scheduler = AdmissionControlledResourceScheduler.new(
   vim,
-  :datacenter => dc,
-  :computer_names => [opts[:computer_path]],
-  :vm_folder => vm_folder,
-  :rp_path => '/',
-  :datastore_paths => [opts[:datastore]],
-  :max_vms_per_pod => nil, # No limits
-  :min_ds_free => nil, # No limits
+  datacenter: dc,
+  computer_names: [opts[:computer_path]],
+  vm_folder: vm_folder,
+  rp_path: '/',
+  datastore_paths: [opts[:datastore]],
+  max_vms_per_pod: nil, # No limits
+  min_ds_free: nil, # No limits
 )
 scheduler.make_placement_decision
 
@@ -94,15 +94,15 @@ if !template
 
   template = deployer.upload_ovf_as_template(
     ovf_url, template_name,
-    :run_without_interruptions => true,
-    :config => lease_tool.set_lease_in_vm_config({}, lease)
+    run_without_interruptions: true,
+    config: lease_tool.set_lease_in_vm_config({}, lease)
   )
 end
 
 puts "#{Time.now}: Cloning template ..."
 config = {
-  :numCPUs => opts[:cpus],
-  :memoryMB => opts[:memory],
+  numCPUs: opts[:cpus],
+  memoryMB: opts[:memory],
 }
 config = lease_tool.set_lease_in_vm_config(config, lease)
 vm = deployer.linked_clone template, vm_name, config

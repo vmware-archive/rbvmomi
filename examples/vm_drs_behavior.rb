@@ -15,27 +15,27 @@ BEHAVIOR = %w(fullyAutomated manual partiallyAutomated default)
 opts = Optimist.options do
   banner <<~EOS
     Configure VM DRS behavior.
-    
+
     Usage:
         vm_drs_behavior.rb [options] VM get
         vm_drs_behavior.rb [options] VM set #{BEHAVIOR.join('|')}
-    
+
     Commands: #{CMDS * ' '}
-    
+
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+
     VM location options:
     EOS
 
   rbvmomi_datacenter_opt
 
   text <<~EOS
-    
+
     Other options:
     EOS
 
@@ -70,10 +70,10 @@ when 'set'
 
   behavior = default if behavior == 'default'
   vm_spec =
-    VIM.ClusterDrsVmConfigSpec(:operation => VIM.ArrayUpdateOperation(config ? 'edit' : 'add'),
-                               :info => VIM.ClusterDrsVmConfigInfo(:key => vm,
-                                                                   :behavior => VIM.DrsBehavior(behavior)))
-  spec = VIM.ClusterConfigSpecEx(:drsVmConfigSpec => [vm_spec])
-  cluster.ReconfigureComputeResource_Task(:spec => spec, :modify => true).wait_for_completion
+    VIM.ClusterDrsVmConfigSpec(operation: VIM.ArrayUpdateOperation(config ? 'edit' : 'add'),
+                               info: VIM.ClusterDrsVmConfigInfo(key: vm,
+                                                                behavior: VIM.DrsBehavior(behavior)))
+  spec = VIM.ClusterConfigSpecEx(drsVmConfigSpec: [vm_spec])
+  cluster.ReconfigureComputeResource_Task(spec: spec, modify: true).wait_for_completion
 end
 

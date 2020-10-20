@@ -19,7 +19,7 @@ require 'libxml'
 NS_XSI = 'http://www.w3.org/2001/XMLSchema-instance'
 
 VIM = RbVmomi::VIM
-$conn = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
+$conn = VIM.new(ns: 'urn:vim25', rev: '4.0')
 raw = File.read(ARGV[0])
 
 def diff a, b

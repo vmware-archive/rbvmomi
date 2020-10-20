@@ -12,27 +12,27 @@ CMDS = %w(list set)
 opts = Optimist.options do
   banner <<~EOS
     View and modify VM extraConfig options.
-    
+
     Usage:
         extraConfig.rb [options] VM list
         extraConfig.rb [options] VM set key=value [key=value...]
-    
+
     Commands: #{CMDS * ' '}
-    
+
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+
     VM location options:
     EOS
 
   rbvmomi_datacenter_opt
 
   text <<~EOS
-    
+
     Other options:
     EOS
 
@@ -53,6 +53,6 @@ case cmd
 when 'list'
   vm.config.extraConfig.each { |x| puts "#{x.key}: #{x.value}" }
 when 'set'
-  extraConfig = ARGV[2..-1].map { |x| x.split('=', 2) }.map { |k,v| { :key => k, :value => v } }
-  vm.ReconfigVM_Task(:spec => VIM.VirtualMachineConfigSpec(:extraConfig => extraConfig)).wait_for_completion
+  extraConfig = ARGV[2..-1].map { |x| x.split('=', 2) }.map { |k,v| { key: k, value: v } }
+  vm.ReconfigVM_Task(spec: VIM.VirtualMachineConfigSpec(extraConfig: extraConfig)).wait_for_completion
 end

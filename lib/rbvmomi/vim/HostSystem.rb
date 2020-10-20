@@ -104,10 +104,10 @@ class VIM::EsxcliNamespace
   def cli_info
     @cached_cli_info ||=
       if @host.direct?
-        @host.cli_info_fetcher.VimCLIInfoFetchCLIInfo(:typeName => type_name)
+        @host.cli_info_fetcher.VimCLIInfoFetchCLIInfo(typeName: type_name)
       else
         @host.mme.execute(@host.cli_info_fetcher._ref,
-                          'vim.CLIInfo.FetchCLIInfo', :typeName => type_name)
+                          'vim.CLIInfo.FetchCLIInfo', typeName: type_name)
       end
   end
 

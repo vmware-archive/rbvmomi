@@ -13,17 +13,17 @@ VIM = RbVmomi::VIM
 opts = Optimist.options do
   banner <<~EOS
     Delete a disk from a VM.
-    
+
     Usage:
         delete_disk_from_vm.rb [options] vm_name disk_unit_number
-    
+
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+
     VM location options:
     EOS
 
@@ -46,13 +46,13 @@ end
 raise "Disk #{disk_unit_number} not found" if disk.nil?
 
 spec = VIM::VirtualMachineConfigSpec(
-  :deviceChange => [
+  deviceChange:  [
     VIM::VirtualDeviceConfigSpec(
-      :device        => disk,
-      :fileOperation => VIM.VirtualDeviceConfigSpecFileOperation(:destroy),
-      :operation     => VIM::VirtualDeviceConfigSpecOperation(:remove)
+      device:         disk,
+      fileOperation:  VIM.VirtualDeviceConfigSpecFileOperation(:destroy),
+      operation:      VIM::VirtualDeviceConfigSpecOperation(:remove)
     )
   ]
 )
 
-vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+vm.ReconfigVM_Task(spec:  spec).wait_for_completion

@@ -17,30 +17,30 @@ CMDS = ['set_lease_on_leaseless_vms', 'show_expired_vms',
 opts = Optimist.options do
   banner <<~EOS
     Tool for managing leases on VMs where leases are stored in YAML on VM annotations.
-    
+
     Usage:
         lease_tool.rb [options] <cmd>
-    
+
     Commands: #{CMDS * ' '}
-    
+
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+
     VM location options:
     EOS
 
   rbvmomi_datacenter_opt
 
   text <<~EOS
-    
+
     Other options:
     EOS
 
-  opt :vm_folder_path, 'Path to VM folder to deploy VM into', :type => :string
+  opt :vm_folder_path, 'Path to VM folder to deploy VM into', type: :string
   opt :force, 'Really perform VMs. Used with kill_expired_vms'
 
   stop_on CMDS
@@ -64,7 +64,7 @@ case cmd
 when 'set_lease_on_leaseless_vms'
   lease_tool.set_lease_on_leaseless_vms(
     inventory.keys, inventory,
-    :lease_minutes => 3 * 24 * 60 * 60 # 3 days
+    lease_minutes: 3 * 24 * 60 * 60 # 3 days
   )
 when 'show_expired_vms'
   vms = lease_tool.filter_expired_vms inventory.keys, inventory
@@ -88,7 +88,7 @@ when 'kill_expired_vms'
 when 'show_soon_expired_vms'
   vms = lease_tool.filter_expired_vms(
     inventory.keys, inventory,
-    :time_delta => 3.5 * 24 * 60 * 60, # 3.5 days
+    time_delta: 3.5 * 24 * 60 * 60, # 3.5 days
   )
   # We could send the user emails here, but for this example, just print the
   # VMs that will expire within the next 3.5 days

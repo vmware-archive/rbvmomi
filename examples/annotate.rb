@@ -12,27 +12,27 @@ CMDS = %w(get set)
 opts = Optimist.options do
   banner <<~EOS
     Annotate a VM.
-    
+
     Usage:
         annotate.rb [options] VM get
         annotate.rb [options] VM set annotation
-    
+
     Commands: #{CMDS * ' '}
-    
+
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+
     VM location options:
     EOS
 
   rbvmomi_datacenter_opt
 
   text <<~EOS
-    
+
     Other options:
     EOS
 
@@ -54,5 +54,5 @@ when 'get'
   puts vm.config.annotation
 when 'set'
   value = ARGV[2] or Optimist.die('no annotation given')
-  vm.ReconfigVM_Task(:spec => VIM.VirtualMachineConfigSpec(:annotation => value)).wait_for_completion
+  vm.ReconfigVM_Task(spec: VIM.VirtualMachineConfigSpec(annotation: value)).wait_for_completion
 end

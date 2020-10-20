@@ -8,7 +8,7 @@
 require 'rbvmomi'
 VIM = RbVmomi::VIM
 
-conn = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
+conn = VIM.new(ns: 'urn:vim25', rev: '4.0')
 
 VIM.loader.typenames.each do |name|
   klass = VIM.loader.get name

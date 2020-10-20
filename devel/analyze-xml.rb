@@ -11,7 +11,7 @@ def prepare_xml(xml)
 end
 
 def analyze_xml x, tree
-  subtree = (tree[x.name] ||= { :attributes => [], :min_occur => nil, :max_occur => nil })
+  subtree = (tree[x.name] ||= { attributes: [], min_occur: nil, max_occur: nil })
   attrs = x.attributes.keys.sort
   subtree[:attributes] << attrs unless subtree[:attributes].member? attrs
 

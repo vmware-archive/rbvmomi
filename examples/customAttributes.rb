@@ -15,27 +15,27 @@ CMDS = %w(get set)
 opts = Optimist.options do
   banner <<~EOS
     Set a custom value for a VM.
-    
+
     Usage:
         customAttributes.rb [options] <VM nane> get
         customAttributes.rb [options] <VM name> set <"Custom Attribute"> <"Custom Attribute value">
-    
+
     Commands: #{CMDS * ' '}
-    
+
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+
     VM location options:
     EOS
 
   rbvmomi_datacenter_opt
 
   text <<~EOS
-    
+
     Other options:
     EOS
 
@@ -76,5 +76,5 @@ when 'set'
     end
   end
   exists == 1 or abort "Field \"#{customAttribute}\" doesn't exists\nPlease use one of the following:\n\t#{arrayCustomAttributes.join("\n\t")}"
-  vm.setCustomValue({'key' => "#{customAttribute}", :value => "#{customAttributeValue}"})
+  vm.setCustomValue({'key' => "#{customAttribute}", value: "#{customAttributeValue}"})
 end

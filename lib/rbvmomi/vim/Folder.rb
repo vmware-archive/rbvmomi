@@ -8,7 +8,7 @@ class RbVmomi::VIM::Folder
   # @param type [Class] Return nil unless the found entity <tt>is_a? type</tt>.
   # @return [VIM::ManagedEntity]
   def find name, type=Object
-    x = _connection.searchIndex.FindChild(:entity => self, :name => name)
+    x = _connection.searchIndex.FindChild(entity: self, name: name)
     x if x.is_a? type
   end
 
@@ -19,8 +19,8 @@ class RbVmomi::VIM::Folder
   # @return [VIM::ManagedEntity]
   def findByDnsName name, type=RbVmomi::VIM::VirtualMachine, dc=nil
     propSpecs = {
-      :entity => self, :dnsName => name,
-      :vmSearch => type == RbVmomi::VIM::VirtualMachine
+      entity: self, dnsName: name,
+      vmSearch: type == RbVmomi::VIM::VirtualMachine
     }
     propSpecs[:datacenter] = dc if dc
     x = _connection.searchIndex.FindByDnsName(propSpecs)
@@ -34,8 +34,8 @@ class RbVmomi::VIM::Folder
   # @return [VIM::ManagedEntity]
   def findByIp ip, type=RbVmomi::VIM::VirtualMachine, dc=nil
     propSpecs = {
-      :entity => self, :ip => ip,
-      :vmSearch => type == RbVmomi::VIM::VirtualMachine
+      entity: self, ip: ip,
+      vmSearch: type == RbVmomi::VIM::VirtualMachine
     }
     propSpecs[:datacenter] = dc if dc
     x = _connection.searchIndex.FindByIp(propSpecs)
@@ -51,10 +51,10 @@ class RbVmomi::VIM::Folder
   # @return [VIM::ManagedEntity]
   def findByUuid(uuid, type = RbVmomi::VIM::VirtualMachine, dc = nil, instance_uuid = false)
     prop_specs = {
-      :entity       => self,
-      :instanceUuid => instance_uuid,
-      :uuid         => uuid,
-      :vmSearch     => type == RbVmomi::VIM::VirtualMachine
+      entity: self,
+      instanceUuid: instance_uuid,
+      uuid: uuid,
+      vmSearch: type == RbVmomi::VIM::VirtualMachine
     }
     prop_specs[:datacenter] = dc if dc
     x = _connection.searchIndex.FindByUuid(prop_specs)
@@ -66,7 +66,7 @@ class RbVmomi::VIM::Folder
   # @return [VIM::ManagedEntity]
   def findByInventoryPath path
     propSpecs = {
-      :entity => self, :inventoryPath => path
+      entity: self, inventoryPath: path
     }
     _connection.searchIndex.FindByInventoryPath(propSpecs)
   end
@@ -95,15 +95,15 @@ class RbVmomi::VIM::Folder
     final = es.pop
 
     p = es.inject(self) do |f,e|
-      f.find(e, RbVmomi::VIM::Folder) || (create && f.CreateFolder(:name => e)) || return
+      f.find(e, RbVmomi::VIM::Folder) || (create && f.CreateFolder(name: e)) || return
     end
 
     if x = p.find(final, type)
       x
     elsif create and type == RbVmomi::VIM::Folder
-      p.CreateFolder(:name => final)
+      p.CreateFolder(name: final)
     elsif create and type == RbVmomi::VIM::Datacenter
-      p.CreateDatacenter(:name => final)
+      p.CreateDatacenter(name: final)
     else
       nil
     end
@@ -124,7 +124,7 @@ class RbVmomi::VIM::Folder
   #
   # @return [Hash] Hash of ManagedObjects to properties.
   def inventory_flat propSpecs={}
-    propSet = [{ :type => 'Folder', :pathSet => ['name', 'parent', 'childEntity'] }]
+    propSet = [{ type: 'Folder', pathSet: ['name', 'parent', 'childEntity'] }]
     propSpecs.each do |k,v|
       case k
       when Class
@@ -136,7 +136,7 @@ class RbVmomi::VIM::Folder
         raise 'invalid key'
       end
 
-      h = { :type => k }
+      h = { type: k }
       if v == :all
         h[:all] = true
       elsif v.is_a? Array
@@ -148,24 +148,24 @@ class RbVmomi::VIM::Folder
     end
 
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
-      :objectSet => [
-        :obj => self,
-        :selectSet => [
+      objectSet: [
+        obj: self,
+        selectSet: [
           RbVmomi::VIM.TraversalSpec(
-            :name => 'tsFolder',
-            :type => 'Folder',
-            :path => 'childEntity',
-            :skip => false,
-            :selectSet => [
-              RbVmomi::VIM.SelectionSpec(:name => 'tsFolder')
+            name: 'tsFolder',
+            type: 'Folder',
+            path: 'childEntity',
+            skip: false,
+            selectSet: [
+              RbVmomi::VIM.SelectionSpec(name: 'tsFolder')
             ]
           )
         ]
       ],
-      :propSet => propSet
+      propSet: propSet
     )
 
-    result = _connection.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
+    result = _connection.propertyCollector.RetrieveProperties(specSet: [filterSpec])
     {}.tap do |h|
       result.each { |r| h[r.obj] = r }
     end

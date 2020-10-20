@@ -12,13 +12,13 @@ class RbVmomi::VIM::ManagedObject
   # @todo Pass the current property values to the block.
   def wait_until *pathSet, &b
     all = pathSet.empty?
-    filter = _connection.propertyCollector.CreateFilter :spec => {
-      :propSet => [{ :type => self.class.wsdl_name, :all => all, :pathSet => pathSet }],
-      :objectSet => [{ :obj => self }],
-    }, :partialUpdates => false
+    filter = _connection.propertyCollector.CreateFilter spec: {
+      propSet: [{ type: self.class.wsdl_name, all: all, pathSet: pathSet }],
+      objectSet: [{ obj: self }],
+    }, partialUpdates: false
     ver = ''
     loop do
-      result = _connection.propertyCollector.WaitForUpdates(:version => ver)
+      result = _connection.propertyCollector.WaitForUpdates(version: ver)
       ver = result.version
       if x = b.call
         return x
@@ -33,13 +33,13 @@ class RbVmomi::VIM::ManagedObject
   # @return [Hash] Hash from property paths to values.
   def collect! *pathSet
     spec = {
-      :objectSet => [{ :obj => self }],
-      :propSet => [{
-        :pathSet => pathSet,
-        :type => self.class.wsdl_name
+      objectSet: [{ obj: self }],
+      propSet: [{
+        pathSet: pathSet,
+        type: self.class.wsdl_name
       }]
     }
-    ret = _connection.propertyCollector.RetrieveProperties(:specSet => [spec])
+    ret = _connection.propertyCollector.RetrieveProperties(specSet: [spec])
     if ret && ret.length > 0
       ret[0].to_hash
     else

@@ -35,24 +35,24 @@ class MiscTest < Test::Unit::TestCase
 
   def test_data_object_to_hash
     # With a nested ManagedObject value
-    assert_equal VIM.VirtualMachineSummary({vm: VIM.VirtualMachine(nil, 'vm-123')}).to_hash, {:vm => 'VirtualMachine("vm-123")'}
+    assert_equal VIM.VirtualMachineSummary({vm: VIM.VirtualMachine(nil, 'vm-123')}).to_hash, {vm: 'VirtualMachine("vm-123")'}
 
     # With an array
-    assert_equal VIM.VirtualMachineSummary({customValue: [VIM.CustomFieldValue({key: 1})]}).to_hash, {:customValue => [{key: 1}]}
+    assert_equal VIM.VirtualMachineSummary({customValue: [VIM.CustomFieldValue({key: 1})]}).to_hash, {customValue: [{key: 1}]}
 
     # With an Enum
-    assert_equal VIM.VirtualMachineSummary({overallStatus: VIM.ManagedEntityStatus('green')}).to_hash, {:overallStatus => 'green'}
+    assert_equal VIM.VirtualMachineSummary({overallStatus: VIM.ManagedEntityStatus('green')}).to_hash, {overallStatus: 'green'}
 
     # Combined
     assert_equal VIM.VirtualMachineSummary(
-      :vm            => VIM.VirtualMachine(nil, 'vm-123'),
-      :customValue   => [VIM.CustomFieldValue(:key => 1)],
-      :overallStatus => VIM.ManagedEntityStatus('green')
+      vm: VIM.VirtualMachine(nil, 'vm-123'),
+      customValue: [VIM.CustomFieldValue(key: 1)],
+      overallStatus: VIM.ManagedEntityStatus('green')
     ).to_hash,
     {
-      :vm            => 'VirtualMachine("vm-123")',
-      :customValue   => [{:key => 1}],
-      :overallStatus => 'green'
+      vm: 'VirtualMachine("vm-123")',
+      customValue: [{key: 1}],
+      overallStatus: 'green'
     }
   end
 
@@ -71,9 +71,9 @@ class MiscTest < Test::Unit::TestCase
 
     # Combined
     assert_equal VIM.VirtualMachineSummary(
-      :vm            => VIM.VirtualMachine(nil, 'vm-123'),
-      :customValue   => [VIM.CustomFieldValue(:key => 1)],
-      :overallStatus => VIM.ManagedEntityStatus('green')
+      vm:            VIM.VirtualMachine(nil, 'vm-123'),
+      customValue:   [VIM.CustomFieldValue(key: 1)],
+      overallStatus: VIM.ManagedEntityStatus('green')
     ).to_json,
     '{"vm":"VirtualMachine(\\"vm-123\\")","customValue":[{"key":1}],"overallStatus":"green","json_class":"RbVmomi::VIM::VirtualMachineSummary"}'
   end

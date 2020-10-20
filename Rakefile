@@ -7,7 +7,7 @@ require 'rake/testtask'
 require 'yard'
 require 'rubocop/rake_task'
 
-task(:default => :test)
+task(default: :test)
 
 Rake::TestTask.new do |t|
   t.libs << 'test'
