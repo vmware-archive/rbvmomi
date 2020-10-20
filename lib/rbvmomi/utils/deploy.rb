@@ -186,7 +186,7 @@ class CachedOvfDeployer
           config = opts[:config] || {}
           config = vm.update_spec_add_delta_disk_layer_on_all_disks(config)
           # XXX: Should we add a version that does retries?
-          vm.ReconfigVM_Task(:spec => config).wait_for_completion
+          vm.ReconfigVM_Task(spec: config).wait_for_completion
         end
         vm.MarkAsTemplate
       end

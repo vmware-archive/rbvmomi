@@ -15,7 +15,7 @@ def parse_args(args)
       verify-vim-wsdl.rb [path to wsdl] [path to vmodl.db]
     HELP
 
-    opt :fix, 'Optionally fix the wsdl types in the vmodl.db', :type => :boolean, :default => false
+    opt :fix, 'Optionally fix the wsdl types in the vmodl.db', type: :boolean, default: false
   end
 
   Optimist.die('You must provide a wsdl file and a vmodl file') if args.count < 2

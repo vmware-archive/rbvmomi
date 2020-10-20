@@ -15,13 +15,13 @@ class RbVmomi::VIM::PropertyCollector
     end
 
     spec = {
-      :objectSet => objs.map{|x| { :obj => x }},
-      :propSet => [{
-        :pathSet => pathSet,
-        :type => klass.wsdl_name
+      objectSet: objs.map{|x| { obj: x }},
+      propSet: [{
+        pathSet: pathSet,
+        type: klass.wsdl_name
       }]
     }
-    res = RetrieveProperties(:specSet => [spec])
+    res = RetrieveProperties(specSet: [spec])
     Hash[res.map do |x|
       [x.obj, x.to_hash]
     end]

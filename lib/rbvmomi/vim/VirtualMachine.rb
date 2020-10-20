@@ -37,7 +37,7 @@ class RbVmomi::VIM::VirtualMachine
   # share the base disk.
   def add_delta_disk_layer_on_all_disks
     spec = update_spec_add_delta_disk_layer_on_all_disks
-    self.ReconfigVM_Task(:spec => spec).wait_for_completion
+    self.ReconfigVM_Task(spec: spec).wait_for_completion
   end
 
   # Updates a passed in spec to perform the task of adding a delta disk layer
@@ -51,13 +51,13 @@ class RbVmomi::VIM::VirtualMachine
     device_change = []
     disks.each do |disk|
       device_change << {
-        :operation => :remove,
-        :device => disk
+        operation: :remove,
+        device: disk
       }
       device_change << {
-        :operation => :add,
-        :fileOperation => :create,
-        :device => disk.dup.tap { |x|
+        operation: :add,
+        fileOperation: :create,
+        device: disk.dup.tap { |x|
           x.backing = x.backing.dup
           x.backing.fileName = "[#{disk.backing.datastore.name}]"
           x.backing.parent = disk.backing

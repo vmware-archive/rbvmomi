@@ -201,9 +201,9 @@ class ManagedObject < ObjectWithMethods
   end
 
   def _get_property sym
-    ret = @connection.propertyCollector.RetrieveProperties(:specSet => [{
-      :propSet => [{ :type => self.class.wsdl_name, :pathSet => [sym.to_s] }],
-      :objectSet => [{ :obj => self }],
+    ret = @connection.propertyCollector.RetrieveProperties(specSet: [{
+      propSet: [{ type: self.class.wsdl_name, pathSet: [sym.to_s] }],
+      objectSet: [{ obj: self }],
     }])[0]
 
     if !ret

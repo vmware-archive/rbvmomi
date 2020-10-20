@@ -13,24 +13,24 @@ VIM = RbVmomi::VIM
 opts = Optimist.options do
   banner <<~EOS
     Clone a VM.
-    
+
     Usage:
         clone_vm.rb [options] source_vm dest_vm
-    
+
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+
     VM location options:
     EOS
 
   rbvmomi_datacenter_opt
 
   text <<~EOS
-    
+
     Other options:
     EOS
 
@@ -58,15 +58,15 @@ if opts[:linked_clone]
   disks = vm.config.hardware.device.grep(VIM::VirtualDisk)
   disks.select { |x| x.backing.parent == nil }.each do |disk|
     spec = {
-      :deviceChange => [
+      deviceChange: [
         {
-          :operation => :remove,
-          :device => disk
+          operation: :remove,
+          device: disk
         },
         {
-          :operation => :add,
-          :fileOperation => :create,
-          :device => disk.dup.tap { |x|
+          operation: :add,
+          fileOperation: :create,
+          device: disk.dup.tap { |x|
             x.backing = x.backing.dup
             x.backing.fileName = "[#{disk.backing.datastore.name}]"
             x.backing.parent = disk.backing
@@ -74,16 +74,16 @@ if opts[:linked_clone]
         }
       ]
     }
-    vm.ReconfigVM_Task(:spec => spec).wait_for_completion
+    vm.ReconfigVM_Task(spec: spec).wait_for_completion
   end
 
-  relocateSpec = VIM.VirtualMachineRelocateSpec(:diskMoveType => :moveChildMostDiskBacking)
+  relocateSpec = VIM.VirtualMachineRelocateSpec(diskMoveType: :moveChildMostDiskBacking)
 else
   relocateSpec = VIM.VirtualMachineRelocateSpec
 end
 
-spec = VIM.VirtualMachineCloneSpec(:location => relocateSpec,
-                                   :powerOn => false,
-                                   :template => false)
+spec = VIM.VirtualMachineCloneSpec(location: relocateSpec,
+                                   powerOn: false,
+                                   template: false)
 
-vm.CloneVM_Task(:folder => vm.parent, :name => vm_target, :spec => spec).wait_for_completion
+vm.CloneVM_Task(folder: vm.parent, name: vm_target, spec: spec).wait_for_completion

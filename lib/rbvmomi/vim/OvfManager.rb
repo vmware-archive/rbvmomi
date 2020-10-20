@@ -22,29 +22,29 @@ class RbVmomi::VIM::OvfManager
   # @option opts [Hash]               :propertyMappings Property mappings.
   # @option opts [String]             :deploymentOption Deployment option key.
   def deployOVF opts
-    opts = { :networkMappings => {},
-             :propertyMappings => {},
-             :diskProvisioning => :thin }.merge opts
+    opts = { networkMappings: {},
+             propertyMappings: {},
+             diskProvisioning: :thin }.merge opts
 
     %w(uri vmName vmFolder host resourcePool datastore).each do |k|
       raise "parameter #{k} required" unless opts[k.to_sym]
     end
 
     ovfImportSpec = RbVmomi::VIM::OvfCreateImportSpecParams(
-      :hostSystem => opts[:host],
-      :locale => 'US',
-      :entityName => opts[:vmName],
-      :deploymentOption => opts[:deploymentOption] || '',
-      :networkMapping => opts[:networkMappings].map{|from, to| RbVmomi::VIM::OvfNetworkMapping(:name => from, :network => to)},
-      :propertyMapping => opts[:propertyMappings].to_a,
-      :diskProvisioning => opts[:diskProvisioning]
+      hostSystem: opts[:host],
+      locale: 'US',
+      entityName: opts[:vmName],
+      deploymentOption: opts[:deploymentOption] || '',
+      networkMapping: opts[:networkMappings].map{|from, to| RbVmomi::VIM::OvfNetworkMapping(name: from, network: to)},
+      propertyMapping: opts[:propertyMappings].to_a,
+      diskProvisioning: opts[:diskProvisioning]
     )
 
     result = CreateImportSpec(
-      :ovfDescriptor => open(opts[:uri]).read,
-      :resourcePool => opts[:resourcePool],
-      :datastore => opts[:datastore],
-      :cisp => ovfImportSpec
+      ovfDescriptor: open(opts[:uri]).read,
+      resourcePool: opts[:resourcePool],
+      datastore: opts[:datastore],
+      cisp: ovfImportSpec
     )
 
     raise result.error[0].localizedMessage if result.error && !result.error.empty?
@@ -60,14 +60,14 @@ class RbVmomi::VIM::OvfManager
       end
     end
 
-    nfcLease = opts[:resourcePool].ImportVApp(:spec => importSpec,
-                                              :folder => opts[:vmFolder],
-                                              :host => opts[:host])
+    nfcLease = opts[:resourcePool].ImportVApp(spec: importSpec,
+                                              folder: opts[:vmFolder],
+                                              host: opts[:host])
 
     nfcLease.wait_until(:state) { nfcLease.state != 'initializing' }
     raise nfcLease.error if nfcLease.state == 'error'
     begin
-      nfcLease.HttpNfcLeaseProgress(:percent => 5)
+      nfcLease.HttpNfcLeaseProgress(percent: 5)
       timeout, = nfcLease.collect 'info.leaseTimeout'
       puts "DEBUG: Timeout: #{timeout}"
       puts 'WARNING: OVF upload NFC lease timeout less than 4 minutes' if timeout < 4 * 60
@@ -103,7 +103,7 @@ class RbVmomi::VIM::OvfManager
 
         keepAliveThread = Thread.new do
           while true
-            nfcLease.HttpNfcLeaseProgress(:percent => progress.to_i)
+            nfcLease.HttpNfcLeaseProgress(percent: progress.to_i)
             sleep 1 * 60
           end
         end
@@ -128,16 +128,16 @@ class RbVmomi::VIM::OvfManager
         # to the uploadCmd. It is not clear to me why, but that leads to
         # trucation of the uploaded disk. Without this option curl can't tell
         # the progress, but who cares
-        system("#{downloadCmd} | #{uploadCmd}", :out => '/dev/null')
+        system("#{downloadCmd} | #{uploadCmd}", out: '/dev/null')
 
         keepAliveThread.kill
         keepAliveThread.join
 
         progress += (90.0 / result.fileItem.length)
-        nfcLease.HttpNfcLeaseProgress(:percent => progress.to_i)
+        nfcLease.HttpNfcLeaseProgress(percent: progress.to_i)
       end
 
-      nfcLease.HttpNfcLeaseProgress(:percent => 100)
+      nfcLease.HttpNfcLeaseProgress(percent: 100)
       raise nfcLease.error if nfcLease.state == 'error'
       i = 1
       vm = nil

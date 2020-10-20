@@ -6,7 +6,7 @@ require 'test_helper'
 
 class ParseResponseTest < Test::Unit::TestCase
   def check desc, str, expected
-    soap = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
+    soap = VIM.new(ns: 'urn:vim25', rev: '4.0')
     got = soap.parse_response Nokogiri(str).root, desc
     assert_equal expected, got
   end

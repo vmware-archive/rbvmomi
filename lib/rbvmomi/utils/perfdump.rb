@@ -83,80 +83,80 @@ class PerfAggregator
     pc = conn.propertyCollector
 
     filterSpec = RbVmomi::VIM.PropertyFilterSpec(
-      :objectSet => [
-        :obj => rootFolder,
-        :selectSet => [
+      objectSet: [
+        obj: rootFolder,
+        selectSet: [
           RbVmomi::VIM.TraversalSpec(
-            :name => 'tsFolder',
-            :type => 'Folder',
-            :path => 'childEntity',
-            :skip => false,
-            :selectSet => [
-              RbVmomi::VIM.SelectionSpec(:name => 'tsFolder'),
-              RbVmomi::VIM.SelectionSpec(:name => 'tsDatacenterVmFolder'),
-              RbVmomi::VIM.SelectionSpec(:name => 'tsDatacenterHostFolder'),
-              RbVmomi::VIM.SelectionSpec(:name => 'tsClusterRP'),
-              RbVmomi::VIM.SelectionSpec(:name => 'tsClusterHost'),
+            name: 'tsFolder',
+            type: 'Folder',
+            path: 'childEntity',
+            skip: false,
+            selectSet: [
+              RbVmomi::VIM.SelectionSpec(name: 'tsFolder'),
+              RbVmomi::VIM.SelectionSpec(name: 'tsDatacenterVmFolder'),
+              RbVmomi::VIM.SelectionSpec(name: 'tsDatacenterHostFolder'),
+              RbVmomi::VIM.SelectionSpec(name: 'tsClusterRP'),
+              RbVmomi::VIM.SelectionSpec(name: 'tsClusterHost'),
             ]
           ),
           RbVmomi::VIM.TraversalSpec(
-            :name => 'tsDatacenterVmFolder',
-            :type => 'Datacenter',
-            :path => 'vmFolder',
-            :skip => false,
-            :selectSet => [
-              RbVmomi::VIM.SelectionSpec(:name => 'tsFolder')
+            name: 'tsDatacenterVmFolder',
+            type: 'Datacenter',
+            path: 'vmFolder',
+            skip: false,
+            selectSet: [
+              RbVmomi::VIM.SelectionSpec(name: 'tsFolder')
             ]
           ),
           RbVmomi::VIM.TraversalSpec(
-            :name => 'tsDatacenterHostFolder',
-            :type => 'Datacenter',
-            :path => 'hostFolder',
-            :skip => false,
-            :selectSet => [
-              RbVmomi::VIM.SelectionSpec(:name => 'tsFolder')
+            name: 'tsDatacenterHostFolder',
+            type: 'Datacenter',
+            path: 'hostFolder',
+            skip: false,
+            selectSet: [
+              RbVmomi::VIM.SelectionSpec(name: 'tsFolder')
             ]
           ),
           RbVmomi::VIM.TraversalSpec(
-            :name => 'tsClusterRP',
-            :type => 'ClusterComputeResource',
-            :path => 'resourcePool',
-            :skip => false,
-            :selectSet => [
-              RbVmomi::VIM.SelectionSpec(:name => 'tsRP'),
+            name: 'tsClusterRP',
+            type: 'ClusterComputeResource',
+            path: 'resourcePool',
+            skip: false,
+            selectSet: [
+              RbVmomi::VIM.SelectionSpec(name: 'tsRP'),
             ]
           ),
           RbVmomi::VIM.TraversalSpec(
-            :name => 'tsClusterHost',
-            :type => 'ClusterComputeResource',
-            :path => 'host',
-            :skip => false,
-            :selectSet => []
+            name: 'tsClusterHost',
+            type: 'ClusterComputeResource',
+            path: 'host',
+            skip: false,
+            selectSet: []
           ),
           RbVmomi::VIM.TraversalSpec(
-            :name => 'tsRP',
-            :type => 'ResourcePool',
-            :path => 'resourcePool',
-            :skip => false,
-            :selectSet => [
-              RbVmomi::VIM.SelectionSpec(:name => 'tsRP'),
+            name: 'tsRP',
+            type: 'ResourcePool',
+            path: 'resourcePool',
+            skip: false,
+            selectSet: [
+              RbVmomi::VIM.SelectionSpec(name: 'tsRP'),
             ]
           ),
         ]
       ],
-      :propSet => [
-        { :type => 'Folder', :pathSet => ['name', 'parent'] },
-        { :type => 'Datacenter', :pathSet => ['name', 'parent'] },
-        { :type => 'ClusterComputeResource',
-          :pathSet => ['name', 'parent', 'summary.effectiveCpu', 'summary.effectiveMemory']
+      propSet: [
+        { type: 'Folder', pathSet: ['name', 'parent'] },
+        { type: 'Datacenter', pathSet: ['name', 'parent'] },
+        { type: 'ClusterComputeResource',
+          pathSet: ['name', 'parent', 'summary.effectiveCpu', 'summary.effectiveMemory']
         },
-        { :type => 'ResourcePool', :pathSet => ['name', 'parent'] },
-        { :type => 'HostSystem', :pathSet => ['name', 'parent', 'runtime.connectionState'] },
-        { :type => 'VirtualMachine', :pathSet => vm_prop_names },
+        { type: 'ResourcePool', pathSet: ['name', 'parent'] },
+        { type: 'HostSystem', pathSet: ['name', 'parent', 'runtime.connectionState'] },
+        { type: 'VirtualMachine', pathSet: vm_prop_names },
       ]
     )
 
-    result = pc.RetrieveProperties(:specSet => [filterSpec])
+    result = pc.RetrieveProperties(specSet: [filterSpec])
     inventory = {}
     vms = {}
     result.each do |r|
@@ -349,7 +349,7 @@ class PerfAggregator
       else
         vms_stats = pm.retrieve_stats(
           connected_vms, perf_metrics.keys,
-          :max_samples => 3
+          max_samples: 3
         )
       end
     rescue RbVmomi::Fault => ex
@@ -366,7 +366,7 @@ class PerfAggregator
     if connected_hosts.length > 0
       hosts_stats = pm.retrieve_stats(
         connected_hosts.keys, host_perf_metrics.keys,
-        :max_samples => 3
+        max_samples: 3
       )
     end
     hosts_props.each do |host, props|

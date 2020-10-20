@@ -27,14 +27,14 @@ class RbVmomi::VIM::ServiceInstance
     interested = (interested + ['info.state']).uniq
     task_props = Hash.new { |h,k| h[k] = {} }
 
-    filter = _connection.propertyCollector.CreateFilter :spec => {
-      :propSet => [{ :type => 'Task', :all => false, :pathSet => interested }],
-      :objectSet => tasks.map { |x| { :obj => x } },
-    }, :partialUpdates => false
+    filter = _connection.propertyCollector.CreateFilter spec: {
+      propSet: [{ type: 'Task', all: false, pathSet: interested }],
+      objectSet: tasks.map { |x| { obj: x } },
+    }, partialUpdates: false
 
     begin
       until task_props.size == tasks.size and task_props.all? { |k,h| %w(success error).member? h['info.state'] }
-        result = _connection.propertyCollector.WaitForUpdates(:version => version)
+        result = _connection.propertyCollector.WaitForUpdates(version: version)
         version = result.version
         os = result.filterSet[0].objectSet
 

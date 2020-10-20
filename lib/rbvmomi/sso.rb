@@ -19,12 +19,12 @@ module RbVmomi
     TOKEN_TYPE = 'urn:oasis:names:tc:SAML:2.0:assertion'.freeze
     TOKEN_PROFILE = 'http://docs.oasis-open.org/wss/oasis-wss-saml-token-profile-1.1#SAMLV2.0'.freeze
     NAMESPACES = {
-      :ds => 'http://www.w3.org/2000/09/xmldsig#',
-      :soap => 'http://schemas.xmlsoap.org/soap/envelope/',
-      :wsse => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
-      :wsse11 => 'http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd',
-      :wst => 'http://docs.oasis-open.org/ws-sx/ws-trust/200512',
-      :wsu => 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
+      ds: 'http://www.w3.org/2000/09/xmldsig#',
+      soap: 'http://schemas.xmlsoap.org/soap/envelope/',
+      wsse: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd',
+      wsse11: 'http://docs.oasis-open.org/wss/oasis-wss-wssecurity-secext-1.1.xsd',
+      wst: 'http://docs.oasis-open.org/ws-sx/ws-trust/200512',
+      wsu: 'http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd'
     }.freeze
 
     attr_reader :assertion,
@@ -111,14 +111,14 @@ module RbVmomi
       end
 
       signed = sign(request)
-      signed.gsub!('SAML_ASSERTION_PLACEHOLDER', @assertion.to_xml(:indent => 0, :save_with => Nokogiri::XML::Node::SaveOptions::AS_XML).strip)
+      signed.gsub!('SAML_ASSERTION_PLACEHOLDER', @assertion.to_xml(indent: 0, save_with: Nokogiri::XML::Node::SaveOptions::AS_XML).strip)
 
       signed
     end
 
     # We default to Issue, since that's all we currently need.
     def sso_call(body)
-      sso_url = URI::HTTPS.build(:host => @host, :port => @port, :path => @path)
+      sso_url = URI::HTTPS.build(host: @host, port: @port, path: @path)
       http = Net::HTTP.new(sso_url.host, sso_url.port)
       http.use_ssl = true
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE if @insecure
@@ -210,7 +210,7 @@ module RbVmomi
       signature_value_tag = doc.at_xpath('/soap:Envelope/soap:Header/wsse:Security/ds:Signature/ds:SignatureValue', doc.collect_namespaces)
       signature_value_tag.add_child(Nokogiri::XML::Text.new(signature, doc))
 
-      doc.to_xml(:indent => 0, :save_with => Nokogiri::XML::Node::SaveOptions::AS_XML).strip
+      doc.to_xml(indent: 0, save_with: Nokogiri::XML::Node::SaveOptions::AS_XML).strip
     end
 
     def load_x509(private_key, certificate)

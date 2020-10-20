@@ -34,7 +34,7 @@ class RbVmomi::VIM::Datastore
                 '-o', local_path,
                 '-b', _connection.cookie,
                 url,
-                :out => '/dev/null'
+                out: '/dev/null'
     Process.waitpid(pid, 0)
     raise 'download failed' unless $?.success?
   end
@@ -49,7 +49,7 @@ class RbVmomi::VIM::Datastore
                 '-T', local_path,
                 '-b', _connection.cookie,
                 url,
-                :out => '/dev/null'
+                out: '/dev/null'
     Process.waitpid(pid, 0)
     raise 'upload failed' unless $?.success?
   end

@@ -62,7 +62,7 @@ class RbVmomi::TrivialSoap
     xsd = 'http://www.w3.org/2001/XMLSchema'
     env = 'http://schemas.xmlsoap.org/soap/envelope/'
     xsi = 'http://www.w3.org/2001/XMLSchema-instance'
-    xml = Builder::XmlMarkup.new :indent => 0
+    xml = Builder::XmlMarkup.new indent: 0
     xml.tag!('env:Envelope', 'xmlns:xsd' => xsd, 'xmlns:env' => env, 'xmlns:xsi' => xsi) do
       if @vcSessionCookie || @operation_id
         xml.tag!('env:Header') do

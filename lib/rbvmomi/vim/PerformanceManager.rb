@@ -32,7 +32,7 @@ class RbVmomi::VIM::PerformanceManager
 
   def provider_summary obj
     @provider_summary ||= {}
-    @provider_summary[obj.class] ||= QueryPerfProviderSummary(:entity => obj)
+    @provider_summary[obj.class] ||= QueryPerfProviderSummary(entity: obj)
   end
 
   def retrieve_stats objects, metrics, opts = {}
@@ -58,28 +58,28 @@ class RbVmomi::VIM::PerformanceManager
         raise "Counter for #{x} couldn't be found"
       end
       instances.each do |instance|
-        metric_ids << RbVmomi::VIM::PerfMetricId(:counterId => counter.key,
-                                                 :instance => instance)
+        metric_ids << RbVmomi::VIM::PerfMetricId(counterId: counter.key,
+                                                 instance: instance)
       end
     end
     query_specs = objects.map do |obj|
       RbVmomi::VIM::PerfQuerySpec({
-        :maxSample => max_samples,
-        :entity => obj,
-        :metricId => metric_ids,
-        :intervalId => opts[:interval],
-        :startTime => (realtime == false ? opts[:start_time].to_datetime : nil),
+        maxSample: max_samples,
+        entity: obj,
+        metricId: metric_ids,
+        intervalId: opts[:interval],
+        startTime: (realtime == false ? opts[:start_time].to_datetime : nil),
       })
     end
-    stats = QueryPerf(:querySpec => query_specs)
+    stats = QueryPerf(querySpec: query_specs)
 
     if !opts[:multi_instance]
       Hash[stats.map do |res|
         [
           res.entity,
           {
-            :sampleInfo => res.sampleInfo,
-            :metrics => Hash[res.value.map do |metric|
+            sampleInfo: res.sampleInfo,
+            metrics: Hash[res.value.map do |metric|
               metric_name = perfcounter_idhash[metric.id.counterId].name
               [metric_name, metric.value]
             end]
@@ -91,8 +91,8 @@ class RbVmomi::VIM::PerformanceManager
         [
           res.entity,
           {
-            :sampleInfo => res.sampleInfo,
-            :metrics => Hash[res.value.map do |metric|
+            sampleInfo: res.sampleInfo,
+            metrics: Hash[res.value.map do |metric|
               metric_name = perfcounter_idhash[metric.id.counterId].name
               [[metric_name, metric.id.instance], metric.value]
             end]

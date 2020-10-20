@@ -13,24 +13,24 @@ VIM = RbVmomi::VIM
 opts = Optimist.options do
   banner <<~EOS
     Create a VM.
-    
+
     Usage:
         create_vm-1.9.rb [options]
-    
+
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+
     VM location options:
     EOS
 
   rbvmomi_datacenter_opt
 
   text <<~EOS
-    
+
     Other options:
     EOS
 end
@@ -95,4 +95,4 @@ vm_cfg = {
   ]
 }
 
-vmFolder.CreateVM_Task(:config => vm_cfg, :pool => rp).wait_for_completion
+vmFolder.CreateVM_Task(config: vm_cfg, pool: rp).wait_for_completion

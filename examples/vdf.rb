@@ -12,24 +12,24 @@ VIM = RbVmomi::VIM
 opts = Optimist.options do
   banner <<~EOS
     Display utilization of each datastore in the datacenter.
-    
+
     Usage:
         vdf.rb [options]
-    
+
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+
     Datacenter selection:
     EOS
 
   rbvmomi_datacenter_opt
 
   text <<~EOS
-    
+
     Other options:
     EOS
 end
@@ -72,9 +72,9 @@ if false
 else
   # fast version
   paths = %w(name info.url summary.accessible summary.capacity summary.freeSpace)
-  propSet = [{ :type => 'Datastore', :pathSet => paths }]
-  filterSpec = { :objectSet => dc.datastore.map { |ds| { :obj => ds } }, :propSet => propSet }
-  data = vim.propertyCollector.RetrieveProperties(:specSet => [filterSpec])
+  propSet = [{ type: 'Datastore', pathSet: paths }]
+  filterSpec = { objectSet: dc.datastore.map { |ds| { obj: ds } }, propSet: propSet }
+  data = vim.propertyCollector.RetrieveProperties(specSet: [filterSpec])
   data.select { |d| d['summary.accessible'] }.sort_by { |d| d['info.url'] }.each do |d|
     size = d['summary.capacity']
     free = d['summary.freeSpace']

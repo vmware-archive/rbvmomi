@@ -6,7 +6,7 @@ require 'test_helper'
 
 class DeserializationTest < Test::Unit::TestCase
   def setup
-    conn = VIM.new(:ns => 'urn:vim25', :rev => '4.0')
+    conn = VIM.new(ns: 'urn:vim25', rev: '4.0')
     @deserializer = RbVmomi::Deserializer.new conn
   end
 
@@ -27,14 +27,14 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_dataobject
     obj = VIM.DatastoreSummary(
-      :capacity => 1000,
-      :accessible => true,
-      :datastore => VIM.Datastore(nil, 'foo'),
-      :freeSpace => 31,
-      :multipleHostAccess => false,
-      :name => 'baz',
-      :type => 'VMFS',
-      :url => 'http://foo/'
+      capacity: 1000,
+      accessible: true,
+      datastore: VIM.Datastore(nil, 'foo'),
+      freeSpace: 31,
+      multipleHostAccess: false,
+      name: 'baz',
+      type: 'VMFS',
+      url: 'http://foo/'
     )
 
     check <<~EOS, obj, 'DatastoreSummary'
@@ -59,12 +59,12 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_array
     obj = VIM.ObjectContent(
-      :obj => VIM.Folder(nil, 'ha-folder-root'),
-      :missingSet => [],
-      :propSet => [
+      obj: VIM.Folder(nil, 'ha-folder-root'),
+      missingSet: [],
+      propSet: [
         VIM.DynamicProperty(
-          :name => 'childEntity',
-          :val => [
+          name: 'childEntity',
+          val: [
             VIM.Datacenter(nil, 'ha-datacenter')
           ]
         )
@@ -86,14 +86,14 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_array2
     obj = VIM.DVPortStatus(
-      :linkUp => true,
-      :blocked => false,
-      :vlanIds => [
-        VIM::NumericRange(:start => 5, :end => 7),
-        VIM::NumericRange(:start => 10, :end => 20),
+      linkUp: true,
+      blocked: false,
+      vlanIds: [
+        VIM::NumericRange(start: 5, end: 7),
+        VIM::NumericRange(start: 10, end: 20),
       ],
-      :vmDirectPathGen2InactiveReasonNetwork => [],
-      :vmDirectPathGen2InactiveReasonOther => []
+      vmDirectPathGen2InactiveReasonNetwork: [],
+      vmDirectPathGen2InactiveReasonOther: []
     )
 
     check <<~EOS, obj, 'DVPortStatus'
@@ -114,11 +114,11 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_empty_array
     obj = VIM.DVPortStatus(
-      :linkUp => true,
-      :blocked => false,
-      :vlanIds => [],
-      :vmDirectPathGen2InactiveReasonNetwork => [],
-      :vmDirectPathGen2InactiveReasonOther => []
+      linkUp: true,
+      blocked: false,
+      vlanIds: [],
+      vmDirectPathGen2InactiveReasonNetwork: [],
+      vmDirectPathGen2InactiveReasonOther: []
     )
 
     check <<~EOS, obj, 'DVPortStatus'
@@ -131,11 +131,11 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_fault
     obj = VIM.LocalizedMethodFault(
-      :localizedMessage => 'The attempted operation cannot be performed in the current state (Powered off).',
-      :fault => VIM.InvalidPowerState(
-        :requestedState => 'poweredOn',
-        :existingState => 'poweredOff',
-        :faultMessage => []
+      localizedMessage: 'The attempted operation cannot be performed in the current state (Powered off).',
+      fault: VIM.InvalidPowerState(
+        requestedState: 'poweredOn',
+        existingState: 'poweredOff',
+        faultMessage: []
       )
     )
 
@@ -152,21 +152,21 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_wait_for_updates
     obj = VIM.UpdateSet(
-      :version => '7',
-      :filterSet => [
+      version: '7',
+      filterSet: [
         VIM.PropertyFilterUpdate(
-          :filter => VIM.PropertyFilter(nil, 'session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF'),
-          :missingSet => [],
-          :objectSet => [
+          filter: VIM.PropertyFilter(nil, 'session[528BA5EB-335B-4AF6-B49C-6160CF5E8D5B]71E3AC7E-7927-4D9E-8BC3-522769F22DAF'),
+          missingSet: [],
+          objectSet: [
             VIM.ObjectUpdate(
-              :kind => 'enter',
-              :obj => VIM.VirtualMachine(nil, 'vm-1106'),
-              :missingSet => [],
-              :changeSet => [
+              kind: 'enter',
+              obj: VIM.VirtualMachine(nil, 'vm-1106'),
+              missingSet: [],
+              changeSet: [
                 VIM.PropertyChange(
-                  :name => 'runtime.powerState',
-                  :op => 'assign',
-                  :val => 'poweredOn'
+                  name: 'runtime.powerState',
+                  op: 'assign',
+                  val: 'poweredOn'
                 )
               ]
             )
@@ -203,13 +203,13 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_hba
     obj = VIM::HostBlockHba(
-      :key => 'key-vim.host.BlockHba-vmhba0',
-      :device => 'vmhba0',
-      :bus => 0,
-      :status => 'unknown',
-      :model => 'Virtual Machine Chipset',
-      :driver => 'ata_piix',
-      :pci => '00:07.1')
+      key: 'key-vim.host.BlockHba-vmhba0',
+      device: 'vmhba0',
+      bus: 0,
+      status: 'unknown',
+      model: 'Virtual Machine Chipset',
+      driver: 'ata_piix',
+      pci: '00:07.1')
 
     check <<~EOS, obj, 'HostBlockHba'
       <hostBusAdapter xsi:type="HostBlockHba">
@@ -242,22 +242,22 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_runtime_info
     obj = VIM::VirtualMachineRuntimeInfo(
-      :bootTime => Time.parse('2010-08-20 05:44:35 UTC'),
-      :connectionState => 'connected',
-      :faultToleranceState => 'notConfigured',
-      :featureMask => [],
-      :featureRequirement => [],
-      :host => VIM::HostSystem(nil, 'host-32'),
-      :maxCpuUsage => 5612,
-      :maxMemoryUsage => 3072,
-      :memoryOverhead => 128671744,
-      :numMksConnections => 1,
-      :offlineFeatureRequirement => [],
-      :powerState => 'poweredOn',
-      :recordReplayState => 'inactive',
-      :suspendInterval => 0,
-      :toolsInstallerMounted => false,
-      :device => []
+      bootTime: Time.parse('2010-08-20 05:44:35 UTC'),
+      connectionState: 'connected',
+      faultToleranceState: 'notConfigured',
+      featureMask: [],
+      featureRequirement: [],
+      host: VIM::HostSystem(nil, 'host-32'),
+      maxCpuUsage: 5612,
+      maxMemoryUsage: 3072,
+      memoryOverhead: 128671744,
+      numMksConnections: 1,
+      offlineFeatureRequirement: [],
+      powerState: 'poweredOn',
+      recordReplayState: 'inactive',
+      suspendInterval: 0,
+      toolsInstallerMounted: false,
+      device: []
     )
 
     check <<~EOS, obj, 'VirtualMachineRuntimeInfo'
@@ -351,13 +351,13 @@ class DeserializationTest < Test::Unit::TestCase
 
   def test_new_fields
     obj = VIM::HostBlockHba(
-      :key => 'key-vim.host.BlockHba-vmhba0',
-      :device => 'vmhba0',
-      :bus => 0,
-      :status => 'unknown',
-      :model => 'Virtual Machine Chipset',
-      :driver => 'ata_piix',
-      :pci => '00:07.1')
+      key: 'key-vim.host.BlockHba-vmhba0',
+      device: 'vmhba0',
+      bus: 0,
+      status: 'unknown',
+      model: 'Virtual Machine Chipset',
+      driver: 'ata_piix',
+      pci: '00:07.1')
 
     check <<~EOS, obj, 'HostBlockHba'
       <hostBusAdapter xsi:type="HostBlockHba">
