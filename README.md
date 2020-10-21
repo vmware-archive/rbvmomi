@@ -2,6 +2,7 @@
 
 [<img src="https://badge.fury.io/rb/rbvmomi.svg" alt="gem-version">](https://rubygems.org/gems/rbvmomi) 
 ![Test](https://github.com/vmware/rbvmomi/workflows/Test/badge.svg)
+![Lint](https://github.com/vmware/rbvmomi/workflows/Lint/badge.svg)
 [<img src="https://badges.gitter.im/vmware/rbvmomi.svg">](https://gitter.im/vmware/rbvmomi)
 
 This is a community-supported, open source project at VMware. It is built and
