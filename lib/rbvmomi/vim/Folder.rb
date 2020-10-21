@@ -94,7 +94,7 @@ class RbVmomi::VIM::Folder
     return self if es.empty?
     final = es.pop
 
-    p = es.inject(self) do |f,e|
+    p = es.inject(self) do |f, e|
       f.find(e, RbVmomi::VIM::Folder) || (create && f.CreateFolder(name: e)) || return
     end
 
@@ -125,7 +125,7 @@ class RbVmomi::VIM::Folder
   # @return [Hash] Hash of ManagedObjects to properties.
   def inventory_flat propSpecs={}
     propSet = [{ type: 'Folder', pathSet: ['name', 'parent', 'childEntity'] }]
-    propSpecs.each do |k,v|
+    propSpecs.each do |k, v|
       case k
       when Class
         raise 'key must be a subclass of ManagedEntity' unless k < RbVmomi::VIM::ManagedEntity
@@ -204,7 +204,7 @@ class RbVmomi::VIM::Folder
   def inventory propSpecs={}
     inv = inventory_flat propSpecs
     tree = { self => {} }
-    inv.each do |obj,x|
+    inv.each do |obj, x|
       next if obj == self
       h = Hash[x.propSet.map { |y| [y.name, y.val] }]
       tree[h['parent']][h['name']] = [obj, h]

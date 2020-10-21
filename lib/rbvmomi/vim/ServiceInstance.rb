@@ -25,7 +25,7 @@ class RbVmomi::VIM::ServiceInstance
   def wait_for_multiple_tasks interested, tasks
     version = ''
     interested = (interested + ['info.state']).uniq
-    task_props = Hash.new { |h,k| h[k] = {} }
+    task_props = Hash.new { |h, k| h[k] = {} }
 
     filter = _connection.propertyCollector.CreateFilter spec: {
       propSet: [{ type: 'Task', all: false, pathSet: interested }],
@@ -33,7 +33,7 @@ class RbVmomi::VIM::ServiceInstance
     }, partialUpdates: false
 
     begin
-      until task_props.size == tasks.size and task_props.all? { |k,h| %w(success error).member? h['info.state'] }
+      until task_props.size == tasks.size and task_props.all? { |k, h| %w(success error).member? h['info.state'] }
         result = _connection.propertyCollector.WaitForUpdates(version: version)
         version = result.version
         os = result.filterSet[0].objectSet

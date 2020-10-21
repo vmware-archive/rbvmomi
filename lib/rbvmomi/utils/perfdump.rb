@@ -360,7 +360,7 @@ class PerfAggregator
       raise
     end
 
-    connected_hosts = hosts_props.select do |k,v|
+    connected_hosts = hosts_props.select do |k, v|
       v['runtime.connectionState'] != 'disconnected'
     end
     if connected_hosts.length > 0

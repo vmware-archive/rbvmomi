@@ -75,7 +75,7 @@ def type name
     end
     puts
     puts 'Methods:'
-    klass.full_methods_desc.sort_by(&:first).each do |name,desc|
+    klass.full_methods_desc.sort_by(&:first).each do |name, desc|
       params = desc['params']
       puts " #{name}(#{params.map { |x| "#{x['name']} : #{q[x['wsdl_type'] || 'void']}#{x['is-array'] ? '[]' : ''}" } * ', '}) : #{q[desc['result']['wsdl_type'] || 'void']}"
     end

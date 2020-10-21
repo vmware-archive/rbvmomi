@@ -15,7 +15,7 @@ internal_vmodl = File.open(internal_vmodl_filename, 'r') { |io| Marshal.load io 
 
 db = {}
 tn = {}
-public_vmodl.each do |k,v|
+public_vmodl.each do |k, v|
   unless k == '_typenames'
     db[k] = v
   else

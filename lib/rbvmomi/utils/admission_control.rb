@@ -219,7 +219,7 @@ class AdmissionControlledResourceScheduler
       log 'Performing admission control:'
       @filtered_pods = self.pods.select do |pod|
         # Gather some statistics about the pod ...
-        on_vms = pod_vms(pod).select{|k,v| v['runtime.powerState'] == 'poweredOn'}
+        on_vms = pod_vms(pod).select{|k, v| v['runtime.powerState'] == 'poweredOn'}
         num_pod_vms = on_vms.length
         pod_datastores = self.pod_datastores(pod)
         log "Pod: #{pod.map{|x| x.name}.join(', ')}"
@@ -300,14 +300,14 @@ class AdmissionControlledResourceScheduler
       # Out of the pods to which we have been granted access, pick the cluster
       # (aka computer) with the lowest CPU/Mem utilization for load balancing
       available = self.filtered_pods.flatten
-      eligible = self.computers.select do |computer,stats|
+      eligible = self.computers.select do |computer, stats|
         available.member?(computer) && stats[:totalCPU] > 0 and stats[:totalMem] > 0
       end
       computer = nil
       if placementhint
         computer = eligible.map{|x| x[0]}[placementhint % eligible.length] if eligible.length > 0
       else
-        computer, = eligible.min_by do |computer,stats|
+        computer, = eligible.min_by do |computer, stats|
           2**(stats[:usedCPU].to_f/stats[:totalCPU]) + (stats[:usedMem].to_f/stats[:totalMem])
         end
       end

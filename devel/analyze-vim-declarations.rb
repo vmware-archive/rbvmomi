@@ -19,7 +19,7 @@ end
 TYPES = {}
 VERSIONS = []
 
-ID2NAME = Hash.new { |h,k| raise "unknown type-id #{k.inspect}" }
+ID2NAME = Hash.new { |h, k| raise "unknown type-id #{k.inspect}" }
 
 ID2NAME.merge!({
   'java.lang.String' => 'xsd:string',
@@ -149,7 +149,7 @@ end
 
 munge_fault = lambda { |x| true }
 
-TYPES.each do |k,t|
+TYPES.each do |k, t|
   case t['kind']
   when 'data'
     t['wsdl_base'] = t['base-type-id'] ? ID2NAME[t['base-type-id']] : 'DataObject'
@@ -167,7 +167,7 @@ TYPES.each do |k,t|
       x.delete 'type-id-ref'
       munge_fault[x]
     end
-    t['methods'].each do |mName,x|
+    t['methods'].each do |mName, x|
       if y = x['result']
         begin
           y['wsdl_type'] = ID2NAME[y['type-id-ref']]
@@ -194,7 +194,7 @@ end
 
 db = {}
 
-TYPES.each do |k,t|
+TYPES.each do |k, t|
   db[k] = t
 end
 
