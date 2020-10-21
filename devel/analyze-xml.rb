@@ -21,14 +21,14 @@ def analyze_xml x, tree
     analyze_xml c, subtree
   end
 
-  subtree.select { |k,v| k.is_a? String }.each do |k,v|
+  subtree.select { |k, v| k.is_a? String }.each do |k, v|
     v[:min_occur] = [v[:min_occur], child_occurs[k]].compact.min
     v[:max_occur] = [v[:max_occur], child_occurs[k]].compact.max
   end
 end
 
 def print_tree tree, indent=0
-  tree.select { |k,v| k.is_a? String }.sort.each do |k,v|
+  tree.select { |k, v| k.is_a? String }.sort.each do |k, v|
     attrs = v[:attributes] || []
     min, max = v[:min_occur], v[:max_occur]
     numsym = if min == 0 and max == 0 then raise

@@ -33,7 +33,7 @@ class NewDeserializer
     'KeyValue' => :keyvalue,
   }
 
-  BUILTIN_TYPE_ACTIONS.dup.each do |k,v|
+  BUILTIN_TYPE_ACTIONS.dup.each do |k, v|
     BUILTIN_TYPE_ACTIONS[$'] = v if k =~ /^xsd:/
   end
 

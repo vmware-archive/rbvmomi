@@ -15,9 +15,9 @@ class TypeLoader
     @db = {}
     @id2wsdl = {}
     @loaded = {}
-    add_types Hash[BasicTypes::BUILTIN.map { |k| [k,nil] }]
+    add_types Hash[BasicTypes::BUILTIN.map { |k| [k, nil] }]
     vmodl_database = File.open(fn, 'r') { |io| Marshal.load io }
-    vmodl_database.reject! { |k,v| k =~ /^_/ }
+    vmodl_database.reject! { |k, v| k =~ /^_/ }
     add_types vmodl_database
     preload
   end

@@ -72,7 +72,7 @@ class ObjectWithMethods < ObjectWithProperties
       super name, props
       @methods_desc = methods
 
-      @methods_desc.each do |k,d|
+      @methods_desc.each do |k, d|
         sym = k.to_sym
         define_method(sym) { |*args| _call sym, *args }
         define_method(:"#{sym}!") { |*args| _call sym, *args }
@@ -100,11 +100,11 @@ class DataObject < ObjectWithProperties
       return
     end
 
-    @props = Hash[props.map { |k,v| [k.to_sym, v] }]
+    @props = Hash[props.map { |k, v| [k.to_sym, v] }]
     #self.class.full_props_desc.each do |desc|
       #fail "missing required property #{desc['name'].inspect} of #{self.class.wsdl_name}" if @props[desc['name'].to_sym].nil? and not desc['is-optional']
     #end
-    @props.each do |k,v|
+    @props.each do |k, v|
       raise "unexpected property name #{k}" unless self.class.find_prop_desc(k)
     end
   end
@@ -147,7 +147,7 @@ class DataObject < ObjectWithProperties
     q.group 2 do
       q.text '('
       q.breakable
-      props = @props.sort_by { |k,v| k.to_s }
+      props = @props.sort_by { |k, v| k.to_s }
       q.seplist props, nil, :each do |e|
         k, v = e
         q.group do

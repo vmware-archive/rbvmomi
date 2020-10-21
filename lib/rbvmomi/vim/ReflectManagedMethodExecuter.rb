@@ -12,7 +12,7 @@ class VIM::ReflectManagedMethodExecuter
   end
 
   def execute moid, method, args
-    soap_args = args.map do |k,v|
+    soap_args = args.map do |k, v|
       VIM::ReflectManagedMethodExecuterSoapArgument.new.tap do |soap_arg|
         soap_arg.name = k
         xml = Builder::XmlMarkup.new indent: 0

@@ -30,4 +30,7 @@ Style/IfUnlessModifier:
 Style/HashSyntax:
   EnforcedStyle: ruby19
 
+Layout/SpaceAfterComma:
+  Enabled: true
+
 # inherit_from: .rubocop_todo.yml

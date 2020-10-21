@@ -41,9 +41,9 @@ vim = VIM.connect opts
 dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter not found'
 
 def si n
-  ['', 'K', 'M', 'G', 'T', 'P'].each_with_index do |x,i|
+  ['', 'K', 'M', 'G', 'T', 'P'].each_with_index do |x, i|
     v = n.to_f/(1000**i)
-    return v,x if v < 1000 or x == 'P'
+    return v, x if v < 1000 or x == 'P'
   end
 end
 
@@ -52,7 +52,7 @@ def unit n, u, p
 end
 
 def b n
-  unit(n,'B',3)
+  unit(n, 'B', 3)
 end
 
 puts "Filesystem#{' '*53}Size     Used     Avail    Use%     Mounted on"
@@ -67,7 +67,7 @@ if false
     free = s.freeSpace
     used = size - free
     pct_used = used*100.0/size
-    puts(fmt % [ds.info.url, b(size), b(used), b(free), unit(pct_used,'%',3), ds.name])
+    puts(fmt % [ds.info.url, b(size), b(used), b(free), unit(pct_used, '%', 3), ds.name])
   end
 else
   # fast version
@@ -80,6 +80,6 @@ else
     free = d['summary.freeSpace']
     used = size - free
     pct_used = used*100.0/size
-    puts(fmt % [d['info.url'], b(size), b(used), b(free), unit(pct_used,'%',3), d['name']])
+    puts(fmt % [d['info.url'], b(size), b(used), b(free), unit(pct_used, '%', 3), d['name']])
   end
 end

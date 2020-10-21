@@ -15,7 +15,7 @@ class RbVmomi::VIM::ResourcePool
   # @return [VIM::ResourcePool]
   def traverse path
     es = path.split('/').reject(&:empty?)
-    es.inject(self) do |f,e|
+    es.inject(self) do |f, e|
       f.find(e) || return
     end
   end

@@ -60,12 +60,12 @@ class VIM::EsxcliNamespace
     VIM.loader.add_types type_hash
     all_instances = host.dtm.DynamicTypeMgrQueryMoInstances
     instances = Hash[all_instances.select { |x| x.moType.start_with? ESXCLI_PREFIX }.
-                                   map { |x| [x.moType,x.id] }]
-    type_infos = Hash[host.dti.managedTypeInfo.map { |x| [x.name,x] }]
+                                   map { |x| [x.moType, x.id] }]
+    type_infos = Hash[host.dti.managedTypeInfo.map { |x| [x.name, x] }]
     new('root', nil, host).tap do |root|
-      instances.each do |type,instance|
+      instances.each do |type, instance|
         path = type.split('.')[2..-1]
-        ns = path.inject(root) { |b,v| b.namespaces[v] }
+        ns = path.inject(root) { |b, v| b.namespaces[v] }
         ns.realize type, instance, type_infos[type]
       end
     end
@@ -78,7 +78,7 @@ class VIM::EsxcliNamespace
     @type = nil
     @instance = nil
     @type_info = nil
-    @namespaces = Hash.new { |h,k| h[k] = self.class.new k, self, host }
+    @namespaces = Hash.new { |h, k| h[k] = self.class.new k, self, host }
     @commands = {}
     @cached_cli_info = nil
   end
@@ -169,7 +169,7 @@ class VIM::EsxcliCommand
       @ns.obj._call @type_info.wsdlName, args
     else
       real_args = Set.new(type_info.paramTypeInfo.map(&:name))
-      args = args.reject { |k,v| !real_args.member?(k.to_s) }
+      args = args.reject { |k, v| !real_args.member?(k.to_s) }
       @ns.host.mme.execute(@ns.obj._ref, "#{@ns.type_name}.#{@type_info.name}", args)
     end
   end
