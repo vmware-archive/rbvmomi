@@ -27,4 +27,7 @@ Layout/IndentationConsistency:
 Style/IfUnlessModifier:
   Enabled: true
 
+Style/HashSyntax:
+  EnforcedStyle: ruby19
+
 # inherit_from: .rubocop_todo.yml
