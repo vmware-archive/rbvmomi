@@ -61,11 +61,6 @@ Layout/DotPosition:
 Layout/ElseAlignment:
   Enabled: false
 
-# Offense count: 53
-# Cop supports --auto-correct.
-Layout/EmptyLineAfterGuardClause:
-  Enabled: false
-
 # Offense count: 1
 # Cop supports --auto-correct.
 # Configuration parameters: AllowAdjacentOneLineDefs, NumberOfEmptyLines.

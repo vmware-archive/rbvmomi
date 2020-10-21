@@ -20,6 +20,7 @@ class RbVmomi::VIM::ObjectUpdate
     h = {}
     changeSet.each do |x|
       raise if h.member? x.name
+
       h[x.name] = x.val
     end
     h

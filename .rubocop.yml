@@ -33,4 +33,7 @@ Style/HashSyntax:
 Layout/SpaceAfterComma:
   Enabled: true
 
+Layout/EmptyLineAfterGuardClause:
+  Enabled: true
+
 # inherit_from: .rubocop_todo.yml

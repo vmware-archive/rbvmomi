@@ -92,6 +92,7 @@ class RbVmomi::VIM::Folder
       raise "unexpected path class #{path.class}"
     end
     return self if es.empty?
+
     final = es.pop
 
     p = es.inject(self) do |f, e|
@@ -129,6 +130,7 @@ class RbVmomi::VIM::Folder
       case k
       when Class
         raise 'key must be a subclass of ManagedEntity' unless k < RbVmomi::VIM::ManagedEntity
+
         k = k.wsdl_name
       when Symbol, String
         k = k.to_s
@@ -206,6 +208,7 @@ class RbVmomi::VIM::Folder
     tree = { self => {} }
     inv.each do |obj, x|
       next if obj == self
+
       h = Hash[x.propSet.map { |y| [y.name, y.val] }]
       tree[h['parent']][h['name']] = [obj, h]
       tree[obj] = {} if obj.is_a? RbVmomi::VIM::Folder

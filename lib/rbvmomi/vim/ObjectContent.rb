@@ -20,6 +20,7 @@ class RbVmomi::VIM::ObjectContent
     h = {}
     propSet.each do |x|
       raise if h.member? x.name
+
       h[x.name] = x.val
     end
     h

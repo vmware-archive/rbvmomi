@@ -66,6 +66,7 @@ class RbVmomi::VIM::OvfManager
 
     nfcLease.wait_until(:state) { nfcLease.state != 'initializing' }
     raise nfcLease.error if nfcLease.state == 'error'
+
     begin
       nfcLease.HttpNfcLeaseProgress(percent: 5)
       timeout, = nfcLease.collect 'info.leaseTimeout'
@@ -87,6 +88,7 @@ class RbVmomi::VIM::OvfManager
         end
         raise "NFC lease is no longer ready: #{leaseState}: #{leaseError}" if leaseState != 'ready'
         raise 'NFC lease disappeared?' if leaseInfo == nil
+
         deviceUrl = leaseInfo.deviceUrl.find{|x| x.importKey == fileItem.deviceId}
         raise "Couldn't find deviceURL for device '#{fileItem.deviceId}'" if !deviceUrl
 
@@ -121,6 +123,7 @@ class RbVmomi::VIM::OvfManager
           i += 1
         end while i <= 5 && !ip
         raise "Couldn't get host's IP address" unless ip
+
         href = deviceUrl.url.gsub('*', ip)
         downloadCmd = "#{CURLBIN} -L '#{URI::escape(filename)}'"
         uploadCmd = "#{CURLBIN} -Ss -X #{method} --insecure -T - -H 'Content-Type: application/x-vnd.vmware-streamVmdk' '#{URI::escape(href)}'"
@@ -139,6 +142,7 @@ class RbVmomi::VIM::OvfManager
 
       nfcLease.HttpNfcLeaseProgress(percent: 100)
       raise nfcLease.error if nfcLease.state == 'error'
+
       i = 1
       vm = nil
       begin

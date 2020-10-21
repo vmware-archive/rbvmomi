@@ -42,6 +42,7 @@ class TypeLoader
       dir.each do |file|
         next unless file =~ /\.rb$/
         next unless loaded.member? $`
+
         file_path = File.join(dir, file)
         load file_path
       end
@@ -61,8 +62,10 @@ class TypeLoader
     name = '%s%s' % [first_char.upcase, name[1..-1]] if first_char.downcase == first_char
 
     return @loaded[name] if @loaded.member? name
+
     @lock.synchronize do
       return @loaded[name] if @loaded.member? name
+
       klass = make_type(name)
       @namespace.const_set name, klass
       load_extension name
@@ -97,6 +100,7 @@ class TypeLoader
   def make_type name
     name = name.to_s
     return BasicTypes.const_get(name) if BasicTypes::BUILTIN.member? name
+
     desc = @db[name] or raise "unknown VMODL type #{name}"
     case desc['kind']
     when 'data' then make_data_type name, desc

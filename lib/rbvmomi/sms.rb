@@ -20,6 +20,7 @@ class SMS < Connection
   # @option opts [Boolean] :debug (false) If true, print SOAP traffic to stderr.
   def self.connect vim, opts = {}
     raise unless opts.is_a? Hash
+
     opts[:host] = vim.host
     opts[:ssl] = true unless opts.member? :ssl or opts[:"no-ssl"]
     opts[:insecure] ||= true

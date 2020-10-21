@@ -37,6 +37,7 @@ class VIM::HostSystem
   def cli_info_fetcher
     # XXX there can be more than one
     return @cached_cli_info_fetcher if @cached_cli_info_fetcher
+
     inst = dtm.DynamicTypeMgrQueryMoInstances.find { |x| x.moType == 'vim.CLIInfo' }
     @cached_cli_info_fetcher = create_dynamic_managed_object inst
   end
@@ -85,6 +86,7 @@ class VIM::EsxcliNamespace
 
   def realize type, instance, type_info
     raise if @type or @instance
+
     @type = type
     @instance = instance
     @type_info = type_info

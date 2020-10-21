@@ -190,6 +190,7 @@ class PerfAggregator
   # @param objs [Array] Flat list of tree elements
   def _compute_vmfolder_and_rp_path_and_parents vc, obj, objs
     return if obj['path']
+
     if !obj['parent']
       obj['parent'] = vc
       obj['path'] = "root/#{vc}/#{obj['name']}"
@@ -243,8 +244,10 @@ class PerfAggregator
   def _compute_parents_and_children objs
     objs.each do |obj, props|
       next if props['parent_paths']
+
       props['parent_paths'] = {}
       next if !props['parent']
+
       parent = objs[props['parent']]
       props['paths'].keys.each do |type|
         props['parent_paths'][type] = parent['paths'][type]
@@ -380,6 +383,7 @@ class PerfAggregator
 
     vms_props.each do |vm, props|
       next if !connected_vms.member?(vm)
+
       props['num.vm'] = 1
       powered_on = (props['runtime.powerState'] == 'poweredOn')
       props['num.poweredonvm'] = powered_on ? 1 : 0
@@ -527,6 +531,7 @@ class PerfAggregator
 
       vms_props.each do |vm, props|
         next if !props['parent_paths'] || !props['parent_paths'][path_type]
+
         parent_path = props['parent_paths'][path_type]
         while parent_path
           parent = index[parent_path]

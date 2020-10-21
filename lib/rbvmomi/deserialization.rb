@@ -141,6 +141,7 @@ class NewDeserializer
     h = {}
     node.children.each do |child|
       next unless child.element?
+
       h[child.name] = child.content
     end
     [h['key'], h['value']]
@@ -176,6 +177,7 @@ class OldDeserializer
       props_desc.select { |d| d['is-array'] }.each { |d| h[d['name'].to_sym] = [] }
       xml.children.each do |c|
         next unless c.element?
+
         field = c.name.to_sym
         d = t.find_prop_desc(field.to_s) or next
         o = deserialize c, d['wsdl_type']
@@ -196,6 +198,7 @@ class OldDeserializer
       h = {}
       xml.children.each do |c|
         next unless c.element?
+
         h[c.name] = c.text
       end
       [h['key'], h['value']]

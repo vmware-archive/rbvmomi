@@ -119,6 +119,7 @@ class Connection < TrivialSoap
   def obj2xml xml, name, type, is_array, o, attrs={}
     expected = type(type)
     raise "expected array for '#{name}', got #{o.class.wsdl_name}" if is_array and not (o.is_a? Array or (o.is_a? Hash and expected == BasicTypes::KeyValue))
+
     case o
     when Array, BasicTypes::KeyValue
       if o.is_a? BasicTypes::KeyValue and expected != BasicTypes::KeyValue
@@ -130,20 +131,24 @@ class Connection < TrivialSoap
         end
       else
         raise "expected #{expected.wsdl_name} for '#{name}', got array" unless is_array
+
         o.each do |e|
           obj2xml xml, name, expected.wsdl_name, false, e, attrs
         end
       end
     when BasicTypes::ManagedObject
       raise "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
+
       xml.tag! name, o._ref, type: o.class.wsdl_name
     when BasicTypes::DataObject
       raise "expected #{expected.wsdl_name} for '#{name}', got #{o.class.wsdl_name} for field #{name.inspect}" if expected and not expected >= o.class and not expected == BasicTypes::AnyType
+
       xml.tag! name, attrs.merge('xsi:type' => o.class.wsdl_name) do
         o.class.full_props_desc.each do |desc|
           if o.props.member? desc['name'].to_sym
             v = o.props[desc['name'].to_sym]
             next if v.nil?
+
             obj2xml xml, desc['name'], desc['wsdl_type'], desc['is-array'], v
           end
         end
@@ -155,10 +160,12 @@ class Connection < TrivialSoap
         obj2xml xml, name, type, is_array, o.to_a, attrs
       else
         raise "expected #{expected.wsdl_name} for '#{name}', got a hash" unless expected <= BasicTypes::DataObject
+
         obj2xml xml, name, type, false, expected.new(o), attrs
       end
     when true, false
       raise "expected #{expected.wsdl_name} for '#{name}', got a boolean" unless [BasicTypes::Boolean, BasicTypes::AnyType].member? expected
+
       attrs['xsi:type'] = 'xsd:boolean' if expected == BasicTypes::AnyType
       xml.tag! name, (o ? '1' : '0'), attrs
     when Symbol, String
@@ -195,6 +202,7 @@ class Connection < TrivialSoap
 
   def self.type name
     raise unless name and (name.is_a? String or name.is_a? Symbol)
+
     name = $' if name.to_s =~ /^xsd:/
     case name.to_sym
     when :anyType then BasicTypes::AnyType
