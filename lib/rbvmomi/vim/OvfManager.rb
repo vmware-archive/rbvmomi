@@ -35,7 +35,7 @@ class RbVmomi::VIM::OvfManager
       locale: 'US',
       entityName: opts[:vmName],
       deploymentOption: opts[:deploymentOption] || '',
-      networkMapping: opts[:networkMappings].map{|from, to| RbVmomi::VIM::OvfNetworkMapping(name: from, network: to)},
+      networkMapping: opts[:networkMappings].map{ |from, to| RbVmomi::VIM::OvfNetworkMapping(name: from, network: to) },
       propertyMapping: opts[:propertyMappings].to_a,
       diskProvisioning: opts[:diskProvisioning]
     )
@@ -49,7 +49,7 @@ class RbVmomi::VIM::OvfManager
 
     raise result.error[0].localizedMessage if result.error && !result.error.empty?
 
-    result.warning.each{|x| puts "OVF Warning: #{x.localizedMessage.chomp}" } if result.warning
+    result.warning.each{ |x| puts "OVF Warning: #{x.localizedMessage.chomp}" } if result.warning
 
     importSpec = result.importSpec
     if importSpec && importSpec.instantiationOst && importSpec.instantiationOst.child
@@ -89,7 +89,7 @@ class RbVmomi::VIM::OvfManager
         raise "NFC lease is no longer ready: #{leaseState}: #{leaseError}" if leaseState != 'ready'
         raise 'NFC lease disappeared?' if leaseInfo == nil
 
-        deviceUrl = leaseInfo.deviceUrl.find{|x| x.importKey == fileItem.deviceId}
+        deviceUrl = leaseInfo.deviceUrl.find{ |x| x.importKey == fileItem.deviceId }
         raise "Couldn't find deviceURL for device '#{fileItem.deviceId}'" if !deviceUrl
 
         ovfFilename = opts[:uri].to_s

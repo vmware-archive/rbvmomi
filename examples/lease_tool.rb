@@ -59,7 +59,7 @@ vm_folder = root_vm_folder.traverse(opts[:vm_folder_path], VIM::Folder)
 lease_tool = LeaseTool.new
 vms_props_list = (['runtime.powerState'] + lease_tool.vms_props_list).uniq
 inventory = vm_folder.inventory_flat('VirtualMachine' => vms_props_list)
-inventory = inventory.select{|obj, props| obj.is_a?(VIM::VirtualMachine)}
+inventory = inventory.select{ |obj, props| obj.is_a?(VIM::VirtualMachine) }
 case cmd
 when 'set_lease_on_leaseless_vms'
   lease_tool.set_lease_on_leaseless_vms(

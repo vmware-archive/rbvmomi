@@ -148,11 +148,11 @@ class AdmissionControlledResourceScheduler
       # A pod is defined as a set of clusters (aka computers) that share the same
       # datastore accessibility. Computing pods is done automatically using simple
       # set theory math.
-      computersProps = @pc.collectMultiple(computers.map{|x| x[0]}, 'datastore')
+      computersProps = @pc.collectMultiple(computers.map{ |x| x[0] }, 'datastore')
       @pods = computers.map do |computer, stats|
         computersProps[computer]['datastore'] & self.datastores
       end.uniq.map do |ds_list|
-        computers.map{|x| x[0]}.select do |computer|
+        computers.map{ |x| x[0] }.select do |computer|
           (computer.datastore & self.datastores) == ds_list
         end
       end
@@ -199,7 +199,7 @@ class AdmissionControlledResourceScheduler
     result = @vim.propertyCollector.RetrieveProperties(specSet: [filterSpec])
 
     out = result.map { |x| [x.obj, Hash[x.propSet.map { |y| [y.name, y.val] }]] }
-    out.select{|obj, props| obj.is_a?(RbVmomi::VIM::VirtualMachine)}
+    out.select{ |obj, props| obj.is_a?(RbVmomi::VIM::VirtualMachine) }
   end
 
   # Returns all candidate datastores for a given pod.
@@ -220,10 +220,10 @@ class AdmissionControlledResourceScheduler
       log 'Performing admission control:'
       @filtered_pods = self.pods.select do |pod|
         # Gather some statistics about the pod ...
-        on_vms = pod_vms(pod).select{|k, v| v['runtime.powerState'] == 'poweredOn'}
+        on_vms = pod_vms(pod).select{ |k, v| v['runtime.powerState'] == 'poweredOn' }
         num_pod_vms = on_vms.length
         pod_datastores = self.pod_datastores(pod)
-        log "Pod: #{pod.map{|x| x.name}.join(', ')}"
+        log "Pod: #{pod.map{ |x| x.name }.join(', ')}"
         log "   #{num_pod_vms} VMs"
         pod_datastores.each do |ds|
           ds_sum = @datastore_props[ds]['summary']
@@ -257,7 +257,7 @@ class AdmissionControlledResourceScheduler
           end
 
           if low_list.length == pod_datastores.length
-            dsNames = low_list.map{|ds| @datastore_props[ds]['name']}.join(', ')
+            dsNames = low_list.map{ |ds| @datastore_props[ds]['name'] }.join(', ')
             err = "Datastores #{dsNames} below minimum free disk space (#{min_ds_free}%)"
             denied = true
           end
@@ -306,7 +306,7 @@ class AdmissionControlledResourceScheduler
       end
       computer = nil
       if placementhint
-        computer = eligible.map{|x| x[0]}[placementhint % eligible.length] if eligible.length > 0
+        computer = eligible.map{ |x| x[0] }[placementhint % eligible.length] if eligible.length > 0
       else
         computer, = eligible.min_by do |computer, stats|
           2**(stats[:usedCPU].to_f/stats[:totalCPU]) + (stats[:usedMem].to_f/stats[:totalMem])
@@ -374,7 +374,7 @@ class AdmissionControlledResourceScheduler
     end
     numVms = user_vms.length
     unshared = user_vms.map do |vm, info|
-      info['storage'].perDatastoreUsage.map{|x| x.unshared}.inject(0, &:+)
+      info['storage'].perDatastoreUsage.map{ |x| x.unshared }.inject(0, &:+)
     end.inject(0, &:+)
     log "User stats: #{numVms} VMs using %.2fGB of storage" % [unshared.to_f / 1024**3]
 

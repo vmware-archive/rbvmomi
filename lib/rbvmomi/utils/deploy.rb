@@ -108,12 +108,12 @@ class CachedOvfDeployer
     # can't handle them.
     ovf_url = URI(ovf_url).path if URI(ovf_url).scheme == 'file' && URI(ovf_url).host.nil?
 
-    ovf = open(ovf_url, 'r'){|io| Nokogiri::XML(io.read)}
+    ovf = open(ovf_url, 'r'){ |io| Nokogiri::XML(io.read) }
     ovf.remove_namespaces!
-    networks = ovf.xpath('//NetworkSection/Network').map{|x| x['name']}
-    network_mappings = Hash[networks.map{|x| [x, @network]}]
+    networks = ovf.xpath('//NetworkSection/Network').map{ |x| x['name'] }
+    network_mappings = Hash[networks.map{ |x| [x, @network] }]
 
-    network_mappings_str = network_mappings.map{|k, v| "#{k} = #{v.name}"}
+    network_mappings_str = network_mappings.map{ |k, v| "#{k} = #{v.name}" }
     log "networks: #{network_mappings_str.join(', ')}"
 
     pc = @vim.serviceContent.propertyCollector
@@ -292,7 +292,7 @@ class CachedOvfDeployer
     while !vm
       sleep 3
       # XXX: Optimize this
-      vm = vm_folder.children.find{|x| x.name == vm_name}
+      vm = vm_folder.children.find{ |x| x.name == vm_name }
     end
     log 'Template VM found'
     sleep 2

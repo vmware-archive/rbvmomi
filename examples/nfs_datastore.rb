@@ -68,7 +68,7 @@ end
 hosts.each do |host|
   hds = host.configManager.datastoreSystem
 
-  ds = hds.datastore.select {|ds|
+  ds = hds.datastore.select { |ds|
     ds.info.respond_to?(:nas) and
     ds.info.name == localPath and
     ds.info.nas.remoteHost == remoteHost and

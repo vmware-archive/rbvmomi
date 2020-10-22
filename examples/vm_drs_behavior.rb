@@ -53,7 +53,7 @@ dc = vim.serviceInstance.find_datacenter(opts[:datacenter]) or abort 'datacenter
 vm = dc.find_vm(vm_name) or abort 'VM not found'
 
 cluster = vm.runtime.host.parent
-config = cluster.configurationEx.drsVmConfig.select {|c| c.key.name == vm.name }.first
+config = cluster.configurationEx.drsVmConfig.select { |c| c.key.name == vm.name }.first
 default = cluster.configurationEx.drsConfig.defaultVmBehavior
 
 case cmd

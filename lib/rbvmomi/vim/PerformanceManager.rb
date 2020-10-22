@@ -23,11 +23,11 @@ class RbVmomi::VIM::PerformanceManager
   end
 
   def perfcounter_hash
-    @perfcounter_hash ||= Hash[perfcounter_cached.map{|x| [x.name, x]}]
+    @perfcounter_hash ||= Hash[perfcounter_cached.map{ |x| [x.name, x] }]
   end
 
   def perfcounter_idhash
-    @perfcounter_idhash ||= Hash[perfcounter_cached.map{|x| [x.key, x]}]
+    @perfcounter_idhash ||= Hash[perfcounter_cached.map{ |x| [x.key, x] }]
   end
 
   def provider_summary obj
