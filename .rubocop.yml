@@ -39,4 +39,7 @@ Layout/EmptyLineAfterGuardClause:
 Layout/SpaceInsideBlockBraces:
   Enabled: true
 
+Layout/IndentationWidth:
+  Enabled: true
+
 # inherit_from: .rubocop_todo.yml

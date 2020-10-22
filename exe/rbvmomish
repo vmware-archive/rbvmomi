@@ -111,30 +111,30 @@ end
 $binding = $vim.instance_eval { binding }
 
 loop do
-begin
-  input = Readline.readline("#{opts[:host]}> ", false) or break
-  input = input.strip
-  next if input.empty?
+  begin
+    input = Readline.readline("#{opts[:host]}> ", false) or break
+    input = input.strip
+    next if input.empty?
 
-  (history.puts input; Readline::HISTORY << input) unless input == Readline::HISTORY.to_a[-1]
+    (history.puts input; Readline::HISTORY << input) unless input == Readline::HISTORY.to_a[-1]
 
-  result = eval(input, $binding)
-  if input =~ /\#$/
-    type result.class.wsdl_name
-  else
-    pp result unless result == :no_result
+    result = eval(input, $binding)
+    if input =~ /\#$/
+      type result.class.wsdl_name
+    else
+      pp result unless result == :no_result
+    end
+  rescue SystemExit, IOError
+    raise
+  rescue RuntimeError, RbVmomi::Fault
+    puts "#{$!.class}: #{$!.message}"
+    puts $!.backtrace * "\n"
+  rescue UserError
+    puts $!.message
+  rescue Interrupt
+    puts
+  rescue Exception
+    puts "#{$!.class}: #{$!.message}"
+    puts $!.backtrace * "\n"
   end
-rescue SystemExit, IOError
-  raise
-rescue RuntimeError, RbVmomi::Fault
-  puts "#{$!.class}: #{$!.message}"
-  puts $!.backtrace * "\n"
-rescue UserError
-  puts $!.message
-rescue Interrupt
-  puts
-rescue Exception
-  puts "#{$!.class}: #{$!.message}"
-  puts $!.backtrace * "\n"
-end
 end
