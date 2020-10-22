@@ -8,24 +8,24 @@ require 'rbvmomi/optimist'
 opts = Optimist.options do
   banner <<~EOS
     Example 1 from the README: Power on a VM.
-    
+    #{}
     Usage:
         readme-1.rb [options] VM name
-    
+    #{}
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+    #{}
     VM location options:
     EOS
 
   rbvmomi_datacenter_opt
 
   text <<~EOS
-    
+    #{}
     Other options:
     EOS
 end

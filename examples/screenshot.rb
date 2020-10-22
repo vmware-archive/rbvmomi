@@ -12,26 +12,26 @@ VIM = RbVmomi::VIM
 opts = Optimist.options do
   banner <<~EOS
     Take a screenshot.
-    
+    #{}
     Usage:
         screenshot.rb [options] vm filename
-    
+    #{}
     A PNG image will be saved to the given filename.
-    
+    #{}
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+    #{}
     VM location options:
     EOS
 
   rbvmomi_datacenter_opt
 
   text <<~EOS
-    
+    #{}
     Other options:
     EOS
 end

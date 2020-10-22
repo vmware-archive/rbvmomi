@@ -13,26 +13,26 @@ VIM = RbVmomi::VIM
 opts = Optimist.options do
   banner <<~EOS
     vSphere API console.
-    
+    #{}
     Usage:
            rbvmomish [options]
-    
+    #{}
     Predefined methods:
     conn: Returns the VIM connection
     si: Returns the ServiceInstance
     help: Displays this text.
-    
+    #{}
     Special syntax:
     Adding a '#' suffix to an expression displays information about the type of the
     result, including its properties and methods, instead of the value.
-    
+    #{}
     VIM connection options:
   EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+    #{}
     Other options:
   EOS
 

@@ -12,20 +12,20 @@ VIM = RbVmomi::VIM
 opts = Optimist.options do
   banner <<~EOS
     Follow a log file.
-    
+    #{}
     Usage:
         logtail.rb [options] [logKey]
-    
+    #{}
     If logKey is not provided the list of available log keys will be printed and
     the program will exit.
-    
+    #{}
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+    #{}
     Other options:
     EOS
 end

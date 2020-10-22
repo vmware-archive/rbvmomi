@@ -12,26 +12,26 @@ CMDS = %w(on off reset suspend destroy)
 opts = Optimist.options do
   banner <<~EOS
     Perform VM power operations.
-    
+    #{}
     Usage:
         power.rb [options] cmd VM
-    
+    #{}
     Commands: #{CMDS * ' '}
-    
+    #{}
     VIM connection options:
     EOS
 
   rbvmomi_connection_opts
 
   text <<~EOS
-    
+    #{}
     VM location options:
     EOS
 
   rbvmomi_datacenter_opt
 
   text <<~EOS
-    
+    #{}
     Other options:
     EOS
 
