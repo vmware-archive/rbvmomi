@@ -36,4 +36,7 @@ Layout/SpaceAfterComma:
 Layout/EmptyLineAfterGuardClause:
   Enabled: true
 
+Layout/SpaceInsideBlockBraces:
+  Enabled: true
+
 # inherit_from: .rubocop_todo.yml

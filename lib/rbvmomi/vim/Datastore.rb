@@ -69,7 +69,7 @@ class RbVmomi::VIM::Datastore
   end
 
   def mkuripath path
-    datacenter_path_str = datacenter.path[1..-1].map{|elem| elem[1]}.join('/')
+    datacenter_path_str = datacenter.path[1..-1].map{ |elem| elem[1] }.join('/')
     "/folder/#{URI.encode_www_form_component path}?dcPath=#{URI.encode_www_form_component datacenter_path_str }&dsName=#{URI.encode_www_form_component name}"
   end
 end

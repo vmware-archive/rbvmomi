@@ -14,7 +14,7 @@ class RbVmomi::VIM::DynamicTypeMgrManagedTypeInfo
             'name' => prop.name,
             'type-id-ref' => prop.type.gsub('[]', ''),
             'is-array' => (prop.type =~ /\[\]$/) ? true : false,
-            'is-optional' => prop.annotation.find{|a| a.name == 'optional'} ? true : false,
+            'is-optional' => prop.annotation.find{ |a| a.name == 'optional' } ? true : false,
             'version-id-ref' => prop.version,
           }
         end,
@@ -29,7 +29,7 @@ class RbVmomi::VIM::DynamicTypeMgrManagedTypeInfo
                    'name' => param.name,
                    'type-id-ref' => param.type.gsub('[]', ''),
                    'is-array' => (param.type =~ /\[\]$/) ? true : false,
-                   'is-optional' => param.annotation.find{|a| a.name == 'optional'} ? true : false,
+                   'is-optional' => param.annotation.find{ |a| a.name == 'optional' } ? true : false,
                    'version-id-ref' => param.version,
                  }
                end,
@@ -41,7 +41,7 @@ class RbVmomi::VIM::DynamicTypeMgrManagedTypeInfo
                    'name' => result.name,
                    'type-id-ref' => result.type.gsub('[]', ''),
                    'is-array' => (result.type =~ /\[\]$/) ? true : false,
-                   'is-optional' => result.annotation.find{|a| a.name == 'optional'} ? true : false,
+                   'is-optional' => result.annotation.find{ |a| a.name == 'optional' } ? true : false,
                    'version-id-ref' => result.version,
                  }
                end)

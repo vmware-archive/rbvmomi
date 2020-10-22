@@ -37,7 +37,7 @@ def print_tree tree, indent=0
              elsif min == 1 and max == 1 then ''
              else '+'
              end
-    puts "#{'  '*indent}#{k}#{numsym}: #{attrs.sort.map { |a| "[#{a * ' '}]"} * ', '} {#{min},#{max}}"
+    puts "#{'  '*indent}#{k}#{numsym}: #{attrs.sort.map { |a| "[#{a * ' '}]" } * ', '} {#{min},#{max}}"
     print_tree v, (indent+1)
   end
 end

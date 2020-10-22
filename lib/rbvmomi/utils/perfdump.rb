@@ -215,7 +215,7 @@ class PerfAggregator
 
       props['paths'] = {}
       obj_with_parents = [obj] + props['parents']
-      dc = obj_with_parents.find{|x| x.is_a?(RbVmomi::VIM::Datacenter)}
+      dc = obj_with_parents.find{ |x| x.is_a?(RbVmomi::VIM::Datacenter) }
       # Everything above and including a VIM::Datacenter is part of
       # both the rp and vmfolder tree. Anything below depends on the
       # folder of the datacenter it is under: The hostFolder is called
@@ -257,8 +257,8 @@ class PerfAggregator
   end
 
   def _aggregate_metrics vms_stats, perf_metrics
-    out = Hash[perf_metrics.keys.map{|x| [x, 0]}]
-    avg_counter = Hash[perf_metrics.keys.map{|x| [x, 0]}]
+    out = Hash[perf_metrics.keys.map{ |x| [x, 0] }]
+    avg_counter = Hash[perf_metrics.keys.map{ |x| [x, 0] }]
 
     vms_stats.each do |vm_stats|
       perf_metrics.each do |key, type|
@@ -331,7 +331,7 @@ class PerfAggregator
     vms_props, inventory = all_inventory_flat root_folder, prop_names
     vms = vms_props.keys
 
-    hosts_props = inventory.select{|k, v| k.is_a?(RbVmomi::VIM::HostSystem)}
+    hosts_props = inventory.select{ |k, v| k.is_a?(RbVmomi::VIM::HostSystem) }
 
     conn = root_folder._connection
     sc = conn.serviceContent
@@ -400,9 +400,9 @@ class PerfAggregator
       props.delete('virtualDisk.totalWriteLatency')
 
       per_ds_usage = props['storage.perDatastoreUsage']
-      props['storage.space.committed'] = per_ds_usage.map{|x| x.committed}.inject(0, &:+)
-      props['storage.space.uncommitted'] = per_ds_usage.map{|x| x.uncommitted}.inject(0, &:+)
-      props['storage.space.unshared'] = per_ds_usage.map{|x| x.unshared}.inject(0, &:+)
+      props['storage.space.committed'] = per_ds_usage.map{ |x| x.committed }.inject(0, &:+)
+      props['storage.space.uncommitted'] = per_ds_usage.map{ |x| x.uncommitted }.inject(0, &:+)
+      props['storage.space.unshared'] = per_ds_usage.map{ |x| x.unshared }.inject(0, &:+)
 
       props['parent_paths'] = {}
       props['parent_paths']['vmfolder'] = inventory[props['parent']]['path'] if inventory[props['parent']]
@@ -450,7 +450,7 @@ class PerfAggregator
           raise
         end
       end
-    end.each{|t| t.join}
+    end.each{ |t| t.join }
 
     log 'Make data marshal friendly ...'
     inventory = _make_marshal_friendly(inventory)
@@ -489,9 +489,9 @@ class PerfAggregator
     hash = Hash[hash.map do |k, v|
       v['parent'] = _mo2str(v['parent']) if v['parent']
       v['resourcePool'] = _mo2str(v['resourcePool']) if v['resourcePool']
-      v['children'] = v['children'].map{|x| _mo2str(x)} if v['children']
-      v['parents'] = v['parents'].map{|x| _mo2str(x)} if v['parents']
-      v['datastore'] = v['datastore'].map{|x| _mo2str(x)} if v['datastore']
+      v['children'] = v['children'].map{ |x| _mo2str(x) } if v['children']
+      v['parents'] = v['parents'].map{ |x| _mo2str(x) } if v['parents']
+      v['datastore'] = v['datastore'].map{ |x| _mo2str(x) } if v['datastore']
       v['type'] = k.class.name
       [_mo2str(k), v]
     end]
@@ -551,7 +551,7 @@ class PerfAggregator
       paths_vms.each do |k, vms|
         inventory[reverse_index[k]]['vms'] ||= {}
         inventory[reverse_index[k]]['vms'][path_type] = vms
-        vms_stats = vms_props.select{|k, v| vms.member?(k)}.values
+        vms_stats = vms_props.select{ |k, v| vms.member?(k) }.values
         stats = _aggregate_metrics vms_stats, @perf_metrics
         inventory[reverse_index[k]]['stats'] ||= {}
         inventory[reverse_index[k]]['stats'][path_type] = stats
@@ -593,7 +593,7 @@ class PerfAggregator
     end
 
     Hash[path_types.map do |path_type|
-      key, root = @inventory.find{|k, v| v['paths'][path_type] == 'root'}
+      key, root = @inventory.find{ |k, v| v['paths'][path_type] == 'root' }
       rows = visualize_node path_type, root, @inventory
       [path_type, rows]
     end]

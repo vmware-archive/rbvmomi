@@ -77,7 +77,7 @@ datastore = scheduler.datastore
 computer = scheduler.pick_computer
 # XXX: Do this properly
 if opts[:network]
-  network = computer.network.find{|x| x.name == opts[:network]}
+  network = computer.network.find{ |x| x.name == opts[:network] }
 else
   network = computer.network[0]
 end

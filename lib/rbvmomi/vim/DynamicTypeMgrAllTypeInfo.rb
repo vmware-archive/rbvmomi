@@ -35,8 +35,8 @@ class RbVmomi::VIM::DynamicTypeMgrAllTypeInfo
     end
 
     types = {}
-    self.managedTypeInfo.each{|x| types.merge!(x.toRbvmomiTypeHash) }
-    self.dataTypeInfo.each{|x| types.merge!(x.toRbvmomiTypeHash) }
+    self.managedTypeInfo.each{ |x| types.merge!(x.toRbvmomiTypeHash) }
+    self.dataTypeInfo.each{ |x| types.merge!(x.toRbvmomiTypeHash) }
 
     types.each do |k, t|
       id2name[t['type-id']] = k

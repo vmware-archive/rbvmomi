@@ -62,7 +62,7 @@ class RbVmomi::VIM::Task
     })
     # XXX: Likely this is not enough and we need to collect pages other
     #      than the latest.
-    tasks = col.latestPage.map{|x| x.task}
+    tasks = col.latestPage.map{ |x| x.task }
     col.DestroyCollector()
     tasks
   end
