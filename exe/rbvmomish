@@ -49,6 +49,7 @@ typenames = VIM.loader.typenames
 Readline.completion_append_character = ' '
 Readline.completion_proc = lambda do |word|
   return unless word
+
   prefix_regex = /^#{Regexp.escape(word)}/
   candidates = typenames.sort
   candidates.find_all { |e| e.match(prefix_regex) }

@@ -52,6 +52,7 @@ internal_vmodl = File.open(internal_vmodl_filename, 'r') { |io| Marshal.load io 
 TYPES.each do |k|
   puts "Merging in #{k}"
   raise "Couldn't find type #{k} in internal VMODL" unless internal_vmodl.member? k
+
   public_vmodl[k] = internal_vmodl[k]
 end
 

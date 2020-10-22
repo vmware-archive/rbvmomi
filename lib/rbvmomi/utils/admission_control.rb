@@ -118,6 +118,7 @@ class AdmissionControlledResourceScheduler
       @datastores = @datastore_paths.map do |path|
         ds = datacenter.datastoreFolder.traverse(path, RbVmomi::VIM::Datastore)
         raise "datastore #{path} not found" if !ds
+
         ds
       end
     end
@@ -313,6 +314,7 @@ class AdmissionControlledResourceScheduler
       end
 
       raise 'No clusters available, should have been prevented by admission control' if !computer
+
       @computer = computer
     end
     @computer
@@ -357,6 +359,7 @@ class AdmissionControlledResourceScheduler
 
     @rp = @computer.resourcePool.traverse(@rp_path)
     raise "Resource pool #{@rp_path} not found" if !@rp
+
     log "Resource pool: #{@rp.pretty_path}"
 
     stats = @computer.stats

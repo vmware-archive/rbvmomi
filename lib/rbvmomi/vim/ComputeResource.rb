@@ -44,6 +44,7 @@ class RbVmomi::VIM::ComputeResource
 
     result.each do |x|
       next if x['overallStatus'] == 'red'
+
       stats[:totalCPU] += x['summary.hardware.cpuMhz'] * x['summary.hardware.numCpuCores']
       stats[:totalMem] += x['summary.hardware.memorySize'] / (1024*1024)
       stats[:usedCPU] += x['summary.quickStats.overallCpuUsage'] || 0

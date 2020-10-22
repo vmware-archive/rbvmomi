@@ -25,6 +25,7 @@ class VIM < Connection
   def self.connect opts
     raise unless opts.is_a? Hash
     raise 'host option required' unless opts[:host]
+
     opts[:cookie] ||= nil
     opts[:user] ||= 'root'
     opts[:password] ||= ''

@@ -84,6 +84,7 @@ class LeaseTool
   def set_lease_on_leaseless_vms vms, vmprops, opts = {}
     lease_minutes = opts[:lease_minutes]
     raise 'Expected lease_minutes to be specified' if !lease_minutes
+
     vms = find_leaseless_vms vms, vmprops
     if vms.length > 0
       tasks = vms.map do |vm|
@@ -128,9 +129,11 @@ class LeaseTool
     out = vms.map do |vm|
       props = vmprops[vm]
       next unless annotation = props['config.annotation']
+
       note = YAML.load annotation
       next unless note.is_a?(Hash) && lease = note['lease']
       next unless time > lease
+
       time_to_expiration = ((lease - time) + time_delta)
       [vm, time_to_expiration]
     end.compact

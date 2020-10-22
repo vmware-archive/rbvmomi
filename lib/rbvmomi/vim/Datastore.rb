@@ -58,11 +58,13 @@ class RbVmomi::VIM::Datastore
 
   def datacenter
     return @datacenter if @datacenter
+
     x = parent
     while not x.is_a? RbVmomi::VIM::Datacenter
       x = x.parent
     end
     raise unless x.is_a? RbVmomi::VIM::Datacenter
+
     @datacenter = x
   end
 

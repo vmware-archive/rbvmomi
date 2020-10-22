@@ -301,6 +301,7 @@ class CachedOvfDeployer
       ready = runtime && runtime.host && runtime.powerState == 'poweredOff'
       ready = ready && template
       break if ready
+
       sleep 5
     end
 

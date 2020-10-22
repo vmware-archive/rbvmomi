@@ -63,6 +63,7 @@ if false
   dc.datastore.sort_by { |ds| ds.info.url }.each do |ds|
     s = ds.summary
     next unless s.accessible
+
     size = s.capacity
     free = s.freeSpace
     used = size - free

@@ -132,6 +132,7 @@ class DataObject < ObjectWithProperties
 
   def == o
     return false unless o.class == self.class
+
     keys = (props.keys + o.props.keys).uniq
     keys.all? { |k| props[k] == o.props[k] }
   end
@@ -210,6 +211,7 @@ class ManagedObject < ObjectWithMethods
       return nil
     elsif ret.propSet.empty?
       return nil if ret.missingSet.empty?
+
       raise ret.missingSet[0].fault
     else
       ret.propSet[0].val
@@ -222,6 +224,7 @@ class ManagedObject < ObjectWithMethods
 
   def _call method, o={}
     raise 'parameters must be passed as a hash' unless o.is_a? Hash
+
     desc = self.class.full_methods_desc[method.to_s] or raise 'unknown method'
     @connection.call method, desc, self, o
   end

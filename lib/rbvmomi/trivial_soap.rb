@@ -14,8 +14,10 @@ class RbVmomi::TrivialSoap
 
   def initialize opts
     raise unless opts.is_a? Hash
+
     @opts = opts
     return unless @opts[:host] # for testcases
+
     @debug = @opts[:debug]
     @cookie = @opts[:cookie]
     @sso = @opts[:sso]
