@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency('optimist', '~> 3.0')
 
   spec.add_development_dependency('activesupport')
-  spec.add_development_dependency('pry', '~> 0.13.1')
+  spec.add_development_dependency('pry', '~> 0.14.0')
   spec.add_development_dependency('rake', '~> 13.0')
   spec.add_development_dependency('rubocop', '~> 1.0')
   spec.add_development_dependency('simplecov', '~> 0.19.0')
