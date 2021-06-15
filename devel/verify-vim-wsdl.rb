@@ -45,11 +45,16 @@ def dump_vmodl(vmodl, path)
   File.write(path, Marshal.dump(vmodl))
 end
 
-def wsdl_to_vmodl_type(wsdl_type)
-  vmodl_type   = 'ManagedObject'    if wsdl_type == 'ManagedObjectReference'
-  vmodl_type ||= "xsd:#{wsdl_type}" if %w[boolean byte dateTime int long string].include?(wsdl_type)
-  vmodl_type ||= wsdl_type          if "RbVmomi::BasicTypes::#{wsdl_type}".safe_constantize || "RbVmomi::VIM::#{wsdl_type}".safe_constantize
-  raise if vmodl_type.nil?
+def wsdl_to_vmodl_type(type)
+  case type.source
+  when /vim25:/
+    vmodl_type = type.name
+    vmodl_type = 'ManagedObject' if vmodl_type == 'ManagedObjectReference'
+  when /xsd:/
+    vmodl_type = type.source
+  else
+    raise ArgumentError, "Unrecognized wsdl type: [#{type}]"
+  end
 
   vmodl_type
 end
@@ -103,7 +108,7 @@ wsdl_types_by_name.each_value do |type|
           'is-optional'    => element.minoccurs == 0,
           'is-array'       => element.maxoccurs != 1,
           'version-id-ref' => nil,
-          'wsdl_type'      => wsdl_to_vmodl_type(element.type.name)
+          'wsdl_type'      => wsdl_to_vmodl_type(element.type)
         }
       end,
       'wsdl_base' => type.complexcontent.extension.base.name
