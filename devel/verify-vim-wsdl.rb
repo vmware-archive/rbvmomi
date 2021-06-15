@@ -74,7 +74,9 @@ vmodl = load_vmodl(vmodl_path)
 
 # Loop through the ComplexTypes in the WSDL and compare their types
 # to the types which are defined in the vmodl.db
-vim.collect_complextypes.each do |type|
+wsdl_types_by_name = vim.collect_complextypes.index_by { |type| type.name.name }
+
+wsdl_types_by_name.each_value do |type|
   type_name = type.name.name
   next if type_name.match?(/^ArrayOf/) || type_name.match(/RequestType$/)
 
@@ -87,7 +89,28 @@ vim.collect_complextypes.each do |type|
   # Print a warning that the type is missing and skip it.
   if vmodl_data.nil?
     puts " #{type_name} is missing"
-    next
+    next unless options[:fix]
+
+    base_class           = wsdl_types_by_name[type.complexcontent.extension.base.name]
+    inherited_properties = base_class.elements.map { |element| element.name.name }
+    properties           = type.elements.reject { |e| inherited_properties.include?(e.name.name) }
+
+    vmodl_data = {
+      'kind'      => 'data',
+      'props'     => properties.map do |element|
+        {
+          'name'           => element.name.name,
+          'is-optional'    => element.minoccurs == 0,
+          'is-array'       => element.maxoccurs != 1,
+          'version-id-ref' => nil,
+          'wsdl_type'      => wsdl_to_vmodl_type(element.type.name)
+        }
+      end,
+      'wsdl_base' => type.complexcontent.extension.base.name
+    }
+
+    vmodl[type_name] = vmodl_data
+    vmodl['_typenames']['_typenames'] << type_name
   end
 
   # Index the properties by name to make it simpler to find later
