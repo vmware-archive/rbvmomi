@@ -45,6 +45,15 @@ def dump_vmodl(vmodl, path)
   File.write(path, Marshal.dump(vmodl))
 end
 
+def wsdl_to_vmodl_type(wsdl_type)
+  vmodl_type   = 'ManagedObject'    if wsdl_type == 'ManagedObjectReference'
+  vmodl_type ||= "xsd:#{wsdl_type}" if %w[boolean byte dateTime int long string].include?(wsdl_type)
+  vmodl_type ||= wsdl_type          if "RbVmomi::BasicTypes::#{wsdl_type}".safe_constantize || "RbVmomi::VIM::#{wsdl_type}".safe_constantize
+  raise if vmodl_type.nil?
+
+  vmodl_type
+end
+
 # Normalize the type, some of these don't have RbVmomi equivalents such as xsd:long
 # and RbVmomi uses ManagedObjects not ManagedObjectReferences as parameters
 def wsdl_constantize(type)
@@ -67,13 +76,19 @@ vmodl = load_vmodl(vmodl_path)
 # to the types which are defined in the vmodl.db
 vim.collect_complextypes.each do |type|
   type_name = type.name.name
+  next if type_name.match?(/^ArrayOf/) || type_name.match(/RequestType$/)
+
   vmodl_data = vmodl[type_name]
 
-  # If a type exists in the WSDL but not in the vmodl.db just skip it, this
-  # can be for a few reasons including:
-  # 1. ArrayOf... types are not needed in the vmodl
-  # 2. A newer wsdl might have some types which haven't been added yet
-  next if vmodl_data.nil?
+  # If a type exists in the WSDL but not in the vmodl.db this usually
+  # indicates that it was added in a newer version than the current
+  # vmodl.db supports.
+  #
+  # Print a warning that the type is missing and skip it.
+  if vmodl_data.nil?
+    puts " #{type_name} is missing"
+    next
+  end
 
   # Index the properties by name to make it simpler to find later
   elements_by_name = type.elements.index_by { |e| e.name.name }
