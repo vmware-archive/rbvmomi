@@ -1,3 +1,4 @@
+# VMware has ended active development of this project, this repository will no longer be updated.
 # RbVmomi
 
 [<img src="https://badge.fury.io/rb/rbvmomi.svg" alt="gem-version">](https://rubygems.org/gems/rbvmomi) 
