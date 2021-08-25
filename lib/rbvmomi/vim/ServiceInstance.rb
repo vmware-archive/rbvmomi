@@ -14,6 +14,13 @@ class RbVmomi::VIM::ServiceInstance
       content.rootFolder.childEntity.grep(RbVmomi::VIM::Datacenter).first
     end
   end
+  
+  # Retrieve a Datacenter via searchIndex.
+  # @param path (Path to datacenter)
+  # @return [Datacenter]
+  def find_datacenter_by_searchindex path=nil
+    content.searchIndex.FindByInventoryPath(:inventoryPath => path)
+  end
 
   # Wait for several tasks to complete.
   # @param interested [Array] Property paths to watch for updates.
