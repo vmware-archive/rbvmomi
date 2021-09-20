@@ -7,13 +7,13 @@ $LOAD_PATH.unshift(File.expand_path('lib', __dir__))
 require 'rbvmomi/version'
 
 Gem::Specification.new do |spec|
-  spec.name    = 'rbvmomi'
+  spec.name    = 'rbvmomi2'
   spec.summary = 'Ruby interface to the VMware vSphere API'
   spec.version = RbVmomi::VERSION
 
-  spec.authors  = ['Rich Lane', 'Christian Dickmann']
-  spec.email    = 'jrg@vmware.com'
-  spec.homepage = 'https://github.com/vmware/rbvmomi'
+  spec.authors  = ['Adam Grare', 'Jason Frey']
+  spec.email    = ['adam@grare.com', 'fryguy9@gmail.com']
+  spec.homepage = 'https://github.com/ManageIQ/rbvmomi2'
   spec.license  = 'MIT'
 
   spec.bindir = 'exe'
