@@ -5,7 +5,7 @@
 require 'simplecov'
 SimpleCov.start { add_filter '/test/' }
 
-require 'rbvmomi'
+require 'rbvmomi2'
 VIM = RbVmomi::VIM
 
 require 'test/unit'
