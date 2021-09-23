@@ -1,12 +1,11 @@
-# VMware has ended active development of this project, this repository will no longer be updated.
 # RbVmomi
 
-[<img src="https://badge.fury.io/rb/rbvmomi.svg" alt="gem-version">](https://rubygems.org/gems/rbvmomi) 
-![Test](https://github.com/vmware/rbvmomi/workflows/Test/badge.svg)
-![Lint](https://github.com/vmware/rbvmomi/workflows/Lint/badge.svg)
+[<img src="https://badge.fury.io/rb/rbvmomi2.svg" alt="gem-version">](https://rubygems.org/gems/rbvmomi2) 
+![Test](https://github.com/ManageIQ/rbvmomi2/workflows/Test/badge.svg)
+![Lint](https://github.com/ManageIQ/rbvmomi2/workflows/Lint/badge.svg)
 [<img src="https://badges.gitter.im/vmware/rbvmomi.svg">](https://gitter.im/vmware/rbvmomi)
 
-This is a community-supported, open source project at VMware. It is built and
+This is a community-supported, open source project at ManageIQ. It is built and
 maintained by programmers like you!
 
 ## Introduction
@@ -14,12 +13,12 @@ maintained by programmers like you!
 RbVmomi is a Ruby interface to the vSphere API. Like the Perl and Java SDKs,
 you can use it to manage ESX and vCenter servers. The current release
 supports the vSphere 7.0 API. RbVmomi specific documentation is
-[online](http://rdoc.info/github/vmware/rbvmomi/master/frames) and is meant to
+[online](http://rdoc.info/github/ManageIQ/rbvmomi2/master/frames) and is meant to
 be used alongside the official [documentation](http://pubs.vmware.com/vsphere-65/index.jsp#com.vmware.wssdk.apiref.doc/right-pane.html).
 
 ## Installation
 
-    gem install rbvmomi
+    gem install rbvmomi2
 
 ## Usage
 
@@ -88,14 +87,14 @@ A few important points:
 
 Built-in extensions are under `lib/rbvmomi/vim/`. You are encouraged to reopen
 VIM classes in your applications and add extensions of your own. If you write
-something generally useful please open a [pull request](https://github.com/vmware/rbvmomi/pulls) so it can be merged back in
+something generally useful please open a [pull request](https://github.com/ManageIQ/rbvmomi2/pulls) so it can be merged back in
 
 ## Development
 
-Open an issue on the [issues page](https://github.com/vmware/rbvmomi/issues)
-or  fork the project on [GitHub](https://github.com/vmware/rbvmomi) and send a
-[pull request](https://github.com/vmware/rbvmomi/pulls).
+Open an issue on the [issues page](https://github.com/ManageIQ/rbvmomi2/issues)
+or  fork the project on [GitHub](https://github.com/ManageIQ/rbvmomi2) and send a
+[pull request](https://github.com/ManageIQ/rbvmomi2/pulls).
 
 ## Support
 
-You can chat on [Gitter](https://gitter.im/vmware/rbvmomi) or join the [VMware {code} Slack team](https://vmwarecode.slack.com/) and join the [#rbvmomi channel](https://vmwarecode.slack.com/messages/rbvmomi).
+You can chat on [Gitter](https://gitter.im/vmware/rbvmomi)

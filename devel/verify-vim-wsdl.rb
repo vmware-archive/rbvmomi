@@ -45,6 +45,20 @@ def dump_vmodl(vmodl, path)
   File.write(path, Marshal.dump(vmodl))
 end
 
+def wsdl_to_vmodl_type(type)
+  case type.source
+  when /vim25:/
+    vmodl_type = type.name
+    vmodl_type = 'ManagedObject' if vmodl_type == 'ManagedObjectReference'
+  when /xsd:/
+    vmodl_type = type.source
+  else
+    raise ArgumentError, "Unrecognized wsdl type: [#{type}]"
+  end
+
+  vmodl_type
+end
+
 # Normalize the type, some of these don't have RbVmomi equivalents such as xsd:long
 # and RbVmomi uses ManagedObjects not ManagedObjectReferences as parameters
 def wsdl_constantize(type)
@@ -65,15 +79,44 @@ vmodl = load_vmodl(vmodl_path)
 
 # Loop through the ComplexTypes in the WSDL and compare their types
 # to the types which are defined in the vmodl.db
-vim.collect_complextypes.each do |type|
+wsdl_types_by_name = vim.collect_complextypes.index_by { |type| type.name.name }
+
+wsdl_types_by_name.each_value do |type|
   type_name = type.name.name
+  next if type_name.match?(/^ArrayOf/) || type_name.match(/RequestType$/)
+
   vmodl_data = vmodl[type_name]
 
-  # If a type exists in the WSDL but not in the vmodl.db just skip it, this
-  # can be for a few reasons including:
-  # 1. ArrayOf... types are not needed in the vmodl
-  # 2. A newer wsdl might have some types which haven't been added yet
-  next if vmodl_data.nil?
+  # If a type exists in the WSDL but not in the vmodl.db this usually
+  # indicates that it was added in a newer version than the current
+  # vmodl.db supports.
+  #
+  # Print a warning that the type is missing and skip it.
+  if vmodl_data.nil?
+    puts " #{type_name} is missing"
+    next unless options[:fix]
+
+    base_class           = wsdl_types_by_name[type.complexcontent.extension.base.name]
+    inherited_properties = base_class.elements.map { |element| element.name.name }
+    properties           = type.elements.reject { |e| inherited_properties.include?(e.name.name) }
+
+    vmodl_data = {
+      'kind'      => 'data',
+      'props'     => properties.map do |element|
+        {
+          'name'           => element.name.name,
+          'is-optional'    => element.minoccurs == 0,
+          'is-array'       => element.maxoccurs != 1,
+          'version-id-ref' => nil,
+          'wsdl_type'      => wsdl_to_vmodl_type(element.type)
+        }
+      end,
+      'wsdl_base' => type.complexcontent.extension.base.name
+    }
+
+    vmodl[type_name] = vmodl_data
+    vmodl['_typenames']['_typenames'] << type_name
+  end
 
   # Index the properties by name to make it simpler to find later
   elements_by_name = type.elements.index_by { |e| e.name.name }

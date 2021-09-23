@@ -30,7 +30,7 @@ do so.
 * Open a [pull request][4] that relates to *only* one subject with a clear title
   and description in grammatically correct, complete sentences.
 
-[1]: https://github.com/vmware/rbvmomi/issues
+[1]: https://github.com/ManageIQ/rbvmomi2/issues
 [2]: https://guides.github.com/activities/forking/
 [3]: https://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 [4]: https://help.github.com/articles/about-pull-requests
