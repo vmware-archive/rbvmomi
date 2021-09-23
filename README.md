@@ -1,6 +1,6 @@
 # RbVmomi
 
-[<img src="https://badge.fury.io/rb/rbvmomi.svg" alt="gem-version">](https://rubygems.org/gems/rbvmomi) 
+[<img src="https://badge.fury.io/rb/rbvmomi2.svg" alt="gem-version">](https://rubygems.org/gems/rbvmomi2) 
 ![Test](https://github.com/ManageIQ/rbvmomi2/workflows/Test/badge.svg)
 ![Lint](https://github.com/ManageIQ/rbvmomi2/workflows/Lint/badge.svg)
 [<img src="https://badges.gitter.im/vmware/rbvmomi.svg">](https://gitter.im/vmware/rbvmomi)
